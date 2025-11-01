@@ -1,1 +1,0 @@
-export async function navigate(route){history.replaceState({},'',`#/${route}`);const root=document.getElementById('appRoot');root.innerHTML='<div class="panel">Laddar...</div>';const mod=await import(`./modules/${route}.js`);const view=await mod.render();root.innerHTML='';root.appendChild(view)}

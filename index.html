@@ -1,65 +1,467 @@
 <!doctype html>
-<html lang="sv" data-version="6.1" data-online="true">
+<html lang="sv">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MergX v6.1 – Vercel Ready (SWE)</title>
-  <link rel="stylesheet" href="assets/theme.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MergX v6.2 — Enterprise Full Sync</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https://www.openstreetmap.org; img-src 'self' data: https://*; style-src 'self' 'unsafe-inline'; frame-src https://www.openstreetmap.org; script-src 'self'; base-uri 'self'; form-action 'self'">
+  <style>
+    :root{
+      --bg: #f6f8fb; --panel:#ffffff; --text:#0f172a; --muted:#6b7280;
+      --brand:#2f7de1; --teal:#11b5b0; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --soft:#e5ecfb;
+      --glass: rgba(255,255,255,.82); --frost: blur(14px); --ring:#dbe4ff;
+      --card-shadow: 0 6px 22px rgba(20,32,90,.07);
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220; --panel:#0f172a; --text:#f2f4f8; --muted:#a3adc2;
+      --brand:#70a5ff; --teal:#17d6d0; --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --soft:#16223c;
+      --glass: rgba(17,24,39,.76); --ring:#1f2a44;
+      --card-shadow: 0 10px 28px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box} html,body{height:100%} body{
+      margin:0; background: radial-gradient(1200px 700px at 85% -10%, var(--soft), transparent 70%),
+                 linear-gradient(180deg, var(--bg), var(--bg));
+      color:var(--text); font: 15px/1.55 ui-sans-serif, -apple-system, Segoe UI, Roboto, Inter, system-ui;
+    }
+    .app{display:grid; grid-template-columns: 248px 1fr; min-height:100%;}
+    aside{
+      padding:18px 16px; border-right:1px solid var(--ring); background:var(--panel);
+      position:sticky; top:0; height:100vh;
+    }
+    .brand{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+    .logo{width:32px; height:32px; border-radius:10px; background:
+      linear-gradient(145deg, #0ad, #7ef); box-shadow: inset 0 1px 2px rgba(255,255,255,.2);}
+    .badge{margin-left:auto; font-size:12px; padding:4px 8px; border-radius:999px;
+      background:var(--soft); color:var(--muted);}
+    nav{display:flex; flex-direction:column; gap:6px; margin:10px 0 16px}
+    .navbtn{
+      padding:10px 12px; border-radius:12px; color:var(--text); text-decoration:none;
+      display:flex; align-items:center; gap:10px; border:1px solid transparent;
+    }
+    .navbtn:hover{background:var(--glass); backdrop-filter:var(--frost); border-color:var(--ring)}
+    .section{margin-top:10px; font-size:12px; color:var(--muted)}
+    main{padding:22px; display:grid; gap:18px}
+    .grid{display:grid; gap:16px}
+    .grid.cols-3{grid-template-columns: repeat(3,1fr)}
+    .grid.cols-2{grid-template-columns: 1.6fr 1fr}
+    .card{
+      background:var(--glass); backdrop-filter:var(--frost); border:1px solid var(--ring);
+      border-radius:16px; box-shadow:var(--card-shadow); padding:16px; position:relative; overflow:hidden;
+    }
+    .card.clickable{cursor:pointer}
+    .title{font-weight:700; letter-spacing:.2px}
+    .muted{color:var(--muted)} .kpi{font-size:28px; font-weight:800; margin-top:6px}
+    .sub{font-size:12px; color:var(--muted)}
+    .chart{width:100%; height:160px}
+    /* expand in place */
+    .card.expanded{grid-column: 1 / -1; min-height: 320px; padding-bottom: 18px;}
+    .closeX{position:absolute; top:10px; right:10px; border:none; background:transparent; color:var(--muted); font-size:18px; cursor:pointer}
+    /* AI Coach */
+    .coach{position:fixed; right:18px; bottom:18px; width:360px; z-index:40}
+    .coach .card{padding-bottom:8px}
+    .pulse{
+      position:absolute; inset:-20%; background: radial-gradient(closest-side, rgba(23, 214, 208,.35), transparent 70%),
+                                      radial-gradient(closest-side, rgba(47,125,225,.35), transparent 70%);
+      animation: float 5s ease-in-out infinite; pointer-events:none; filter: blur(24px); opacity:.55;
+    }
+    @keyframes float { 0%{transform:translateY(0)} 50%{transform:translateY(10px)} 100%{transform:translateY(0)}}
+    .coach h4{margin:0 0 10px}
+    .msgs{max-height:200px; overflow:auto; display:flex; flex-direction:column; gap:8px}
+    .msg{font-size:13px; background:var(--panel); border:1px solid var(--ring); border-radius:10px; padding:8px 10px}
+    .msg.me{align-self:flex-end; background:#daf5ff; color:#102a43}
+    [data-theme="dark"] .msg.me{background:#10324a; color:#d9f2ff}
+    .inputrow{display:flex; gap:8px; margin-top:10px}
+    .inputrow input{flex:1; border-radius:10px; border:1px solid var(--ring); background:var(--panel); color:var(--text); padding:10px}
+    .inputrow button{border-radius:10px; border:1px solid var(--ring); background:var(--brand); color:#fff; padding:10px 12px; cursor:pointer}
+    /* Notiscenter */
+    .notislist{max-height:240px; overflow:auto; display:flex; flex-direction:column; gap:6px}
+    .notis{font-size:13px; padding:8px 10px; border:1px solid var(--ring); border-radius:8px; background:var(--panel)}
+    .pill{display:inline-block; font-size:11px; padding:2px 6px; border-radius:999px; margin-left:8px; background:var(--soft)}
+    /* Lager status taggar */
+    .tag{display:inline-block; font-size:12px; padding:2px 6px; border-radius:8px; border:1px solid var(--ring)}
+    .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+    /* mini map iframe */
+    .map{border:1px solid var(--ring); border-radius:12px; overflow:hidden; width:100%; height:220px}
+    /* toppbar småchip */
+    .chips{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .chip{font-size:12px; padding:4px 8px; border-radius:10px; border:1px solid var(--ring); background:var(--panel); color:var(--muted)}
+    /* språk/tema */
+    .toolbar{display:flex; gap:10px; align-items:center; margin-top:8px}
+    select, .select{border:1px solid var(--ring); background:var(--panel); color:var(--text); border-radius:10px; padding:6px 8px}
+    .footerinfo{font-size:12px; color:var(--muted); margin-top:6px}
+    /* responsive */
+    @media (max-width:1024px){
+      .app{grid-template-columns: 1fr}
+      aside{position:static; height:auto}
+      .coach{width:94%; right:3%; bottom:10px}
+      .grid.cols-3{grid-template-columns:1fr}
+      .grid.cols-2{grid-template-columns:1fr}
+    }
+  </style>
 </head>
-<body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">X</div>
-        <div>
-          <div class="t1">MergX</div>
-          <div class="t2">Base 6.1</div>
-        </div>
+<body data-theme="light">
+<div class="app">
+  <aside>
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div style="font-weight:800">MergX</div>
+        <div class="muted" style="font-size:12px">Base 6.2</div>
       </div>
-      <nav id="nav">
-        <button data-route="dashboard" class="active">🏠 Översikt</button>
-        <button data-route="customers">👥 Kunder / CRM</button>
-        <button data-route="inventory">📦 Produkter / Lager</button>
-        <button data-route="orders">🧾 Order / Faktura</button>
-        <button data-route="files">🗂️ Filer / OCR</button>
-        <button data-route="employees">👤 Anställda</button>
-        <button data-route="chat">💬 Chatt</button>
-        <button data-route="settings">⚙️ Inställningar</button>
-      </nav>
-      <div class="theme-switch">
-        <label for="themeSel">Tema</label>
-        <select id="themeSel">
-          <option value="light">Ljust</option>
-          <option value="dark">Mörkt</option>
-          <option value="auto">Auto</option>
-        </select>
-      </div>
-    </aside>
-    <main class="content" id="appRoot" tabindex="-1" aria-live="polite"></main>
-    <div id="notifDock" class="dock">
-      <div class="panel glass" id="notifPanel">
-        <header>
-          <strong>Notiser</strong>
-          <span id="notifCount" class="badge">0</span>
-          <button id="notifClose" title="Stäng">✖</button>
-        </header>
-        <ul id="notifList" class="list"></ul>
-      </div>
+      <div class="badge">AI On</div>
     </div>
-    <div id="coachDock" class="coach-dock">
-      <div class="coach glass" id="coachPanel" aria-live="polite">
-        <header>
-          <strong>AI Coach</strong>
-          <span class="dot online" title="Online"></span>
-        </header>
-        <div id="coachLog" class="coach-log"></div>
-        <form id="coachForm" class="coach-form">
-          <input id="coachInput" placeholder="Skriv ett meddelande..." />
-          <button type="submit">➤</button>
-        </form>
-      </div>
+
+    <nav>
+      <a class="navbtn" href="#/dashboard">🏠 Översikt</a>
+      <a class="navbtn" href="#/crm">👥 Kunder / CRM</a>
+      <a class="navbtn" href="#/inventory">📦 Produkter / Lager</a>
+      <a class="navbtn" href="#/orders">🧾 Order / Faktura</a>
+      <a class="navbtn" href="#/files">🗂️ Filer / OCR</a>
+      <a class="navbtn" href="#/employees">👤 Anställda</a>
+      <a class="navbtn" href="#/chat">💬 Chatt</a>
+      <a class="navbtn" href="#/settings">⚙️ Inställningar</a>
+    </nav>
+
+    <div class="section">Tema & Språk</div>
+    <div class="toolbar">
+      <label class="muted">Tema</label>
+      <select id="themeSel" class="select">
+        <option value="light">Ljust</option>
+        <option value="dark">Mörkt</option>
+      </select>
+    </div>
+    <div class="toolbar">
+      <label class="muted">Språk</label>
+      <select id="langSel" class="select">
+        <option value="sv">Svenska</option>
+        <option value="en">English</option>
+        <option value="th">ไทย</option>
+      </select>
+    </div>
+    <div class="footerinfo">v6.2 · Enterprise Full Sync</div>
+  </aside>
+
+  <main id="view">
+    <!-- innehåll renderas av JS -->
+  </main>
+</div>
+
+<!-- AI Coach (flytande) -->
+<div class="coach" id="coach">
+  <div class="card">
+    <div class="pulse"></div>
+    <h4>AI Coach <span style="color:var(--ok)">•</span></h4>
+    <div class="msgs" id="coachMsgs"></div>
+    <div class="inputrow">
+      <input id="coachInput" placeholder="Skriv ett meddelande…" />
+      <button id="coachSend">➤</button>
     </div>
   </div>
-  <script type="module" src="app/main.js"></script>
+</div>
+
+<script>
+/* =========================
+   v6.2 DATA (mock + realtime)
+========================= */
+const State = {
+  lang: 'sv',
+  theme: 'light',
+  kpi: { revenue: 324500, orders: 71, gross: 62, budget: 320000, cost:110200 },
+  schedule: [
+    { t: "09:00", txt:"Orderplock (Jesper)" },
+    { t: "11:00", txt:"Kundmöte — Nordic" },
+    { t: "14:00", txt:"Inventarie (Lea)" },
+  ],
+  stock: [
+    { sku:"CAR-CHG-60W", name:"Bil-laddare 60W", level:4, status:"brist" },
+    { sku:"LIGHT-27W", name:"LED-lampa 27W", level:12, status:"låg nivå" },
+  ],
+  notis: [],
+  chat: [],
+  map: { lat:59.334, lon:18.066 }, // Stockholm
+};
+
+/* i18n minimal */
+const I18N = {
+  sv:{ revenue:"Omsättning idag", orders:"Order idag", gross:"Bruttomarginal",
+       coach_hello:"Hej! Jag är din AI-coach. Jag bevakar KPI:er, lager och deadlines.",
+       tips_scale:"Förslag: skala upp kampanj i Region Syd där konvertering är högst.",
+       open_detail:"Klicka för detaljvy (stannar i översikt)", day:"Dag", week:"Vecka", month:"Månad",
+       economy:"Ekonomi — kombostaplar", shows:"Visar Omsättning (blå), Kostnader (turkos), GM% (lila), Budget (grå).",
+       schedule:"Schema (dag)", stockTitle:"Lager — brist / inköp", mapTitle:"AI-Karta",
+       files:"Filer / Kvitton", upload:"Ladda upp", notify:"Notiser"
+  },
+  en:{ revenue:"Revenue today", orders:"Orders today", gross:"Gross margin", coach_hello:"Hi! I'm your AI coach…", tips_scale:"Suggestion: scale up campaign in South region.", open_detail:"Click to expand (stays on overview)", day:"Day", week:"Week", month:"Month", economy:"Economy — combo bars", shows:"Shows Revenue (blue), Costs (teal), GM% (violet), Budget (gray).", schedule:"Schedule (day)", stockTitle:"Inventory — shortage / purchase", mapTitle:"AI-Map", files:"Files / Receipts", upload:"Upload", notify:"Notifications" },
+  th:{ revenue:"ยอดขายวันนี้", orders:"ออเดอร์วันนี้", gross:"กำไรขั้นต้น", coach_hello:"สวัสดี ฉันคือ AI-โค้ช…", tips_scale:"คำแนะนำ: เพิ่มแคมเปญในภาคใต้", open_detail:"แตะเพื่อดูรายละเอียดในหน้านี้", day:"วัน", week:"สัปดาห์", month:"เดือน", economy:"เศรษฐกิจ — กราฟผสม", shows:"แสดง ยอดขาย, ต้นทุน, GM%, งบประมาณ", schedule:"ตารางงาน (วันนี้)", stockTitle:"สต็อก — ขาด/จัดซื้อ", mapTitle:"AI-แผนที่", files:"ไฟล์ / ใบเสร็จ", upload:"อัปโหลด", notify:"การแจ้งเตือน" }
+};
+const T = k => (I18N[State.lang]||I18N.sv)[k]||k;
+
+/* ===========
+   UTIL
+=========== */
+const $ = sel => document.querySelector(sel);
+const el = (tag, attrs={}, children=[])=>{
+  const n = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v])=>{
+    if(k==='class') n.className = v;
+    else if(k==='html') n.innerHTML=v;
+    else n.setAttribute(k,v);
+  });
+  children.forEach(c=> n.appendChild(c));
+  return n;
+};
+const money = v => new Intl.NumberFormat(State.lang, {style:'currency', currency:'SEK', maximumFractionDigits:0}).format(v);
+
+/* ===========================
+   RENDER: DASHBOARD OVERVIEW
+=========================== */
+function renderKpiCard(title, value, sub, key){
+  const c = el('div', {class:'card clickable'});
+  c.innerHTML = `<div class="title">${title}</div><div class="kpi">${value}</div><div class="sub">${sub||''}</div>`;
+  c.addEventListener('click', ()=> expandKpi(c, key));
+  return c;
+}
+
+function drawComboChart(canvas){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  // axes
+  ctx.strokeStyle = 'rgba(120,140,180,.35)'; ctx.lineWidth=1;
+  for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(40, h-30- i*30); ctx.lineTo(w-20, h-30- i*30); ctx.stroke(); }
+  const bars = [
+    { label:'Oms', val: State.kpi.revenue/1000, color:'#2f7de1' },
+    { label:'Kost', val: State.kpi.cost/1000, color:'#11b5b0' },
+    { label:'GM%', val: State.kpi.gross, color:'#7c5cff' },
+    { label:'Budg', val: State.kpi.budget/1000, color:'#8b95a7' }
+  ];
+  const maxV = Math.max(...bars.map(b=>b.val))*1.2 || 1;
+  const bw = 48, gap = 28, baseX=70, baseY=h-30;
+  bars.forEach((b,i)=>{
+    const hbar = Math.max(4, (b.val/maxV)*(h-70));
+    ctx.fillStyle = b.color + '99';
+    ctx.fillRect(baseX + i*(bw+gap), baseY-hbar, bw, hbar);
+    ctx.fillStyle = 'var(--muted)';
+    ctx.font='12px ui-sans-serif';
+    ctx.fillText(b.label, baseX + i*(bw+gap)+8, baseY+16);
+  });
+}
+
+function cardEconomy(){
+  const wrap = el('div', {class:'card expanded'}, []);
+  const tools = el('div', {class:'chips', html:`<span class="title">${T('economy')}</span><span class="chip">${T('day')}</span><span class="chip">${T('week')}</span><span class="chip">${T('month')}</span>`});
+  const sub = el('div', {class:'sub', html:T('shows')});
+  const can = el('canvas', {class:'chart'});
+  can.width=900; can.height=180;
+  wrap.appendChild(tools); wrap.appendChild(sub); wrap.appendChild(can);
+  drawComboChart(can);
+  return wrap;
+}
+
+function cardSchedule(){
+  const c = el('div', {class:'card clickable'});
+  c.innerHTML = `<div class="title">${T('schedule')}</div>`;
+  const ul = el('div', {});
+  State.schedule.forEach(it=>{
+    const line = el('div', {class:'muted', html:`<b>${it.t}</b> ${it.txt}`});
+    ul.appendChild(line);
+  });
+  c.appendChild(ul);
+  c.addEventListener('click', ()=> expandSimple(c, T('schedule'), State.schedule.map(it=>`${it.t} — ${it.txt}`)));
+  return c;
+}
+function cardStock(){
+  const c = el('div', {class:'card clickable'});
+  c.innerHTML = `<div class="title">${T('stockTitle')}</div>`;
+  State.stock.forEach(s=>{
+    const cls = s.status.includes('brist')?'bad':(s.status.includes('låg')?'warn':'ok');
+    const row = el('div', {html:`<span class="muted">${s.sku}</span> — ${s.name} <span class="tag ${cls}">${s.status}</span>`});
+    c.appendChild(row);
+  });
+  c.addEventListener('click', ()=> expandStock(c));
+  return c;
+}
+function cardMap(){
+  const c = el('div', {class:'card clickable'});
+  c.innerHTML = `<div class="title">${T('mapTitle')}</div><div class="sub">Rek. besök nära dig baserat på potential.</div>`;
+  const mini = el('div', {class:'map'});
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${State.map.lon-0.02}%2C${State.map.lat-0.02}%2C${State.map.lon+0.02}%2C${State.map.lat+0.02}&layer=mapnik&marker=${State.map.lat}%2C${State.map.lon}`;
+  mini.innerHTML = `<iframe src="${src}" style="border:0; width:100%; height:100%"></iframe>`;
+  c.appendChild(mini);
+  c.addEventListener('click', ()=> expandMap(c, src));
+  return c;
+}
+function cardFiles(){
+  const c = el('div', {class:'card clickable'});
+  c.innerHTML = `<div class="title">${T('files')}</div>
+                 <div class="sub">3 kvitton väntar tolkning • <span class="pill">${T('upload')}</span></div>`;
+  c.addEventListener('click', ()=> expandSimple(c, T('files'), ["Kvitto_2410.pdf", "Kvitto_2411.jpg", "Följesedel_2411.pdf"]));
+  return c;
+}
+function cardNotis(){
+  const c = el('div', {class:'card'});
+  const h = el('div', {class:'title', html:`${T('notify')} <span class="pill">${State.notis.length}</span>`});
+  const list = el('div', {class:'notislist', id:'notisList'});
+  c.appendChild(h); c.appendChild(list);
+  renderNotis();
+  return c;
+}
+function renderNotis(){
+  const list = $('#notisList'); if(!list) return;
+  list.innerHTML='';
+  State.notis.slice(-30).reverse().forEach(n=>{
+    list.appendChild(el('div', {class:'notis', html:`${new Date(n.t).toLocaleTimeString()} — ${n.txt}`}));
+  });
+}
+
+function expandCleanup(){
+  document.querySelectorAll('.card.expanded').forEach(x=>{
+    x.classList.remove('expanded'); const xbtn=x.querySelector('.closeX'); if(xbtn) xbtn.remove();
+  });
+}
+function injectClose(target){
+  const b = el('button', {class:'closeX', html:'✕'});
+  b.addEventListener('click', expandCleanup);
+  target.appendChild(b);
+}
+function expandKpi(card, key){
+  expandCleanup();
+  card.classList.add('expanded');
+  injectClose(card);
+  const detail = el('div', {style:'margin-top:10px'});
+  // KPI trend mock (green/orange)
+  const delta = Math.round((Math.random()-.2)*10);
+  const pos = delta>=0;
+  detail.innerHTML = `<div class="chips">
+    <span class="chip">${T('day')}</span><span class="chip">${T('week')}</span><span class="chip">${T('month')}</span>
+    <span class="chip" style="color:${pos?'var(--ok)':'var(--warn)'}">${pos?'+':''}${delta}% mot föregående</span>
+  </div>`;
+  // AI feedback
+  const ai = el('div', {class:'msg', html:(pos? "Bra fart i omsättning. ":"Omsättning lite lägre. ") + "AI föreslår att optimera bundlar på bil-laddare och skicka påminnelse för 3 sena fakturor."});
+  card.appendChild(detail); card.appendChild(el('div',{style:'height:8px'})); card.appendChild(ai);
+}
+function expandSimple(card, title, lines){
+  expandCleanup();
+  card.classList.add('expanded'); injectClose(card);
+  const list = el('div', {style:'margin-top:8px'});
+  list.appendChild(el('div', {class:'title', html:title}));
+  lines.forEach(l=> list.appendChild(el('div', {class:'muted', html:l})));
+  card.appendChild(list);
+}
+function expandStock(card){
+  expandCleanup(); card.classList.add('expanded'); injectClose(card);
+  const tbl = el('div', {style:'margin-top:8px'});
+  tbl.innerHTML = `<div class="muted">SKU — Produkt — Nivå — Status</div>`;
+  State.stock.forEach(s=>{
+    const cls = s.status.includes('brist')?'bad':(s.status.includes('låg')?'warn':'ok');
+    tbl.appendChild(el('div', {html:`${s.sku} — ${s.name} — ${s.level} — <b class="${cls}">${s.status}</b>`}));
+  });
+  const ai = el('div', {class:'msg', html:"AI: Föreslår inköp av CAR-CHG-60W (min 40 st), LIGHT-27W (min 200 st)."});
+  card.appendChild(tbl); card.appendChild(el('div',{style:'height:8px'})); card.appendChild(ai);
+}
+function expandMap(card, src){
+  expandCleanup(); card.classList.add('expanded'); injectClose(card);
+  const big = el('div', {class:'map', style:'height:320px; margin-top:8px'});
+  big.innerHTML = `<iframe src="${src}" style="border:0; width:100%; height:100%"></iframe>`;
+  const tip = el('div', {class:'msg', html:"AI: Rekommenderar besök hos 'Stock Wireless' kl 13:00 baserat på historisk konvertering och närhet."});
+  card.appendChild(big); card.appendChild(el('div',{style:'height:8px'})); card.appendChild(tip);
+}
+
+function viewDashboard(){
+  const v = $('#view'); v.innerHTML='';
+  // Top row KPI
+  const row1 = el('div', {class:'grid cols-3'});
+  row1.appendChild( renderKpiCard(T('revenue'), money(State.kpi.revenue), "+12 % mot igår", 'revenue') );
+  row1.appendChild( renderKpiCard(T('orders'), State.kpi.orders, "3 stora B2B", 'orders') );
+  row1.appendChild( renderKpiCard(T('gross'), State.kpi.gross + " %", "Stabil nivå", 'gross') );
+  v.appendChild(row1);
+
+  // Economy combo (expanded default)
+  v.appendChild( cardEconomy() );
+
+  // mid row
+  const row2 = el('div', {class:'grid cols-2'});
+  row2.appendChild( cardSchedule() );
+  row2.appendChild( cardStock() );
+  v.appendChild(row2);
+
+  // bottom row
+  const row3 = el('div', {class:'grid cols-2'});
+  row3.appendChild( cardMap() );
+  row3.appendChild( cardFiles() );
+  v.appendChild(row3);
+
+  // notiscenter längst ned
+  v.appendChild( cardNotis() );
+}
+
+/* ================
+   ROUTER (simple)
+================ */
+function route(){
+  const hash = location.hash || '#/dashboard';
+  if(hash.startsWith('#/dashboard')) viewDashboard();
+  else {
+    $('#view').innerHTML = `<div class="card"><div class="title">Modul på väg</div><div class="sub">Denna del ingår i v6.3 backend-koppling. Struktur & tabeller återanvänds från dina tidigare versioner.</div></div>`;
+  }
+}
+
+/* ==================
+   AI Coach (improved)
+================== */
+function coachSay(txt){ const box = $('#coachMsgs'); box.appendChild(el('div',{class:'msg', html:txt})); box.scrollTop=box.scrollHeight; }
+function coachUser(txt){ const box = $('#coachMsgs'); box.appendChild(el('div',{class:'msg me', html:txt})); box.scrollTop=box.scrollHeight; }
+function coachInit(){
+  $('#coachMsgs').innerHTML='';
+  coachSay(T('coach_hello'));
+  // snabb analys på start
+  setTimeout(()=>{
+    if(State.kpi.gross<55) coachSay("Varning: bruttomarginal under mål. 🟠 Rek: höj priser +2% på låg-elas. artiklar.");
+    if(State.stock.some(s=>s.status.includes('brist'))) coachSay("Brist i lager identifierad. Rek: lägg inköpsorder nu för att inte missa Q4-leveranser.");
+    coachSay(T('tips_scale'));
+  }, 600);
+}
+$('#coachSend').addEventListener('click', ()=>{
+  const inp = $('#coachInput'); const q = inp.value.trim(); if(!q) return;
+  coachUser(q); inp.value='';
+  setTimeout(()=> coachSay("Mock-svar från MergX AI: ”"+q.toLowerCase()+"” bearbetades. Vill du skapa en åtgärdslista?"), 500);
+});
+
+/* ==================
+   REALTIME (mock)
+================== */
+function tick(){
+  // små variationer
+  State.kpi.revenue += Math.round((Math.random()-.4)*1500);
+  State.kpi.revenue = Math.max(250000, State.kpi.revenue);
+  // notiser ibland
+  if(Math.random()<.25){
+    State.notis.push({ t:Date.now(), txt:`Ny order skapad #M-${10000+Math.floor(Math.random()*9000)}` });
+    renderNotis();
+  }
+  // uppdatera KPI-kort uppe om vi står på dashboard
+  if((location.hash||'').includes('dashboard')){
+    document.querySelectorAll('.grid.cols-3 .card .kpi')?.[0]?.replaceChildren(document.createTextNode(money(State.kpi.revenue)));
+  }
+}
+
+/* ==================
+   THEME / LANG
+================== */
+$('#themeSel').addEventListener('change', e=>{
+  document.body.setAttribute('data-theme', e.target.value);
+  State.theme = e.target.value;
+});
+$('#langSel').addEventListener('change', e=>{
+  State.lang = e.target.value; route(); coachInit();
+});
+
+/* start */
+window.addEventListener('hashchange', route);
+route();
+coachInit();
+setInterval(tick, 3000);
+</script>
 </body>
 </html>

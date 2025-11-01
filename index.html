@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MergX – v7.7 Intelligent Core</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%230d6efd'/></svg>">
+  <link rel="stylesheet" href="assets/theme.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/img/mergx-logo.svg" alt="MergX" class="logo" />
+      <div class="brand-meta">
+        <strong>MergX</strong>
+        <span class="version">Base 7.7 • Intelligent Core</span>
+      </div>
+    </div>
+    <nav>
+      <a href="#/dashboard" data-nav>Översikt</a>
+      <a href="#/crm" data-nav>Kunder / CRM</a>
+      <a href="#/budget" data-nav>Ekonomi / Budget</a>
+      <a href="#/ai-map" data-nav>AI‑Karta</a>
+      <a href="#/automation" data-nav>Automation</a>
+      <a href="#/chat" data-nav>Chatt</a>
+      <a href="#/onboarding" data-nav>Akademi</a>
+      <a href="#/settings" data-nav>Inställningar</a>
+    </nav>
+    <div class="footer">
+      <label>Språk
+        <select id="langSel">
+          <option value="sv" selected>Svenska</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+      <small>© 2025 MergX</small>
+    </div>
+  </aside>
+
+  <main id="app"></main>
+
+  <section class="dock">
+    <div class="panel" id="notisPanel">
+      <header>
+        <strong>Notiser</strong>
+        <span class="badge" id="notisCount">0</span>
+      </header>
+      <ul id="notisList" class="list"></ul>
+    </div>
+
+    <div class="panel" id="coachPanel">
+      <header>
+        <strong>AI Coach</strong>
+        <span class="hint">Kontext: KPI, lager, budget</span>
+      </header>
+      <div class="chat" id="coachChat"></div>
+      <form id="coachForm">
+        <input id="coachInput" placeholder="Skriv ett meddelande… (Enter för att skicka)" autocomplete="off" />
+        <button type="submit">Skicka</button>
+      </form>
+    </div>
+  </section>
+
+  <script src="js/state.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/crm.js"></script>
+  <script src="js/modules/budget.js"></script>
+  <script src="js/modules/ai-map.js"></script>
+  <script src="js/modules/automation.js"></script>
+  <script src="js/modules/chat.js"></script>
+  <script src="js/modules/onboarding.js"></script>
+  <script src="js/modules/settings.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

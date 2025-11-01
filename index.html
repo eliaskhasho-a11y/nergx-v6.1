@@ -1,0 +1,34 @@
+
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MergX · v7.6 Online</title>
+  <link rel="stylesheet" href="./css/style.css"/>
+</head>
+<body>
+  <div class="app" id="appRoot">
+    <aside>
+      <div class="brand">
+        <div class="logo" id="logoHost" aria-label="MergX"></div>
+        <div><h1>MergX</h1><div class="small">v7.6 Online</div></div>
+      </div>
+      <div class="search">
+        <input id="globalSearch" placeholder="Global sök (⌘/Ctrl + K)"/>
+        <button id="searchBtn" class="btn">Sök</button>
+      </div>
+      <nav id="nav" class="nav"></nav>
+      <div class="controls">
+        <div class="small">Roll</div>
+        <select id="roleSel"><option>Admin</option><option>Ekonomi</option><option>Sälj</option><option>Lager</option><option>Kundtjänst</option></select>
+        <div class="small">Språk</div>
+        <select id="langSel"><option value="sv">Svenska</option><option value="en">English</option></select>
+        <div class="small">© 2025 MergX</div>
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

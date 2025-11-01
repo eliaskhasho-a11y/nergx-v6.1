@@ -1,0 +1,20 @@
+[
+  {
+    "ts": 1700010000000,
+    "type": "login",
+    "actor": "Admin",
+    "detail": "Inloggning"
+  },
+  {
+    "ts": 1700010300000,
+    "type": "doc.new",
+    "actor": "Admin",
+    "detail": "O-10234"
+  },
+  {
+    "ts": 1700010400000,
+    "type": "ai.query",
+    "actor": "Admin",
+    "detail": "Vilka kunder riskerar sen betalning?"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Elon Ljud & Bild V\u00e4ster\u00e5s",
+    "org": "556677-8899",
+    "person": "Sara",
+    "mail": "sara@elon.se",
+    "tel": "070-1234567",
+    "tags": "B2B, Retail"
+  },
+  {
+    "name": "Mekonomen City",
+    "org": "112233-4455",
+    "person": "Tomas",
+    "mail": "tomas@mekonomen.se",
+    "tel": "070-7654321",
+    "tags": "B2B, Auto"
+  },
+  {
+    "name": "Tingstad",
+    "org": "889900-1122",
+    "person": "Anna",
+    "mail": "anna@tingstad.se",
+    "tel": "070-5554433",
+    "tags": "B2B, Supplies"
+  }
+]

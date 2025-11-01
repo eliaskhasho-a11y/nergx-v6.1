@@ -1,0 +1,8 @@
+{
+  "name": "mergx-v6-4",
+  "version": "6.4.0",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8000"
+  }
+}

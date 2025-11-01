@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MergX v6.4</title>
+  <link rel="stylesheet" href="assets/styles.css"/>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><img src="assets/logo.svg" alt=""/> <div><strong>MergX</strong><div class="pill">Base 6.4</div></div></div>
+      <nav class="nav" id="nav"></nav>
+      <div style="margin-top:16px" class="row">
+        <label>Tema</label>
+        <select id="themeSel">
+          <option value="light">Ljust</option>
+          <option value="dark">Mörkt</option>
+        </select>
+      </div>
+      <div style="margin-top:8px" class="row">
+        <label>Språk</label>
+        <select id="langSel">
+          <option value="sv">Svenska</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <h2 id="pageTitle">Översikt</h2>
+        <div class="badges">
+          <span class="badge">Realtime</span>
+          <span class="badge">AI On</span>
+          <button id="createOrderBtn" class="primary" style="display:none">Skapa order</button>
+        </div>
+      </div>
+      <div id="app"></div>
+    </main>
+  </div>
+
+  <button class="notisBell" id="notisBell">🔔</button>
+  <div class="notisPanel" id="notisPanel"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="coach" id="coach">
+    <div class="hd"><strong>AI Coach <span class="pulse">●</span></strong><small id="coachStatus">aktiv</small></div>
+    <div class="bd" id="coachFeed"></div>
+    <div class="ft">
+      <input id="coachInput" placeholder="Skriv ett meddelande..."/>
+      <button class="primary" id="coachSend">Skicka</button>
+    </div>
+  </div>
+
+  <script type="module" src="public/js/main.js" defer></script>
+</body>
+</html>

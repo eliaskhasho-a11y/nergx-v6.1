@@ -1,0 +1,12 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="28" viewBox="0 0 240 56" role="img" aria-label="MergX">
+  <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 40 L22 16 L34 40" />
+    <path d="M46 40 L46 24 L62 40 L62 16" />
+    <path d="M78 40 L94 40" />
+    <path d="M114 40 L114 16 L134 16" />
+    <path d="M154 40 L166 16 L178 40" />
+    <path d="M198 38 L214 18" />
+    <path d="M214 38 L198 18" />
+  </g>
+</svg>

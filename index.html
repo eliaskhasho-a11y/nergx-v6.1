@@ -1,0 +1,52 @@
+
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MergX · v7.5.3 Online</title>
+
+  <link rel="stylesheet" href="./css/style.css"/>
+  <style>
+    html.__css-miss body{font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif; margin:16px}
+  </style>
+  <script>
+    document.documentElement.classList.add('__css-miss');
+    addEventListener('load',()=>{
+      const ok=[...document.styleSheets].some(s=>{try{return s.href&&s.href.includes('/css/style.css')}catch(e){return false}});
+      if(ok) document.documentElement.classList.remove('__css-miss');
+    });
+  </script>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self' data:;">
+</head>
+<body>
+  <div class="app" id="appRoot" data-theme="light">
+    <aside>
+      <div class="brand">
+        <div class="logo" id="logoHost" aria-label="MergX logotyp"></div>
+        <div><h1>MergX</h1><div class="small">v7.5.3 Online</div></div>
+      </div>
+      <div class="search">
+        <input id="globalSearch" placeholder="Global sök (⌘/Ctrl + K)"/>
+        <button id="searchBtn" class="btn">Sök</button>
+      </div>
+      <nav id="nav" class="nav"></nav>
+      <div class="controls">
+        <div class="small">Roll</div>
+        <select id="roleSel"><option>Admin</option><option>Ekonomi</option><option>Sälj</option><option>Lager</option><option>Kundtjänst</option></select>
+        <div class="small">Tema</div>
+        <select id="themeSel"><option value="light">Ljust</option><option value="dark">Mörkt</option></select>
+        <div class="small">Språk</div>
+        <select id="langSel"><option value="sv">Svenska</option><option value="en">English</option></select>
+        <div class="small">© 2025 MergX</div>
+      </div>
+    </aside>
+
+    <main id="main"></main>
+  </div>
+
+  <!-- App bootstrap -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

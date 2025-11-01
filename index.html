@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>MergX v7.3c</title>
+<link rel="stylesheet" href="assets/css/theme.css"/>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <div class="logo"></div>
+      <div><div class="t">MergX</div><div class="small">Base 7.3c</div></div>
+      <div class="right smallmuted">Tema: Ljust</div>
+    </div>
+    <nav id="nav">
+      <a href="#/dashboard" data-route="dashboard" class="active">Översikt</a>
+      <a href="#/crm" data-route="crm">Kunder / CRM</a>
+      <a href="#/economy" data-route="economy">Ekonomi / Budget</a>
+      <a href="#/map" data-route="map">AI-Karta</a>
+      <a href="#/workflow" data-route="workflow">Automation</a>
+      <a href="#/settings" data-route="settings">Inställningar</a>
+    </nav>
+    <footer>© 2025 MergX — Mock‑UI</footer>
+  </aside>
+  <main>
+    <div id="view"></div>
+  </main>
+</div>
+
+<script src="app/js/router.js"></script>
+<script src="app/js/notifications.js"></script>
+<script src="app/js/dashboard.js"></script>
+<script src="app/js/crm.js"></script>
+<script src="app/js/economy.js"></script>
+<script src="app/js/map.js"></script>
+<script src="app/js/workflow.js"></script>
+<script src="app/js/coach.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', ()=>{
+    Router.init();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MergX v7.3a · Admin</title>
+  <link rel="stylesheet" href="app/theme.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="logo"></div><div><div class="title">MergX</div><div class="badge">Base 7.3a</div></div></div>
+    <nav class="nav" id="nav"></nav><hr/>
+    <div class="small">Tema</div>
+    <select id="themeSel" class="select"><option value="dark" selected>Mörkt</option><option value="light">Ljust</option></select>
+    <div class="footer">© 2025 MergX – Mock-UI</div>
+  </aside>
+  <main class="content"><div id="app"></div></main>
+  <div class="bottom-dock">
+    <div class="card widget"><h3>Notiser</h3><div id="notifList" class="small">–</div></div>
+    <div class="card widget"><h3>AI Coach</h3><div class="chatbox">
+      <div id="coachLog" class="chatlog"></div>
+      <input id="coachInput" class="input" placeholder="Skriv ett meddelande... (Enter för att skicka)"/>
+      <div class="row"><button id="coachSend" class="btn">Skicka</button><span class="small">Kontext: KPI, lager, budget</span></div>
+    </div></div>
+  </div>
+  <script src="app/js/router.js"></script>
+  <script src="app/js/components/dashboard.js"></script>
+  <script src="app/js/components/crm.js"></script>
+  <script src="app/js/components/automation.js"></script>
+  <script src="app/js/components/chat.js"></script>
+  <script src="app/js/components/map.js"></script>
+  <script src="app/js/components/settings.js"></script>
+  <script src="app/js/main.js"></script>
+</body></html>

@@ -1,1 +1,0 @@
-# MergX v7.3a Admin Core\nStatisk SPA för Vercel. Öppna index.html via webserver.

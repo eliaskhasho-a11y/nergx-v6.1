@@ -5,19 +5,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MergX Admin · v7.5.1 Online</title>
-
-  <!-- 1) Länka CSS med RELATIV väg (case-korrekt) -->
   <link rel="stylesheet" href="./css/style.css" />
-
-  <!-- 2) Minimal inline fallback så vi ser direkt om CSS uteblir -->
   <style>
-    /* Fallback: om den här stilen syns vet vi att externa CSS misslyckades */
     html.__css-miss body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
     html.__css-miss h1 { font-size: 28px; margin-bottom: 12px; }
     html.__css-miss .warn { padding: 8px 12px; border:1px solid #f59e0b; background:#fff7ed; border-radius:8px; }
   </style>
-
-  <!-- 3) Init flagg: ta bort __css-miss när externa CSS laddats OK -->
   <script>
     document.documentElement.classList.add('__css-miss');
     window.addEventListener('load', () => {
@@ -27,11 +20,7 @@
       if (ok) document.documentElement.classList.remove('__css-miss');
     });
   </script>
-
-  <!-- 4) Ladda JS med defer och RELATIV väg -->
   <script src="./js/app.js" defer></script>
-
-  <!-- 5) Basic CSP som inte blockerar oss men skyddar eval -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self' data:;">
 </head>

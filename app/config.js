@@ -1,0 +1,1 @@
+export const CONFIG={ONLINE:true,WEBSOCKET_URL:"",OPENAI_ENDPOINT:"/api/openai",LOCALE:localStorage.getItem("mx_locale")||"sv"};

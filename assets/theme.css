@@ -1,0 +1,36 @@
+
+:root{--bg:#f6f9ff;--panel:rgba(255,255,255,.9);--glass:rgba(255,255,255,.6);--text:#142033;--muted:#6b7a90;--primary:#1976d2;--accent:#00bcd4;--success:#11a36a;--danger:#e8515b;--warning:#f0a400;--ring:rgba(25,118,210,.15);--shadow:0 10px 30px rgba(16,34,64,.08)}
+:root.dark{--bg:#0e1420;--panel:rgba(20,26,40,.86);--glass:rgba(20,26,40,.6);--text:#e8eefc;--muted:#9fb0c7;--primary:#63a4ff;--accent:#3adde3;--success:#27d89d;--danger:#ff7381;--warning:#ffd173;--ring:rgba(99,164,255,.2);--shadow:0 10px 30px rgba(0,0,0,.35)}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font:15px/1.55 ui-sans-serif,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial;color:var(--text);background:radial-gradient(1200px 800px at 80% -10%,#dff3ff22,transparent 60%),var(--bg)}
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh}
+.sidebar{border-right:1px solid #0001;padding:18px 14px;background:linear-gradient(180deg,var(--panel),transparent 60%);backdrop-filter:saturate(140%) blur(10px)}
+.brand{display:flex;gap:12px;align-items:center;padding:2px 6px 16px}
+.logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;display:grid;place-items:center;font-weight:700}
+.brand .t1{font-weight:800;letter-spacing:.2px}.brand .t2{font-size:12px;color:var(--muted)}
+nav{display:flex;flex-direction:column;gap:8px}
+nav button{appearance:none;background:transparent;border:1px solid #0000;text-align:left;padding:10px 12px;border-radius:12px;color:var(--text);cursor:pointer}
+nav button:hover{background:var(--ring)}nav button.active{background:var(--panel);box-shadow:var(--shadow);border-color:#0002}
+.theme-switch{margin-top:auto;display:grid;gap:6px}
+.theme-switch select{padding:8px 10px;border-radius:10px;border:1px solid #0002;background:var(--panel);color:var(--text)}
+.content{padding:20px;overflow:auto}
+.panel{background:var(--panel);border:1px solid #0002;border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.glass{background:linear-gradient(to bottom,var(--glass),var(--panel));backdrop-filter:blur(16px) saturate(140%);border:1px solid #fff2}
+.grid{display:grid;gap:16px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:16px}
+.card{border-radius:16px;padding:16px;background:var(--panel);border:1px solid #0002;box-shadow:var(--shadow)}
+.card h3{margin:0 0 6px}.badge{background:var(--accent);color:#06222a;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:700}
+.dock{position:fixed;right:280px;bottom:16px;width:360px}.coach-dock{position:fixed;right:16px;bottom:16px;width:360px}
+.panel header,.coach header{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.panel header button{background:transparent;border:none;color:var(--muted);cursor:pointer}
+.list{list-style:none;margin:8px 0 0;padding:0;max-height:260px;overflow:auto}.list li{padding:10px 8px;border-bottom:1px dashed #0002}
+.coach{animation:pulse 4s ease-in-out infinite;border-radius:18px;padding:12px}
+.coach .dot{width:10px;height:10px;border-radius:50%;display:inline-block}.coach .dot.online{background:radial-gradient(circle at 30% 30%,var(--accent),#2df)}
+.coach-log{min-height:80px;max-height:220px;overflow:auto;padding:6px 2px}
+.coach-form{display:flex;gap:8px;margin-top:8px}.coach-form input{flex:1;padding:10px;border-radius:12px;border:1px solid #0002;background:var(--panel);color:var(--text)}
+.coach-form button{padding:8px 14px;border-radius:12px;border:1px solid #0002;background:var(--primary);color:#fff}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,188,212,.0)}50%{box-shadow:0 0 0 14px rgba(0,188,212,.16)}}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:10px;border-bottom:1px solid #0002;text-align:left}
+.btn{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid #0002;background:var(--panel);color:var(--text);border-radius:12px;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,var(--primary),var(--accent));color:#06222a;border-color:#0000}
+.help{color:var(--muted);font-size:12px}

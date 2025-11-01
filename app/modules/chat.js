@@ -1,0 +1,1 @@
+export async function render(){const el=document.createElement('div');el.className='panel glass';el.innerHTML=`<header><strong>Intern chatt (mock)</strong></header><div class='help'>Teamchat kommer i full version – här visas en enkel demo.</div><div style='min-height:160px;border:1px dashed #0003;border-radius:12px;padding:10px'>[Chat-feed]</div>`;return el;}

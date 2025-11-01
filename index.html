@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="sv" data-version="6.1" data-online="true">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MergX v6.1 – Vercel Ready (SWE)</title>
+  <link rel="stylesheet" href="assets/theme.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">X</div>
+        <div>
+          <div class="t1">MergX</div>
+          <div class="t2">Base 6.1</div>
+        </div>
+      </div>
+      <nav id="nav">
+        <button data-route="dashboard" class="active">🏠 Översikt</button>
+        <button data-route="customers">👥 Kunder / CRM</button>
+        <button data-route="inventory">📦 Produkter / Lager</button>
+        <button data-route="orders">🧾 Order / Faktura</button>
+        <button data-route="files">🗂️ Filer / OCR</button>
+        <button data-route="employees">👤 Anställda</button>
+        <button data-route="chat">💬 Chatt</button>
+        <button data-route="settings">⚙️ Inställningar</button>
+      </nav>
+      <div class="theme-switch">
+        <label for="themeSel">Tema</label>
+        <select id="themeSel">
+          <option value="light">Ljust</option>
+          <option value="dark">Mörkt</option>
+          <option value="auto">Auto</option>
+        </select>
+      </div>
+    </aside>
+    <main class="content" id="appRoot" tabindex="-1" aria-live="polite"></main>
+    <div id="notifDock" class="dock">
+      <div class="panel glass" id="notifPanel">
+        <header>
+          <strong>Notiser</strong>
+          <span id="notifCount" class="badge">0</span>
+          <button id="notifClose" title="Stäng">✖</button>
+        </header>
+        <ul id="notifList" class="list"></ul>
+      </div>
+    </div>
+    <div id="coachDock" class="coach-dock">
+      <div class="coach glass" id="coachPanel" aria-live="polite">
+        <header>
+          <strong>AI Coach</strong>
+          <span class="dot online" title="Online"></span>
+        </header>
+        <div id="coachLog" class="coach-log"></div>
+        <form id="coachForm" class="coach-form">
+          <input id="coachInput" placeholder="Skriv ett meddelande..." />
+          <button type="submit">➤</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="app/main.js"></script>
+</body>
+</html>

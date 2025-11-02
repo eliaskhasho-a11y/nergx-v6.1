@@ -1,75 +1,379 @@
 <!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MergX v8.11 • Online</title>
-  <meta name="description" content="MergX Admin v8.11 – CRM, inventarie, order, anställda, filer, AI‑coach, AI‑karta.">
-  <link rel="stylesheet" href="css/styles.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script defer src="js/app.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MergX – v8.14 (Light Online, Fast Mode)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<style>
+:root{
+  /* Pastell + glas */
+  --bg:#f6f8fb;
+  --card:rgba(255,255,255,0.9);
+  --frost:rgba(255,255,255,0.1);
+  --txt:#18202e;
+  --muted:#66738b;
+  --primary:#4fb5ff;    /* blå */
+  --accent:#43e0c6;     /* turkos */
+  --violet:#7b6cff;     /* lila */
+  --danger:#ff3b30;
+  --shadow:0 8px 24px rgba(27,45,94,0.08);
+  --blur:blur(10px);
+  --radius:16px;
+  --gap:16px;
+  --field-gap:8px;      /* ~0.5rem spacing mellan fält */
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+.app{display:grid; grid-template-columns:280px 1fr; min-height:100dvh}
+aside{
+  position:sticky; top:0; height:100dvh; padding:24px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.65));
+  backdrop-filter:var(--blur); border-right:1px solid rgba(0,0,0,0.06);
+}
+.logo{display:flex; gap:10px; align-items:center; margin-bottom:24px}
+.logo-dot{width:14px; height:14px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, var(--violet), var(--primary));
+  box-shadow:0 0 18px rgba(123,108,255,0.55);
+}
+.brand{font-weight:700; letter-spacing:0.2px}
+nav{display:flex; flex-direction:column; gap:8px}
+.nav-btn{
+  display:flex; align-items:center; gap:10px; border:0; cursor:pointer;
+  padding:12px 14px; border-radius:12px; background:transparent; color:var(--txt);
+}
+.nav-btn.active, .nav-btn:hover{background:var(--card); box-shadow:var(--shadow)}
+header{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:18px 24px; position:sticky; top:0; z-index:5;
+  background:linear-gradient(180deg, rgba(246,248,251,0.85), rgba(246,248,251,0.45));
+  backdrop-filter:var(--blur); border-bottom:1px solid rgba(0,0,0,0.05);
+}
+.search{
+  display:flex; align-items:center; gap:10px; background:var(--card);
+  box-shadow:var(--shadow); border-radius:999px; padding:10px 14px; width:360px;
+}
+.search input{border:0; outline:0; background:transparent; width:100%}
+.right{display:flex; align-items:center; gap:14px}
+.bell{position:relative; width:36px; height:36px; border-radius:50%; border:0; background:var(--card); box-shadow:var(--shadow); cursor:pointer}
+.badge{
+  position:absolute; right:-2px; top:-2px; background:var(--danger); color:#fff; font-size:11px; font-weight:700;
+  width:18px; height:18px; display:grid; place-items:center; border-radius:50%;
+  box-shadow:0 0 0 2px var(--card);
+}
+main{padding:24px}
+.section{display:none} .section.active{display:block}
+.cards{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap)}
+.card{
+  background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
+  backdrop-filter:var(--blur); border:1px solid rgba(0,0,0,0.06); transition:transform .15s ease; cursor:pointer;
+}
+.card:hover{transform:translateY(-2px)}
+.kpi{font-size:13px; color:var(--muted)} .val{font-size:22px; font-weight:700; margin-top:6px}
+.pos{color:#039855; font-weight:600} .neg{color:#e74646; font-weight:600}
+.grid{display:grid; grid-template-columns:1.2fr 1fr; gap:var(--gap); margin-top:16px}
+.row{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); margin-top:16px}
+.panel{
+  background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.06); backdrop-filter:var(--blur)
+}
+.panel h3{margin:0 0 10px 0; font-size:16px}
+.muted{color:var(--muted); font-size:13px}
+.pill{display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#2f5fb7}
+.expand-wrap{margin-top:16px; display:none}
+.expand{grid-column:1 / -1}
+.field{display:flex; flex-direction:column; gap:var(--field-gap); margin-bottom:var(--field-gap)}
+.field label{font-size:13px; color:var(--muted)}
+.field input, .field select, .field textarea{
+  border:1px solid rgba(0,0,0,0.08); border-radius:10px; padding:10px 12px; outline:0; background:#fff;
+}
+.btn{border:0; background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer}
+.btn.ghost{background:transparent; color:var(--txt); border:1px solid rgba(0,0,0,0.1)}
+/* Chat */
+.chat{display:flex; flex-direction:column; gap:10px; height:340px}
+.chat-scroll{background:var(--card); border-radius:12px; padding:12px; overflow:auto; flex:1; border:1px solid rgba(0,0,0,0.06)}
+.bubble{max-width:70%; padding:10px 12px; border-radius:18px; margin:6px 0; font-size:14px; line-height:1.35}
+.me{background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; margin-left:auto; border-bottom-right-radius:6px}
+.them{background:#eef5ff; color:#1d2b4a; margin-right:auto; border-bottom-left-radius:6px}
+.chat-input{display:flex; gap:10px; align-items:center; background:var(--card); border:1px solid rgba(0,0,0,0.06); border-radius:999px; padding:8px 10px}
+.chat-input input{flex:1; border:0; outline:0; background:transparent; padding:8px 10px}
+.send{border:0; background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; padding:10px 16px; border-radius:999px; cursor:pointer; font-weight:600}
+.list{padding-left:18px}
+</style>
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="brand">
-      <svg width="28" height="28" viewBox="0 0 64 64" class="logo" aria-hidden="true">
-        <defs>
-          <radialGradient id="pulse" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#A855F7" stop-opacity="0.9"/>
-            <stop offset="100%" stop-color="#A855F7" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <circle cx="32" cy="32" r="22" fill="url(#pulse)">
-          <animate attributeName="r" values="18;22;18" dur="2.6s" repeatCount="indefinite"/>
-        </circle>
-        <path d="M20 44 L30 28 L22 20 L28 20 L36 28 L44 20 L52 20 L42 32 L52 44 L46 44 L36 34 L28 44 Z" fill="#3B82F6"/>
-      </svg>
-      <div>
-        <div class="title">MergX Admin</div>
-        <div class="subtitle">v8.11 Online</div>
+<div class="app">
+  <aside>
+    <div class="logo"><div class="logo-dot"></div><div class="brand">MergX</div></div>
+    <nav>
+      <button class="nav-btn active" data-target="dashboard">🏠 Översikt</button>
+      <button class="nav-btn" data-target="customers">👤 Kunder</button>
+      <button class="nav-btn" data-target="inventory">📦 Inventarie</button>
+      <button class="nav-btn" data-target="orders">🧾 Ordrar/Fakturor</button>
+      <button class="nav-btn" data-target="team">👥 Anställda</button>
+      <button class="nav-btn" data-target="files">📁 Filer & kvitton</button>
+      <button class="nav-btn" data-target="settings">⚙️ Inställningar</button>
+    </nav>
+  </aside>
+
+  <div>
+    <header>
+      <div class="search">🔎 <input placeholder="Sök kunder, ordrar, dokument …"></div>
+      <div class="right">
+        <button class="bell" title="Notiser"><span class="badge">3</span></button>
       </div>
-      <div class="actions-right">
-        <button id="btnNoti" class="icon-btn" aria-label="Notiser">
-          <span class="bell">🔔</span>
-          <span id="badge" class="badge-dot" hidden>0</span>
-        </button>
-        <div id="notiPopover" class="popover" hidden>
-          <div class="popover-head">Notiser</div>
-          <ul id="notiList" class="list"></ul>
-          <div class="popover-actions">
-            <button id="markRead" class="btn ghost small">Markera som läst</button>
+    </header>
+
+    <main>
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="section active">
+        <div class="cards">
+          <div class="card kpi" data-expand="sales"><div>Omsättning idag</div><div class="val">124 500 kr <span class="pos">+6.2%</span></div></div>
+          <div class="card kpi" data-expand="orders"><div>Order idag</div><div class="val">37 <span class="pos">+4</span></div></div>
+          <div class="card kpi" data-expand="costs"><div>Kostnader</div><div class="val">48 900 kr <span class="neg">−2.1%</span></div></div>
+          <div class="card kpi" data-expand="gm"><div>Bruttomarginal</div><div class="val">41.5% <span class="pos">+0.7%</span></div></div>
+        </div>
+
+        <div class="grid">
+          <div class="panel">
+            <h3>Ekonomi – Kombostaplar</h3>
+            <canvas id="ecoBar" height="120"></canvas>
+            <div class="muted">Klicka på en stapel för att fördjupa (expanderar i översikten).</div>
+          </div>
+          <div class="panel">
+            <h3>AI-karta (placeholder)</h3>
+            <div style="height:220px; border-radius:12px; background:linear-gradient(135deg,#eaf4ff,#f6fffb); border:1px dashed #b9c7e4; display:grid; place-items:center; color:#607096">
+              📍 <b>Din position</b> · <span class="pill">AI-rekommendationer</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <nav>
-      <a href="#/dashboard" data-route>Översikt</a>
-      <a href="#/crm" data-route>Kunder</a>
-      <a href="#/inventory" data-route>Inventarie</a>
-      <a href="#/orders" data-route>Order & Faktura</a>
-      <a href="#/employees" data-route>Anställda</a>
-      <a href="#/files" data-route>Filer & Kvitton</a>
-      <a href="#/ai-map" data-route>AI‑Karta</a>
-      <a href="#/automation" data-route>Automation</a>
-      <a href="#/chat" data-route>Chatt</a>
-      <a href="#/settings" data-route>Inställningar</a>
-    </nav>
-    <div class="footer">© 2025 MergX • <span class="badge">v8.11</span></div>
-  </aside>
-  <main id="app"><div class="loading">Laddar…</div></main>
 
-  <!-- AI docka -->
-  <div class="dock">
-    <section class="card" id="card-ai">
-      <h3>AI‑Coach • proaktiv assistent</h3>
-      <div class="messages" id="aiMsgs"></div>
-      <div class="input-row">
-        <input id="aiInput" placeholder="Skriv ett meddelande… (Enter)">
-        <button id="aiSend">Skicka</button>
-      </div>
-    </section>
+        <div class="row">
+          <div class="panel">
+            <h3>Teamchatt</h3>
+            <div class="chat">
+              <div class="chat-scroll" id="chatLog">
+                <div class="bubble them">Anna (Ekonomi): Dagens rapport är uppladdad.</div>
+                <div class="bubble them">Markus (Sälj): Kunden vill lägga till 50 kablar.</div>
+                <div class="bubble me">Toppen — jag justerar ordern.</div>
+              </div>
+              <div class="chat-input">
+                <input id="chatInput" placeholder="Skriv ett meddelande… (Enter = skicka)">
+                <button class="send" id="sendBtn">Skicka</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>AI-coach (placeholder)</h3>
+            <div class="muted" id="coach">Välkommen tillbaka — tips: fyll på lagret för USB-C 60W 📈</div>
+          </div>
+        </div>
+
+        <div id="expandArea" class="expand-wrap"></div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="customers" class="section">
+        <div class="panel">
+          <h3>Kunder</h3>
+          <div class="row" style="margin-top:0">
+            <div class="panel">
+              <b>Kundlista</b>
+              <ul class="list">
+                <li>Acme AB — Org 556677-8899 — Kontakt: Lisa</li>
+                <li>Nordic Phone — Org 559900-1122 — Kontakt: Johan</li>
+                <li>Elon City — Org 556100-4433 — Kontakt: Karin</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <b>Lägg till kund</b> <button class="btn" id="addCustomerBtn">+ Lägg till</button>
+              <div id="addCustomerForm" style="display:none; margin-top:12px">
+                <div class="field"><label>Företagsnamn</label><input></div>
+                <div class="field"><label>Org.nr</label><input></div>
+                <div class="field"><label>Kontaktperson</label><input></div>
+                <div class="field"><label>E-post</label><input type="email"></div>
+                <div class="field"><label>Telefon</label><input></div>
+                <div class="field"><label>Adress</label><input></div>
+                <div style="display:flex; gap:8px">
+                  <button class="btn">Spara</button>
+                  <button class="btn ghost" id="cancelCustomer">Avbryt</button>
+                </div>
+              </div>
+              <div class="muted" id="addCustomerHint">Klicka “Lägg till” för att expandera formuläret.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section id="inventory" class="section">
+        <div class="panel">
+          <h3>Inventarie</h3>
+          <div class="row" style="margin-top:0">
+            <div class="panel">
+              <b>Produkter</b>
+              <ul class="list">
+                <li>USB-C 60W — saldo 22 (⚠️ låg nivå)</li>
+                <li>Lightning 27W — saldo 180</li>
+                <li>USB-A → USB-C 36W — saldo 95</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <b>Lägg till produkt</b> <button class="btn" id="addProdBtn">+ Lägg till</button>
+              <div id="addProdForm" style="display:none; margin-top:12px">
+                <div class="field"><label>Produktnamn</label><input></div>
+                <div class="field"><label>SKU</label><input></div>
+                <div class="field"><label>Inköpspris</label><input></div>
+                <div class="field"><label>Försäljningspris</label><input></div>
+                <div class="field"><label>Saldo</label><input></div>
+                <div style="display:flex; gap:8px">
+                  <button class="btn">Spara</button>
+                  <button class="btn ghost" id="cancelProd">Avbryt</button>
+                </div>
+              </div>
+              <div class="muted" id="addProdHint">Klicka “Lägg till” för att expandera formuläret.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="orders" class="section">
+        <div class="panel">
+          <h3>Ordrar & Fakturor</h3>
+          <ul class="list">
+            <li>#10234 · Acme AB · 24 900 kr · Skapad idag</li>
+            <li>#10231 · Elon City · 12 200 kr · Skapad igår</li>
+          </ul>
+          <div class="muted">PDF-export (jsPDF) kopplas i nästa sprint.</div>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section id="team" class="section">
+        <div class="panel">
+          <h3>Anställda</h3>
+          <ul class="list">
+            <li>Anna Andersson — Ekonomi</li>
+            <li>Markus Nilsson — Sälj</li>
+            <li>Karin Holm — Lager</li>
+          </ul>
+          <div class="muted">Fler fält (telefon, adress, anställningsform) läggs till i 8.15.</div>
+        </div>
+      </section>
+
+      <!-- FILES -->
+      <section id="files" class="section">
+        <div class="panel">
+          <h3>Filer & kvitton</h3>
+          <div class="muted">Kommande: mappar, uppladdning, taggar, noteringar och arbetsflöde till Ekonomi/Admin.</div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="section">
+        <div class="panel">
+          <h3>Inställningar</h3>
+          <ul class="list">
+            <li>Tema: Ljust (mörkt läge kan aktiveras senare)</li>
+            <li>Språk: Svenska (Eng/Thai i 8.15+)</li>
+            <li>Roller/Behörighet (RBAC): Admin, Ekonomi, Sälj</li>
+            <li>AI-motor (placeholder): DeepSeek / Ollama</li>
+          </ul>
+        </div>
+      </section>
+    </main>
   </div>
+</div>
 
-  <div id="toasts" aria-live="polite" aria-atomic="true"></div>
+<script>
+/* Routing */
+const btns=[...document.querySelectorAll('.nav-btn')];
+const sections=[...document.querySelectorAll('.section')];
+btns.forEach(b=>b.addEventListener('click',()=>{
+  btns.forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  sections.forEach(s=>s.classList.remove('active'));
+  document.getElementById(b.dataset.target).classList.add('active');
+}));
+
+/* Dashboard expand in place */
+const expandWrap=document.getElementById('expandArea');
+document.querySelectorAll('.card.kpi').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const key=c.dataset.expand||'detalj';
+    expandWrap.style.display='grid';
+    expandWrap.innerHTML=`
+      <div class="panel expand">
+        <h3>Detalj — ${key.toUpperCase()}</h3>
+        <div class="muted">Förstorad vy. Klicka utanför panelen för att stänga.</div>
+        <canvas id="detailChart" height="100"></canvas>
+      </div>`;
+    queueMicrotask(()=>{
+      const ctx=document.getElementById('detailChart');
+      new Chart(ctx,{type:'line',
+        data:{labels:['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],
+          datasets:[{label:key, data:[12,15,11,18,21,19,24],
+            borderColor:'#4fb5ff', backgroundColor:'rgba(79,181,255,0.22)', tension:.35, fill:true}]},
+        options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+      });
+    });
+  });
+});
+document.addEventListener('click',(e)=>{
+  const onPanel=e.target.closest('.expand');
+  const onKpi=e.target.closest('.card.kpi');
+  if(!onPanel && !onKpi && expandWrap.style.display==='grid'){ expandWrap.style.display='none'; expandWrap.innerHTML=''; }
+});
+
+/* Economy combo chart */
+window.addEventListener('DOMContentLoaded',()=>{
+  const ctx=document.getElementById('ecoBar');
+  if(ctx){
+    new Chart(ctx,{type:'bar',
+      data:{labels:['v1','v2','v3','v4','v5'],
+        datasets:[
+          {label:'Omsättning', data:[120,135,110,150,165], backgroundColor:'rgba(79,181,255,0.45)'},
+          {label:'Kostnader', data:[62,70,58,73,78], backgroundColor:'rgba(67,224,198,0.35)'},
+          {label:'Brutto%', data:[38,39,40,41,42], type:'line', borderColor:'#7b6cff', backgroundColor:'rgba(123,108,255,0.15)', tension:.35, fill:true, yAxisID:'y1'}
+        ]},
+      options:{scales:{y:{beginAtZero:true}, y1:{position:'right', beginAtZero:true, grid:{display:false}, ticks:{callback:v=>v+'%'}}}}
+    });
+  }
+});
+
+/* Chat */
+const log=document.getElementById('chatLog');
+const inp=document.getElementById('chatInput');
+const send=document.getElementById('sendBtn');
+function sendMsg(){
+  const t=inp.value.trim(); if(!t) return;
+  const b=document.createElement('div'); b.className='bubble me'; b.textContent=t;
+  log.appendChild(b); log.scrollTop=log.scrollHeight; inp.value='';
+}
+send?.addEventListener('click',sendMsg);
+inp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); }});
+
+/* Add forms (Customers/Inventory) */
+const addCustomerBtn=document.getElementById('addCustomerBtn');
+const addCustomerForm=document.getElementById('addCustomerForm');
+const cancelCustomer=document.getElementById('cancelCustomer');
+addCustomerBtn?.addEventListener('click',()=>{ addCustomerForm.style.display='block'; document.getElementById('addCustomerHint').style.display='none'; });
+cancelCustomer?.addEventListener('click',()=>{ addCustomerForm.style.display='none'; document.getElementById('addCustomerHint').style.display='block'; });
+
+const addProdBtn=document.getElementById('addProdBtn');
+const addProdForm=document.getElementById('addProdForm');
+const cancelProd=document.getElementById('cancelProd');
+addProdBtn?.addEventListener('click',()=>{ addProdForm.style.display='block'; document.getElementById('addProdHint').style.display='none'; });
+cancelProd?.addEventListener('click',()=>{ addProdForm.style.display='none'; document.getElementById('addProdHint').style.display='block'; });
+
+/* AI Hooks placeholders (DeepSeek/Ollama) — ej aktiva ännu
+   window.MergX_AI = { provider:'auto', analyze:(ctx)=>Promise.resolve('') };
+*/
+</script>
 </body>
 </html>

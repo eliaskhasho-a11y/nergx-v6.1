@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MergX v8.60 – Online</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --border:#e6e8f0; --text:#1f2937; --muted:#6b7280;
+      --brand:#3b82f6; --brand-2:#8b5cf6; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
+      --shadow:0 6px 20px rgba(20,20,50,.06);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial;
+      color:var(--text); background:var(--bg);}
+    .app{display:grid; grid-template-columns: 260px 1fr; height:100%}
+
+    aside{
+      border-right:1px solid var(--border);
+      background:#fff; padding:18px 14px; display:flex; flex-direction:column; gap:14px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:12px}
+    .brand svg{height:26px}
+    .brand strong{letter-spacing:.4px}
+    nav a{display:block; padding:9px 12px; margin:2px 0; color:#334155; text-decoration:none; border-radius:10px}
+    nav a.active, nav a:hover{background:rgba(59,130,246,.1); color:#111827}
+    .grow{flex:1}
+    .footer{color:var(--muted); font-size:12px}
+
+    header{
+      display:flex; align-items:center; gap:10px; padding:14px 20px;
+      position:sticky; top:0; background:var(--bg); z-index:5; border-bottom:1px solid var(--border);
+    }
+    .search{display:flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--border); padding:8px 10px; border-radius:10px; min-width:280px}
+    .search input{border:0; outline:0; width:320px; font:inherit}
+    .pill{background:#fff; border:1px solid var(--border); padding:6px 10px; border-radius:999px; color:#334155}
+    .btn{background:var(--brand); border:0; color:#fff; padding:9px 14px; border-radius:10px; cursor:pointer}
+    .content{padding:20px; overflow:auto; height:calc(100vh - 62px)}
+    .grid{display:grid; gap:16px}
+    .cards{display:grid; grid-template-columns: repeat(3, minmax(200px,1fr)); gap:16px}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .card .hd{padding:12px 14px; border-bottom:1px solid var(--border); font-weight:600}
+    .card .bd{padding:14px}
+    .kpi{display:flex; align-items:baseline; justify-content:space-between}
+    .kpi b{font-size:26px}
+    .list{display:flex; flex-direction:column; gap:10px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border)}
+    .row:last-child{border-bottom:0}
+
+    /* chat / coach dock */
+    .dock{position:fixed; right:16px; bottom:16px; display:grid; gap:12px; width:380px; max-width:calc(100vw - 32px)}
+    .dock .panel{background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow)}
+    .panel .hd{padding:10px 12px; border-bottom:1px solid var(--border); font-weight:600}
+    .panel .bd{padding:10px 12px}
+    .panel .ft{padding:10px 12px; border-top:1px solid var(--border); display:flex; gap:8px}
+    .panel input{flex:1; border:1px solid var(--border); padding:10px; border-radius:10px; outline:0}
+    .panel button{padding:10px 12px; border-radius:10px; border:0; background:var(--brand); color:#fff}
+    .muted{color:var(--muted)}
+    .tag{font-size:12px; padding:3px 8px; border-radius:999px; background:rgba(16,185,129,.1); color:#065f46}
+
+    /* animated logo pulse */
+    .pulse{filter: drop-shadow(0 0 0 rgba(147,51,234,.0)); animation:pulse 2.4s ease-in-out infinite;}
+    @keyframes pulse{
+      0%{filter: drop-shadow(0 0 0 rgba(147,51,234,.0))}
+      50%{filter: drop-shadow(0 0 18px rgba(147,51,234,.35))}
+      100%{filter: drop-shadow(0 0 0 rgba(147,51,234,.0))}
+    }
+
+    @media (max-width: 880px){
+      .app{grid-template-columns: 1fr}
+      aside{position:fixed; inset:0 50% 0 0; transform:translateX(-100%); transition:.25s; z-index:20}
+      aside.open{transform:none}
+      header .mobile{display:inline-flex}
+    }
+    .mobile{display:none}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <!-- Inline SVG logo -->
+      <svg class="pulse" viewBox="0 0 120 120" width="28" height="28" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#3b82f6"/>
+            <stop offset="1" stop-color="#22d3ee"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="1" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#6366f1"/>
+            <stop offset="1" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+        <path d="M20,100 L60,20 L80,20 L40,100 Z" fill="url(#g1)"/>
+        <path d="M100,100 L60,20 L40,20 L80,100 Z" fill="url(#g2)"/>
+      </svg>
+      <strong>MergX</strong>
+      <span class="tag">v8.60 Online</span>
+    </div>
+    <nav id="nav"></nav>
+    <div class="grow"></div>
+    <div class="footer">© 2025 MergX</div>
+  </aside>
+
+  <main>
+    <header>
+      <button class="mobile pill" onclick="toggleSidebar()">☰</button>
+      <div class="search">
+        <span>🔎</span>
+        <input id="globalSearch" placeholder="Global sök (⌘/Ctrl + K)"/>
+      </div>
+      <select id="role" class="pill">
+        <option>Admin</option><option>Sälj</option><option>Ekonomi</option>
+      </select>
+      <select id="lang" class="pill">
+        <option value="sv">Svenska</option><option value="en">English</option>
+      </select>
+      <button class="btn" onclick="go('#/dashboard')">Gå till Översikt</button>
+    </header>
+
+    <div class="content">
+      <div id="view"></div>
+    </div>
+  </main>
+</div>
+
+<div class="dock">
+  <div class="panel" id="notis">
+    <div class="hd">Notiser <span class="muted" id="notisCount"></span></div>
+    <div class="bd"><div id="notisList" class="list muted">–</div></div>
+  </div>
+  <div class="panel" id="coach">
+    <div class="hd">AI-Coach <span class="muted">• proaktiv assistent</span></div>
+    <div class="bd" id="coachBody" style="min-height:90px"></div>
+    <div class="ft">
+      <input id="coachInput" placeholder="Skriv ett meddelande… (Enter för att skicka)"/>
+      <button onclick="Coach.send()">Skicka</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/aicoach.js"></script>
+<script src="js/crm.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/files.js"></script>
+<script src="js/automation.js"></script>
+<script src="js/academy.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/map.js"></script>
+<script src="js/settings.js"></script>
+</body>
+</html>

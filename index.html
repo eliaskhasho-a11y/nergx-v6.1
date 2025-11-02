@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MergX v8.11 • Online</title>
+  <meta name="description" content="MergX Admin v8.11 – CRM, inventarie, order, anställda, filer, AI‑coach, AI‑karta.">
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 64 64" class="logo" aria-hidden="true">
+        <defs>
+          <radialGradient id="pulse" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A855F7" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#A855F7" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="22" fill="url(#pulse)">
+          <animate attributeName="r" values="18;22;18" dur="2.6s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M20 44 L30 28 L22 20 L28 20 L36 28 L44 20 L52 20 L42 32 L52 44 L46 44 L36 34 L28 44 Z" fill="#3B82F6"/>
+      </svg>
+      <div>
+        <div class="title">MergX Admin</div>
+        <div class="subtitle">v8.11 Online</div>
+      </div>
+      <div class="actions-right">
+        <button id="btnNoti" class="icon-btn" aria-label="Notiser">
+          <span class="bell">🔔</span>
+          <span id="badge" class="badge-dot" hidden>0</span>
+        </button>
+        <div id="notiPopover" class="popover" hidden>
+          <div class="popover-head">Notiser</div>
+          <ul id="notiList" class="list"></ul>
+          <div class="popover-actions">
+            <button id="markRead" class="btn ghost small">Markera som läst</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav>
+      <a href="#/dashboard" data-route>Översikt</a>
+      <a href="#/crm" data-route>Kunder</a>
+      <a href="#/inventory" data-route>Inventarie</a>
+      <a href="#/orders" data-route>Order & Faktura</a>
+      <a href="#/employees" data-route>Anställda</a>
+      <a href="#/files" data-route>Filer & Kvitton</a>
+      <a href="#/ai-map" data-route>AI‑Karta</a>
+      <a href="#/automation" data-route>Automation</a>
+      <a href="#/chat" data-route>Chatt</a>
+      <a href="#/settings" data-route>Inställningar</a>
+    </nav>
+    <div class="footer">© 2025 MergX • <span class="badge">v8.11</span></div>
+  </aside>
+  <main id="app"><div class="loading">Laddar…</div></main>
+
+  <!-- AI docka -->
+  <div class="dock">
+    <section class="card" id="card-ai">
+      <h3>AI‑Coach • proaktiv assistent</h3>
+      <div class="messages" id="aiMsgs"></div>
+      <div class="input-row">
+        <input id="aiInput" placeholder="Skriv ett meddelande… (Enter)">
+        <button id="aiSend">Skicka</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="toasts" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

@@ -1,379 +1,659 @@
 <!doctype html>
 <html lang="sv">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MergX – v8.14 (Light Online, Fast Mode)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MergX v8.16 – Frontend Core (Light Pastel)</title>
 <style>
-:root{
-  /* Pastell + glas */
-  --bg:#f6f8fb;
-  --card:rgba(255,255,255,0.9);
-  --frost:rgba(255,255,255,0.1);
-  --txt:#18202e;
-  --muted:#66738b;
-  --primary:#4fb5ff;    /* blå */
-  --accent:#43e0c6;     /* turkos */
-  --violet:#7b6cff;     /* lila */
-  --danger:#ff3b30;
-  --shadow:0 8px 24px rgba(27,45,94,0.08);
-  --blur:blur(10px);
-  --radius:16px;
-  --gap:16px;
-  --field-gap:8px;      /* ~0.5rem spacing mellan fält */
-}
-*{box-sizing:border-box}
-body{
-  margin:0; background:var(--bg); color:var(--txt);
-  font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-.app{display:grid; grid-template-columns:280px 1fr; min-height:100dvh}
-aside{
-  position:sticky; top:0; height:100dvh; padding:24px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.65));
-  backdrop-filter:var(--blur); border-right:1px solid rgba(0,0,0,0.06);
-}
-.logo{display:flex; gap:10px; align-items:center; margin-bottom:24px}
-.logo-dot{width:14px; height:14px; border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, var(--violet), var(--primary));
-  box-shadow:0 0 18px rgba(123,108,255,0.55);
-}
-.brand{font-weight:700; letter-spacing:0.2px}
-nav{display:flex; flex-direction:column; gap:8px}
-.nav-btn{
-  display:flex; align-items:center; gap:10px; border:0; cursor:pointer;
-  padding:12px 14px; border-radius:12px; background:transparent; color:var(--txt);
-}
-.nav-btn.active, .nav-btn:hover{background:var(--card); box-shadow:var(--shadow)}
-header{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:18px 24px; position:sticky; top:0; z-index:5;
-  background:linear-gradient(180deg, rgba(246,248,251,0.85), rgba(246,248,251,0.45));
-  backdrop-filter:var(--blur); border-bottom:1px solid rgba(0,0,0,0.05);
-}
-.search{
-  display:flex; align-items:center; gap:10px; background:var(--card);
-  box-shadow:var(--shadow); border-radius:999px; padding:10px 14px; width:360px;
-}
-.search input{border:0; outline:0; background:transparent; width:100%}
-.right{display:flex; align-items:center; gap:14px}
-.bell{position:relative; width:36px; height:36px; border-radius:50%; border:0; background:var(--card); box-shadow:var(--shadow); cursor:pointer}
-.badge{
-  position:absolute; right:-2px; top:-2px; background:var(--danger); color:#fff; font-size:11px; font-weight:700;
-  width:18px; height:18px; display:grid; place-items:center; border-radius:50%;
-  box-shadow:0 0 0 2px var(--card);
-}
-main{padding:24px}
-.section{display:none} .section.active{display:block}
-.cards{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--gap)}
-.card{
-  background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
-  backdrop-filter:var(--blur); border:1px solid rgba(0,0,0,0.06); transition:transform .15s ease; cursor:pointer;
-}
-.card:hover{transform:translateY(-2px)}
-.kpi{font-size:13px; color:var(--muted)} .val{font-size:22px; font-weight:700; margin-top:6px}
-.pos{color:#039855; font-weight:600} .neg{color:#e74646; font-weight:600}
-.grid{display:grid; grid-template-columns:1.2fr 1fr; gap:var(--gap); margin-top:16px}
-.row{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap); margin-top:16px}
-.panel{
-  background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
-  border:1px solid rgba(0,0,0,0.06); backdrop-filter:var(--blur)
-}
-.panel h3{margin:0 0 10px 0; font-size:16px}
-.muted{color:var(--muted); font-size:13px}
-.pill{display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#2f5fb7}
-.expand-wrap{margin-top:16px; display:none}
-.expand{grid-column:1 / -1}
-.field{display:flex; flex-direction:column; gap:var(--field-gap); margin-bottom:var(--field-gap)}
-.field label{font-size:13px; color:var(--muted)}
-.field input, .field select, .field textarea{
-  border:1px solid rgba(0,0,0,0.08); border-radius:10px; padding:10px 12px; outline:0; background:#fff;
-}
-.btn{border:0; background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer}
-.btn.ghost{background:transparent; color:var(--txt); border:1px solid rgba(0,0,0,0.1)}
-/* Chat */
-.chat{display:flex; flex-direction:column; gap:10px; height:340px}
-.chat-scroll{background:var(--card); border-radius:12px; padding:12px; overflow:auto; flex:1; border:1px solid rgba(0,0,0,0.06)}
-.bubble{max-width:70%; padding:10px 12px; border-radius:18px; margin:6px 0; font-size:14px; line-height:1.35}
-.me{background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; margin-left:auto; border-bottom-right-radius:6px}
-.them{background:#eef5ff; color:#1d2b4a; margin-right:auto; border-bottom-left-radius:6px}
-.chat-input{display:flex; gap:10px; align-items:center; background:var(--card); border:1px solid rgba(0,0,0,0.06); border-radius:999px; padding:8px 10px}
-.chat-input input{flex:1; border:0; outline:0; background:transparent; padding:8px 10px}
-.send{border:0; background:linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; padding:10px 16px; border-radius:999px; cursor:pointer; font-weight:600}
-.list{padding-left:18px}
+  :root{
+    --bg:#f6f7fb;
+    --panel: rgba(255,255,255,0.9);
+    --frost: rgba(255,255,255,0.6);
+    --glass-border: 1px solid rgba(0,0,0,0.06);
+    --text:#1f2937;
+    --muted:#6b7280;
+    --blue:#3b82f6;      /* Omsättning */
+    --teal:#06b6d4;      /* Kostnader */
+    --violet:#8b5cf6;    /* Bruttomarginal */
+    --amber:#f59e0b;     /* Budget */
+    --green:#10b981;     /* OK */
+    --red:#ef4444;       /* Låg */
+    --shadow: 0 10px 30px rgba(0,0,0,0.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(180deg,#fbfcff 0%, #eef2ff 100%);
+    color:var(--text); font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+  }
+  .app{display:grid; grid-template-columns:260px 1fr; min-height:100%;}
+  aside{
+    position:sticky; top:0; align-self:start; height:100vh;
+    backdrop-filter: blur(10px);
+    background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35));
+    border-right:var(--glass-border);
+    padding:20px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .logo{
+    width:36px;height:36px;border-radius:10px;
+    background: radial-gradient(circle at 30% 30%, #c7d2fe, #a7f3d0 60%, #e9d5ff 100%);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .brand h1{font-size:16px;margin:0}
+  .nav{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+  .nav button{
+    all:unset; display:flex;align-items:center;gap:10px;
+    padding:10px 12px; border-radius:10px; cursor:pointer; color:var(--text);
+  }
+  .nav button[aria-current="page"], .nav button:hover{
+    background:var(--panel); box-shadow:var(--shadow);
+  }
+  .nav .pill{margin-left:auto; background:#eef2ff; color:#4f46e5;
+    padding:2px 8px;border-radius:999px;font-size:12px}
+  header{
+    position:sticky; top:0; z-index:5;
+    backdrop-filter: blur(10px);
+    background:linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+    border-bottom:var(--glass-border);
+  }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px;
+  }
+  .search{
+    display:flex; gap:8px; align-items:center;
+    background:var(--panel); padding:10px 12px; border-radius:999px;
+    width: min(520px, 60vw); box-shadow: var(--shadow);
+  }
+  .search input{all:unset; flex:1; color:var(--text)}
+  .icons{display:flex; gap:12px; align-items:center}
+  .badge{
+    position:relative; cursor:pointer;
+    width:36px;height:36px;border-radius:10px;background:var(--panel);
+    display:grid;place-items:center; box-shadow:var(--shadow);
+  }
+  .badge::after{
+    content:attr(data-count);
+    position:absolute; top:-6px; right:-6px;
+    background:#ef4444; color:#fff; border-radius:999px;
+    padding:2px 6px; font-size:11px; box-shadow:0 2px 6px rgba(0,0,0,.2);
+  }
+
+  main{padding:20px; display:grid; gap:16px;}
+  .grid{
+    display:grid; gap:16px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .card{
+    background:var(--panel); backdrop-filter: blur(8px);
+    border:var(--glass-border); border-radius:var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .pad{padding:16px}
+  .kpi{display:flex; align-items:center; justify-content:space-between;}
+  .kpi h3{margin:0 0 6px 0; font-size:14px; color:var(--muted)}
+  .kpi strong{font-size:20px}
+  .spark{height:46px; background:linear-gradient(90deg, rgba(59,130,246,.12), rgba(6,182,212,.12)); border-radius:10px}
+  .muted{color:var(--muted); font-size:12px}
+
+  /* layout areas */
+  .span-3{grid-column: span 3}
+  .span-4{grid-column: span 4}
+  .span-6{grid-column: span 6}
+  .span-8{grid-column: span 8}
+  .span-12{grid-column: span 12}
+
+  /* table */
+  table{width:100%; border-collapse:separate; border-spacing:0 8px}
+  th{color:var(--muted); font-weight:600; text-align:left; font-size:12px; padding:0 8px 6px}
+  td{background:var(--frost); backdrop-filter: blur(6px); padding:10px 8px; border-top:var(--glass-border); border-bottom:var(--glass-border)}
+  tr td:first-child{border-left:var(--glass-border); border-top-left-radius:10px; border-bottom-left-radius:10px}
+  tr td:last-child{border-right:var(--glass-border); border-top-right-radius:10px; border-bottom-right-radius:10px}
+  .tag{padding:4px 8px; border-radius:999px; font-size:12px; display:inline-block}
+  .ok{background:#ecfdf5; color:#065f46}
+  .warn{background:#fff7ed; color:#9a3412}
+  .low{background:#fef2f2; color:#991b1b}
+
+  /* modal / panel expansion */
+  .overlay{
+    position:fixed; inset:0; display:none; align-items:flex-start; justify-content:center;
+    padding:40px; background:rgba(15,23,42,0.35);
+  }
+  .overlay.show{display:flex}
+  .modal{
+    width:min(980px, 92vw);
+    background:var(--panel); border:var(--glass-border);
+    border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.25);
+    overflow:hidden; animation:pop .16s ease-out;
+  }
+  @keyframes pop{from{transform:translateY(6px); opacity:.75} to{transform:none; opacity:1}}
+  .modal header{border:0; background:transparent}
+  .modal .content{padding:18px}
+
+  /* mini-map placeholder */
+  .minimap{
+    height:180px; border-radius:12px;
+    background:
+      radial-gradient(20px 20px at 20% 30%, rgba(59,130,246,.25), transparent 60%),
+      radial-gradient(24px 24px at 60% 55%, rgba(6,182,212,.25), transparent 60%),
+      radial-gradient(18px 18px at 75% 25%, rgba(139,92,246,.25), transparent 60%),
+      linear-gradient(180deg, #eef2ff, #e0f2fe);
+    border:var(--glass-border);
+  }
+
+  /* chat (iMessage-like) */
+  .chat{
+    display:flex; flex-direction:column; gap:10px; height:260px; overflow:auto; padding:8px;
+    background:var(--frost); border-radius:12px; border:var(--glass-border)
+  }
+  .bubble{
+    max-width:70%; padding:10px 12px; border-radius:16px; display:inline-block;
+  }
+  .me{align-self:flex-end; background:#e0f2fe}
+  .you{align-self:flex-start; background:#dbeafe}
+  .composer{display:flex; gap:8px; margin-top:10px}
+  .composer input{flex:1; padding:12px 14px; border-radius:999px; border:var(--glass-border); background:var(--panel)}
+  .composer button{padding:12px 16px; border-radius:999px; border:0; cursor:pointer; background:#4f46e5; color:#fff}
+
+  /* section visibility */
+  .section{display:none}
+  .section.active{display:block}
+
+  /* responsive */
+  @media (max-width: 1100px){
+    .span-3{grid-column: span 6}
+    .span-4{grid-column: span 6}
+    .span-6{grid-column: span 12}
+    .span-8{grid-column: span 12}
+  }
+  @media (max-width: 780px){
+    .app{grid-template-columns: 1fr}
+    aside{position:relative; height:auto}
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <aside>
-    <div class="logo"><div class="logo-dot"></div><div class="brand">MergX</div></div>
-    <nav>
-      <button class="nav-btn active" data-target="dashboard">🏠 Översikt</button>
-      <button class="nav-btn" data-target="customers">👤 Kunder</button>
-      <button class="nav-btn" data-target="inventory">📦 Inventarie</button>
-      <button class="nav-btn" data-target="orders">🧾 Ordrar/Fakturor</button>
-      <button class="nav-btn" data-target="team">👥 Anställda</button>
-      <button class="nav-btn" data-target="files">📁 Filer & kvitton</button>
-      <button class="nav-btn" data-target="settings">⚙️ Inställningar</button>
-    </nav>
+    <div class="brand">
+      <div class="logo"></div>
+      <h1>MergX Admin</h1>
+    </div>
+    <div class="nav">
+      <button data-target="dashboard" aria-current="page">🏠 Översikt</button>
+      <button data-target="customers">👥 Kunder <span class="pill" id="pillCustomers">0</span></button>
+      <button data-target="inventory">📦 Inventarie <span class="pill" id="pillProducts">0</span></button>
+      <button data-target="invoices">🧾 Fakturor</button>
+      <button data-target="files">🗂️ Filer/Kvitton</button>
+      <button data-target="chat">💬 Chatt</button>
+      <button data-target="reports">📈 Rapporter</button>
+      <button data-target="settings">⚙️ Inställningar</button>
+    </div>
   </aside>
 
   <div>
     <header>
-      <div class="search">🔎 <input placeholder="Sök kunder, ordrar, dokument …"></div>
-      <div class="right">
-        <button class="bell" title="Notiser"><span class="badge">3</span></button>
+      <div class="topbar">
+        <div class="search">
+          🔎 <input placeholder="Sök kunder, produkter, order …" id="searchBox">
+        </div>
+        <div class="icons">
+          <div class="badge" id="notifyBell" data-count="3">🔔</div>
+          <div class="badge">👤</div>
+        </div>
       </div>
     </header>
 
     <main>
       <!-- DASHBOARD -->
       <section id="dashboard" class="section active">
-        <div class="cards">
-          <div class="card kpi" data-expand="sales"><div>Omsättning idag</div><div class="val">124 500 kr <span class="pos">+6.2%</span></div></div>
-          <div class="card kpi" data-expand="orders"><div>Order idag</div><div class="val">37 <span class="pos">+4</span></div></div>
-          <div class="card kpi" data-expand="costs"><div>Kostnader</div><div class="val">48 900 kr <span class="neg">−2.1%</span></div></div>
-          <div class="card kpi" data-expand="gm"><div>Bruttomarginal</div><div class="val">41.5% <span class="pos">+0.7%</span></div></div>
-        </div>
-
         <div class="grid">
-          <div class="panel">
-            <h3>Ekonomi – Kombostaplar</h3>
-            <canvas id="ecoBar" height="120"></canvas>
-            <div class="muted">Klicka på en stapel för att fördjupa (expanderar i översikten).</div>
+          <!-- KPI cards -->
+          <div class="card pad span-3 kpi-card" data-modal="salesModal">
+            <div class="kpi">
+              <div>
+                <h3>Omsättning (idag)</h3>
+                <strong id="kpiSales">—</strong>
+                <div class="muted">Jämf. igår: <span id="kpiSalesDelta">—</span></div>
+              </div>
+              <div class="spark"></div>
+            </div>
           </div>
-          <div class="panel">
-            <h3>AI-karta (placeholder)</h3>
-            <div style="height:220px; border-radius:12px; background:linear-gradient(135deg,#eaf4ff,#f6fffb); border:1px dashed #b9c7e4; display:grid; place-items:center; color:#607096">
-              📍 <b>Din position</b> · <span class="pill">AI-rekommendationer</span>
+          <div class="card pad span-3 kpi-card" data-modal="costsModal">
+            <div class="kpi">
+              <div>
+                <h3>Kostnader (idag)</h3>
+                <strong id="kpiCosts">—</strong>
+                <div class="muted">Prognos: <span id="kpiCostsDelta">—</span></div>
+              </div>
+              <div class="spark" style="background:linear-gradient(90deg, rgba(6,182,212,.12), rgba(139,92,246,.12))"></div>
+            </div>
+          </div>
+          <div class="card pad span-3 kpi-card" data-modal="gmModal">
+            <div class="kpi">
+              <div>
+                <h3>Bruttomarginal</h3>
+                <strong id="kpiGM">—</strong>
+                <div class="muted">Månad: <span id="kpiGMDelta">—</span></div>
+              </div>
+              <div class="spark" style="background:linear-gradient(90deg, rgba(139,92,246,.12), rgba(59,130,246,.12))"></div>
+            </div>
+          </div>
+          <div class="card pad span-3 kpi-card" data-modal="budgetModal">
+            <div class="kpi">
+              <div>
+                <h3>Budget</h3>
+                <strong id="kpiBudget">—</strong>
+                <div class="muted">Utfall: <span id="kpiBudgetDelta">—</span></div>
+              </div>
+              <div class="spark" style="background:linear-gradient(90deg, rgba(245,158,11,.14), rgba(16,185,129,.12))"></div>
+            </div>
+          </div>
+
+          <!-- Kombograf (ekonomi) -->
+          <div class="card pad span-8" id="ecoCombo">
+            <h3 style="margin:0 0 10px 0;">Ekonomi – kombograf</h3>
+            <canvas id="ecoChart" height="120" style="width:100%"></canvas>
+            <div class="muted" style="margin-top:6px">Klicka en serie för detalj – stannar i fokus tills du klickar utanför.</div>
+          </div>
+
+          <!-- AI mini-karta -->
+          <div class="card pad span-4">
+            <h3 style="margin:0 0 10px 0;">AI-Karta (mini)</h3>
+            <div class="minimap" title="Platsbaserad analys: nära aktiva kunder & potentiella leads"></div>
+            <div class="muted" style="margin-top:8px">Tips: 2 nya återförsäljare inom 1.2 km.</div>
+          </div>
+
+          <!-- Schema + Chatt -->
+          <div class="card pad span-6">
+            <h3 style="margin:0 0 10px 0;">Schema (idag)</h3>
+            <table>
+              <thead><tr><th>Tid</th><th>Aktivitet</th><th>Ansvarig</th></tr></thead>
+              <tbody id="scheduleBody"></tbody>
+            </table>
+          </div>
+          <div class="card pad span-6">
+            <h3 style="margin:0 0 10px 0;">Chatt</h3>
+            <div class="chat" id="chatBox">
+              <div class="bubble you">Hej! Jag är AI-coach. Säg vad du vill fokusera på idag.</div>
+              <div class="bubble me">Starta budgetöversikt och kundlista.</div>
+            </div>
+            <div class="composer">
+              <input id="chatInput" placeholder="Skriv ett meddelande… (Enter skickar)"/>
+              <button id="chatSend">Skicka</button>
             </div>
           </div>
         </div>
-
-        <div class="row">
-          <div class="panel">
-            <h3>Teamchatt</h3>
-            <div class="chat">
-              <div class="chat-scroll" id="chatLog">
-                <div class="bubble them">Anna (Ekonomi): Dagens rapport är uppladdad.</div>
-                <div class="bubble them">Markus (Sälj): Kunden vill lägga till 50 kablar.</div>
-                <div class="bubble me">Toppen — jag justerar ordern.</div>
-              </div>
-              <div class="chat-input">
-                <input id="chatInput" placeholder="Skriv ett meddelande… (Enter = skicka)">
-                <button class="send" id="sendBtn">Skicka</button>
-              </div>
-            </div>
-          </div>
-          <div class="panel">
-            <h3>AI-coach (placeholder)</h3>
-            <div class="muted" id="coach">Välkommen tillbaka — tips: fyll på lagret för USB-C 60W 📈</div>
-          </div>
-        </div>
-
-        <div id="expandArea" class="expand-wrap"></div>
       </section>
 
       <!-- CUSTOMERS -->
       <section id="customers" class="section">
-        <div class="panel">
-          <h3>Kunder</h3>
-          <div class="row" style="margin-top:0">
-            <div class="panel">
-              <b>Kundlista</b>
-              <ul class="list">
-                <li>Acme AB — Org 556677-8899 — Kontakt: Lisa</li>
-                <li>Nordic Phone — Org 559900-1122 — Kontakt: Johan</li>
-                <li>Elon City — Org 556100-4433 — Kontakt: Karin</li>
-              </ul>
-            </div>
-            <div class="panel">
-              <b>Lägg till kund</b> <button class="btn" id="addCustomerBtn">+ Lägg till</button>
-              <div id="addCustomerForm" style="display:none; margin-top:12px">
-                <div class="field"><label>Företagsnamn</label><input></div>
-                <div class="field"><label>Org.nr</label><input></div>
-                <div class="field"><label>Kontaktperson</label><input></div>
-                <div class="field"><label>E-post</label><input type="email"></div>
-                <div class="field"><label>Telefon</label><input></div>
-                <div class="field"><label>Adress</label><input></div>
-                <div style="display:flex; gap:8px">
-                  <button class="btn">Spara</button>
-                  <button class="btn ghost" id="cancelCustomer">Avbryt</button>
-                </div>
-              </div>
-              <div class="muted" id="addCustomerHint">Klicka “Lägg till” för att expandera formuläret.</div>
-            </div>
+        <div class="card pad">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h3 style="margin:0">Kunder</h3>
+            <button id="addCustomerBtn" style="border:0;border-radius:10px;padding:10px 14px;background:#4f46e5;color:#fff;cursor:pointer">+ Ny kund</button>
           </div>
+          <table>
+            <thead>
+              <tr><th>Företag</th><th>Org.nr</th><th>Kontakt</th><th>E-post</th><th>Telefon</th><th>Status</th></tr>
+            </thead>
+            <tbody id="customersBody"></tbody>
+          </table>
         </div>
       </section>
 
       <!-- INVENTORY -->
       <section id="inventory" class="section">
-        <div class="panel">
-          <h3>Inventarie</h3>
-          <div class="row" style="margin-top:0">
-            <div class="panel">
-              <b>Produkter</b>
-              <ul class="list">
-                <li>USB-C 60W — saldo 22 (⚠️ låg nivå)</li>
-                <li>Lightning 27W — saldo 180</li>
-                <li>USB-A → USB-C 36W — saldo 95</li>
-              </ul>
-            </div>
-            <div class="panel">
-              <b>Lägg till produkt</b> <button class="btn" id="addProdBtn">+ Lägg till</button>
-              <div id="addProdForm" style="display:none; margin-top:12px">
-                <div class="field"><label>Produktnamn</label><input></div>
-                <div class="field"><label>SKU</label><input></div>
-                <div class="field"><label>Inköpspris</label><input></div>
-                <div class="field"><label>Försäljningspris</label><input></div>
-                <div class="field"><label>Saldo</label><input></div>
-                <div style="display:flex; gap:8px">
-                  <button class="btn">Spara</button>
-                  <button class="btn ghost" id="cancelProd">Avbryt</button>
-                </div>
-              </div>
-              <div class="muted" id="addProdHint">Klicka “Lägg till” för att expandera formuläret.</div>
-            </div>
+        <div class="card pad">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h3 style="margin:0">Inventarie</h3>
+            <button id="addProductBtn" style="border:0;border-radius:10px;padding:10px 14px;background:#4f46e5;color:#fff;cursor:pointer">+ Ny produkt</button>
           </div>
+          <table>
+            <thead>
+              <tr><th>Artikelnummer</th><th>Namn</th><th>Typ</th><th>Antal</th><th>Övrigt</th><th>Status</th></tr>
+            </thead>
+            <tbody id="productsBody"></tbody>
+          </table>
         </div>
       </section>
 
-      <!-- ORDERS -->
-      <section id="orders" class="section">
-        <div class="panel">
-          <h3>Ordrar & Fakturor</h3>
-          <ul class="list">
-            <li>#10234 · Acme AB · 24 900 kr · Skapad idag</li>
-            <li>#10231 · Elon City · 12 200 kr · Skapad igår</li>
-          </ul>
-          <div class="muted">PDF-export (jsPDF) kopplas i nästa sprint.</div>
-        </div>
-      </section>
-
-      <!-- TEAM -->
-      <section id="team" class="section">
-        <div class="panel">
-          <h3>Anställda</h3>
-          <ul class="list">
-            <li>Anna Andersson — Ekonomi</li>
-            <li>Markus Nilsson — Sälj</li>
-            <li>Karin Holm — Lager</li>
-          </ul>
-          <div class="muted">Fler fält (telefon, adress, anställningsform) läggs till i 8.15.</div>
+      <!-- INVOICES -->
+      <section id="invoices" class="section">
+        <div class="card pad">
+          <h3 style="margin:0 0 10px 0">Fakturor</h3>
+          <table>
+            <thead><tr><th>#</th><th>Kund</th><th>Datum</th><th>Belopp</th><th>Status</th><th>Åtgärd</th></tr></thead>
+            <tbody id="invoicesBody"></tbody>
+          </table>
         </div>
       </section>
 
       <!-- FILES -->
       <section id="files" class="section">
-        <div class="panel">
-          <h3>Filer & kvitton</h3>
-          <div class="muted">Kommande: mappar, uppladdning, taggar, noteringar och arbetsflöde till Ekonomi/Admin.</div>
+        <div class="card pad">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h3 style="margin:0">Filer & Kvitton</h3>
+            <button style="border:0;border-radius:10px;padding:10px 14px;background:#4f46e5;color:#fff;cursor:pointer">+ Ladda upp</button>
+          </div>
+          <table>
+            <thead><tr><th>Filnamn</th><th>Typ</th><th>Notering</th><th>Skickad till</th></tr></thead>
+            <tbody id="filesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="reports" class="section">
+        <div class="card pad">
+          <h3 style="margin:0 0 10px 0">Rapporter</h3>
+          <p class="muted">Generera PDF / SIE (mock). “Skicka till revisor” sammanställer senaste fakturor + kvitton.</p>
+          <div style="display:flex; gap:10px; margin-top:8px">
+            <button id="btnGenPDF" style="border:0;border-radius:10px;padding:10px 14px;background:#10b981;color:#fff;cursor:pointer">Generera PDF</button>
+            <button id="btnGenSIE" style="border:0;border-radius:10px;padding:10px 14px;background:#f59e0b;color:#fff;cursor:pointer">Exportera SIE</button>
+            <button id="btnSendAuditor" style="border:0;border-radius:10px;padding:10px 14px;background:#4f46e5;color:#fff;cursor:pointer">Skicka till revisor</button>
+          </div>
         </div>
       </section>
 
       <!-- SETTINGS -->
       <section id="settings" class="section">
-        <div class="panel">
-          <h3>Inställningar</h3>
-          <ul class="list">
-            <li>Tema: Ljust (mörkt läge kan aktiveras senare)</li>
-            <li>Språk: Svenska (Eng/Thai i 8.15+)</li>
-            <li>Roller/Behörighet (RBAC): Admin, Ekonomi, Sälj</li>
-            <li>AI-motor (placeholder): DeepSeek / Ollama</li>
-          </ul>
+        <div class="card pad">
+          <h3 style="margin:0 0 10px 0">Inställningar</h3>
+          <p class="muted">Tema: Ljust (aktivt). Språk: Svenska. API-nycklar läggs till i kommande version.</p>
         </div>
       </section>
     </main>
   </div>
 </div>
 
-<script>
-/* Routing */
-const btns=[...document.querySelectorAll('.nav-btn')];
-const sections=[...document.querySelectorAll('.section')];
-btns.forEach(b=>b.addEventListener('click',()=>{
-  btns.forEach(x=>x.classList.remove('active')); b.classList.add('active');
-  sections.forEach(s=>s.classList.remove('active'));
-  document.getElementById(b.dataset.target).classList.add('active');
-}));
+<!-- OVERLAY/MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <header class="pad">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong id="modalTitle">Detaljer</strong>
+        <button id="modalClose" style="border:0;background:transparent;font-size:20px;cursor:pointer">✕</button>
+      </div>
+    </header>
+    <div class="content" id="modalContent"></div>
+  </div>
+</div>
 
-/* Dashboard expand in place */
-const expandWrap=document.getElementById('expandArea');
-document.querySelectorAll('.card.kpi').forEach(c=>{
-  c.addEventListener('click',()=>{
-    const key=c.dataset.expand||'detalj';
-    expandWrap.style.display='grid';
-    expandWrap.innerHTML=`
-      <div class="panel expand">
-        <h3>Detalj — ${key.toUpperCase()}</h3>
-        <div class="muted">Förstorad vy. Klicka utanför panelen för att stänga.</div>
-        <canvas id="detailChart" height="100"></canvas>
-      </div>`;
-    queueMicrotask(()=>{
-      const ctx=document.getElementById('detailChart');
-      new Chart(ctx,{type:'line',
-        data:{labels:['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],
-          datasets:[{label:key, data:[12,15,11,18,21,19,24],
-            borderColor:'#4fb5ff', backgroundColor:'rgba(79,181,255,0.22)', tension:.35, fill:true}]},
-        options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
-      });
+<script>
+  // ---------- Dummydata ----------
+  const DATA = {
+    kpi:{ sales: 42850, salesDelta:"+12%", costs: 21890, costsDelta:"-3%", gm:"48%", gmDelta:"+2,1 pp", budget:"72%", budgetDelta:"på plan" },
+    schedule:[
+      {time:"08:30", title:"Packa order #1042", owner:"Jonas"},
+      {time:"10:00", title:"Kundmöte – Acme AB", owner:"Lina"},
+      {time:"13:00", title:"Inköp USB-C kablar", owner:"Elliot"},
+      {time:"15:30", title:"Bokslut Q4 – utkast", owner:"Sara"}
+    ],
+    customers:[
+      {company:"Acme AB", org:"556778-1234", contact:"Anna Larsson", email:"anna@acme.se", phone:"+46 70 123 45 67", status:"Aktiv"},
+      {company:"Nordic Parts", org:"559001-6677", contact:"Per Sund", email:"per@nordicparts.se", phone:"+46 73 222 11 00", status:"Pågående"},
+      {company:"Sthlm Repair", org:"556221-4455", contact:"Mika K", email:"info@sthlmrepair.se", phone:"+46 72 987 65 43", status:"Passiv"}
+    ],
+    products:[
+      {sku:"A-USB-C-60W-01", name:"USB-C till USB-C 60W", type:"Kabel", qty:120, note:"Flätad", status:"OK"},
+      {sku:"A-C-L-27W-02", name:"USB-C till Lightning 27W", type:"Kabel", qty:22, note:"Vit", status:"Låg"},
+      {sku:"A-Car-60W-03", name:"Bil-laddare 2x30W", type:"Laddare", qty:48, note:"Svart", status:"Påfylln."}
+    ],
+    invoices:[
+      {id:"INV-1045", customer:"Acme AB", date:"2025-11-02", amount:"14 900 kr", status:"Skickad"},
+      {id:"INV-1044", customer:"Nordic Parts", date:"2025-11-01", amount:"7 450 kr", status:"Utkast"},
+      {id:"INV-1043", customer:"Sthlm Repair", date:"2025-10-31", amount:"3 200 kr", status:"Betald"}
+    ],
+    files:[
+      {name:"kvitto_ica_2025-10-28.jpg", type:"Kvitto", note:"Förbrukningsmaterial", sent:"Ekonomi"},
+      {name:"faktura_1043.pdf", type:"Faktura", note:"Mika – leverans okt", sent:"Revisor"},
+      {name:"avtal_acme.pdf", type:"Avtal", note:"Signerat 2025-10-12", sent:"Admin"}
+    ]
+  };
+
+  // ---------- Navigation ----------
+  const navButtons = document.querySelectorAll('.nav button');
+  const sections = document.querySelectorAll('.section');
+  navButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      navButtons.forEach(b=>b.removeAttribute('aria-current'));
+      btn.setAttribute('aria-current','page');
+      const id = btn.dataset.target;
+      sections.forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
     });
   });
-});
-document.addEventListener('click',(e)=>{
-  const onPanel=e.target.closest('.expand');
-  const onKpi=e.target.closest('.card.kpi');
-  if(!onPanel && !onKpi && expandWrap.style.display==='grid'){ expandWrap.style.display='none'; expandWrap.innerHTML=''; }
-});
 
-/* Economy combo chart */
-window.addEventListener('DOMContentLoaded',()=>{
-  const ctx=document.getElementById('ecoBar');
-  if(ctx){
-    new Chart(ctx,{type:'bar',
-      data:{labels:['v1','v2','v3','v4','v5'],
-        datasets:[
-          {label:'Omsättning', data:[120,135,110,150,165], backgroundColor:'rgba(79,181,255,0.45)'},
-          {label:'Kostnader', data:[62,70,58,73,78], backgroundColor:'rgba(67,224,198,0.35)'},
-          {label:'Brutto%', data:[38,39,40,41,42], type:'line', borderColor:'#7b6cff', backgroundColor:'rgba(123,108,255,0.15)', tension:.35, fill:true, yAxisID:'y1'}
-        ]},
-      options:{scales:{y:{beginAtZero:true}, y1:{position:'right', beginAtZero:true, grid:{display:false}, ticks:{callback:v=>v+'%'}}}}
+  // ---------- KPI init ----------
+  const toKr = v => new Intl.NumberFormat('sv-SE').format(v) + ' kr';
+  document.getElementById('kpiSales').textContent = toKr(DATA.kpi.sales);
+  document.getElementById('kpiSalesDelta').textContent = DATA.kpi.salesDelta;
+  document.getElementById('kpiCosts').textContent = toKr(DATA.kpi.costs);
+  document.getElementById('kpiCostsDelta').textContent = DATA.kpi.costsDelta;
+  document.getElementById('kpiGM').textContent = DATA.kpi.gm;
+  document.getElementById('kpiGMDelta').textContent = DATA.kpi.gmDelta;
+  document.getElementById('kpiBudget').textContent = DATA.kpi.budget;
+  document.getElementById('kpiBudgetDelta').textContent = DATA.kpi.budgetDelta;
+
+  // ---------- Schedule ----------
+  document.getElementById('scheduleBody').innerHTML =
+    DATA.schedule.map(r=>`<tr>
+      <td>${r.time}</td><td>${r.title}</td><td>${r.owner}</td>
+    </tr>`).join('');
+
+  // ---------- Customers ----------
+  const customersBody = document.getElementById('customersBody');
+  document.getElementById('pillCustomers').textContent = DATA.customers.length;
+  customersBody.innerHTML = DATA.customers.map(c=>`
+    <tr class="row-customer" data-company="${c.company}">
+      <td>${c.company}</td><td>${c.org}</td><td>${c.contact}</td>
+      <td>${c.email}</td><td>${c.phone}</td>
+      <td><span class="tag ${c.status==='Aktiv'?'ok':(c.status==='Pågående'?'warn':'low')}">${c.status}</span></td>
+    </tr>`).join('');
+
+  // ---------- Products ----------
+  const productsBody = document.getElementById('productsBody');
+  document.getElementById('pillProducts').textContent = DATA.products.length;
+  productsBody.innerHTML = DATA.products.map(p=>`
+    <tr class="row-product" data-sku="${p.sku}">
+      <td>${p.sku}</td><td>${p.name}</td><td>${p.type}</td>
+      <td>${p.qty}</td><td>${p.note}</td>
+      <td><span class="tag ${p.status==='OK'?'ok':(p.status==='Påfylln.'?'warn':'low')}">${p.status}</span></td>
+    </tr>`).join('');
+
+  // ---------- Invoices ----------
+  const invoicesBody = document.getElementById('invoicesBody');
+  invoicesBody.innerHTML = DATA.invoices.map(inv=>`
+    <tr class="row-invoice" data-id="${inv.id}">
+      <td>${inv.id}</td><td>${inv.customer}</td><td>${inv.date}</td>
+      <td>${inv.amount}</td>
+      <td><span class="tag ${inv.status==='Betald'?'ok':(inv.status==='Utkast'?'warn':'') }">${inv.status}</span></td>
+      <td>
+        <button data-action="preview" data-id="${inv.id}" style="border:0;border-radius:8px;padding:6px 10px;background:#e5e7eb;cursor:pointer">👁 Förhandsgr.</button>
+        <button data-action="pdf" data-id="${inv.id}" style="border:0;border-radius:8px;padding:6px 10px;background:#dbeafe;cursor:pointer">⬇︎ PDF</button>
+      </td>
+    </tr>`).join('');
+
+  // ---------- Files ----------
+  const filesBody = document.getElementById('filesBody');
+  filesBody.innerHTML = DATA.files.map(f=>`
+    <tr>
+      <td>${f.name}</td><td>${f.type}</td><td>${f.note}</td><td>${f.sent}</td>
+    </tr>`).join('');
+
+  // ---------- Chart (simple canvas, no lib) ----------
+  // Draw 4 series stacked-ish as translucent bars
+  const ecoCanvas = document.getElementById('ecoChart');
+  const ctx = ecoCanvas.getContext('2d');
+  const W = ecoCanvas.width = ecoCanvas.getBoundingClientRect().width * devicePixelRatio;
+  const H = ecoCanvas.height = 160 * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const labels = ['Mån','Tis','Ons','Tors','Fre','Lör','Sön'];
+  const series = {
+    sales: {color:'rgba(59,130,246,0.35)', data:[40,55,48,62,70,65,58]},
+    costs: {color:'rgba(6,182,212,0.35)', data:[22,31,28,35,30,27,26]},
+    gm:    {color:'rgba(139,92,246,0.35)', data:[18,24,22,27,33,30,28]},
+    budget:{color:'rgba(245,158,11,0.30)', data:[65,66,67,68,70,71,72]}
+  };
+  const max = 80; // scale
+  const pad = 24; const barW = (ecoCanvas.getBoundingClientRect().width - pad*2) / labels.length * 0.6;
+
+  function draw(){
+    const w = ecoCanvas.getBoundingClientRect().width;
+    ctx.clearRect(0,0,w,160);
+    // axis
+    ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+    ctx.beginPath(); ctx.moveTo(pad,140); ctx.lineTo(w-pad,140); ctx.stroke();
+
+    const keys = ['sales','costs','gm','budget'];
+    keys.forEach((k,si)=>{
+      const d = series[k].data;
+      ctx.fillStyle = series[k].color;
+      d.forEach((v,i)=>{
+        const x = pad + i*((w-pad*2)/labels.length) + si*(barW/keys.length);
+        const h = (v/max)*110;
+        const y = 140 - h;
+        ctx.fillRect(x, y, barW/keys.length - 3, h);
+      });
     });
   }
-});
+  draw();
+  window.addEventListener('resize', ()=>{ ecoCanvas.width = ecoCanvas.getBoundingClientRect().width * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio); draw(); });
 
-/* Chat */
-const log=document.getElementById('chatLog');
-const inp=document.getElementById('chatInput');
-const send=document.getElementById('sendBtn');
-function sendMsg(){
-  const t=inp.value.trim(); if(!t) return;
-  const b=document.createElement('div'); b.className='bubble me'; b.textContent=t;
-  log.appendChild(b); log.scrollTop=log.scrollHeight; inp.value='';
-}
-send?.addEventListener('click',sendMsg);
-inp?.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); }});
+  // ---------- Modal logic ----------
+  const overlay = document.getElementById('overlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalContent = document.getElementById('modalContent');
+  document.getElementById('modalClose').onclick = ()=> overlay.classList.remove('show');
 
-/* Add forms (Customers/Inventory) */
-const addCustomerBtn=document.getElementById('addCustomerBtn');
-const addCustomerForm=document.getElementById('addCustomerForm');
-const cancelCustomer=document.getElementById('cancelCustomer');
-addCustomerBtn?.addEventListener('click',()=>{ addCustomerForm.style.display='block'; document.getElementById('addCustomerHint').style.display='none'; });
-cancelCustomer?.addEventListener('click',()=>{ addCustomerForm.style.display='none'; document.getElementById('addCustomerHint').style.display='block'; });
+  function openModal(title, html){
+    modalTitle.textContent = title;
+    modalContent.innerHTML = html;
+    overlay.classList.add('show');
+  }
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.remove('show'); });
 
-const addProdBtn=document.getElementById('addProdBtn');
-const addProdForm=document.getElementById('addProdForm');
-const cancelProd=document.getElementById('cancelProd');
-addProdBtn?.addEventListener('click',()=>{ addProdForm.style.display='block'; document.getElementById('addProdHint').style.display='none'; });
-cancelProd?.addEventListener('click',()=>{ addProdForm.style.display='none'; document.getElementById('addProdHint').style.display='block'; });
+  // KPI panels click → open detail
+  document.querySelectorAll('.kpi-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const which = card.dataset.modal;
+      if(which==='salesModal'){
+        openModal('Omsättning – detalj', `
+          <p class="muted">Detaljvy för Omsättning (idag, vecka, månad).</p>
+          <ul>
+            <li>Idag: <strong>${toKr(DATA.kpi.sales)}</strong> (${DATA.kpi.salesDelta})</li>
+            <li>7 dagar: 312 400 kr</li>
+            <li>30 dagar: 1 224 900 kr</li>
+          </ul>
+        `);
+      } else if(which==='costsModal'){
+        openModal('Kostnader – detalj', `
+          <p>Kostnader idag: <strong>${toKr(DATA.kpi.costs)}</strong> (${DATA.kpi.costsDelta})</p>
+          <p class="muted">Tips (AI): Förhandla fraktavtal – spar 8–12% / månad.</p>
+        `);
+      } else if(which==='gmModal'){
+        openModal('Bruttomarginal – detalj', `
+          <p>Aktuell bruttomarginal: <strong>${DATA.kpi.gm}</strong> (${DATA.kpi.gmDelta})</p>
+          <p class="muted">AI: Öka priset 2% på Kabel 60W – påverkan +0,6 pp.</p>
+        `);
+      } else if(which==='budgetModal'){
+        openModal('Budget – detalj', `
+          <p>Budgetutfall: <strong>${DATA.kpi.budget}</strong> (${DATA.kpi.budgetDelta})</p>
+          <p class="muted">AI: Minska lagerbindning på "Lightning 27W" (lager 22 st) – låg omsättning.</p>
+        `);
+      }
+    });
+  });
 
-/* AI Hooks placeholders (DeepSeek/Ollama) — ej aktiva ännu
-   window.MergX_AI = { provider:'auto', analyze:(ctx)=>Promise.resolve('') };
-*/
+  // Row click handlers
+  customersBody.addEventListener('click', (e)=>{
+    const tr = e.target.closest('.row-customer'); if(!tr) return;
+    const c = DATA.customers.find(x=>x.company===tr.dataset.company);
+    openModal(`Kund: ${c.company}`, `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><strong>Org.nr</strong><br>${c.org}</div>
+        <div><strong>Kontakt</strong><br>${c.contact}</div>
+        <div><strong>E-post</strong><br>${c.email}</div>
+        <div><strong>Telefon</strong><br>${c.phone}</div>
+      </div>
+      <hr style="border:none;border-top:${getComputedStyle(document.body).getPropertyValue('--glass-border')};margin:14px 0">
+      <p class="muted">AI-sammanfattning: Stabil kund med jämn orderingång. Förslag: introducera bil-laddare 2x30W med kampanj.</p>
+    `);
+  });
+
+  productsBody.addEventListener('click', (e)=>{
+    const tr = e.target.closest('.row-product'); if(!tr) return;
+    const p = DATA.products.find(x=>x.sku===tr.dataset.sku);
+    openModal(`Produkt: ${p.name}`, `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><strong>Artikelnummer</strong><br>${p.sku}</div>
+        <div><strong>Typ</strong><br>${p.type}</div>
+        <div><strong>Antal</strong><br>${p.qty}</div>
+        <div><strong>Övrigt</strong><br>${p.note}</div>
+      </div>
+      <p class="muted" style="margin-top:10px">AI: Beställ påfyllning när antal < 30 (nu ${p.qty}).</p>
+    `);
+  });
+
+  invoicesBody.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    const id = btn.dataset.id;
+    if(btn.dataset.action==='preview'){
+      const inv = DATA.invoices.find(x=>x.id===id);
+      openModal(`Faktura: ${id}`, `
+        <p><strong>Kund:</strong> ${inv.customer} &nbsp; • &nbsp; <strong>Datum:</strong> ${inv.date} &nbsp; • &nbsp; <strong>Belopp:</strong> ${inv.amount}</p>
+        <div style="height:320px;border-radius:12px;border:var(--glass-border);background:linear-gradient(180deg,#fff,#f3f4f6);display:grid;place-items:center">PDF-förhandsvisning (mock)</div>
+      `);
+    } else if(btn.dataset.action==='pdf'){
+      alert('Laddar ner PDF (mock)…');
+    }
+  });
+
+  // Notifications
+  document.getElementById('notifyBell').addEventListener('click', ()=>{
+    openModal('Notiser', `
+      <ul>
+        <li>📦 Order #1042 klar för upphämtning 16:00</li>
+        <li>🧾 Faktura INV-1044 väntar godkännande</li>
+        <li>📈 Omsättning +12% vs igår</li>
+      </ul>
+    `);
+  });
+
+  // Chat
+  const chatBox = document.getElementById('chatBox');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  function sendMsg(){
+    const txt = chatInput.value.trim(); if(!txt) return;
+    chatBox.insertAdjacentHTML('beforeend', `<div class="bubble me">${txt}</div>`);
+    chatInput.value='';
+    setTimeout(()=> chatBox.insertAdjacentHTML('beforeend', `<div class="bubble you">AI-coach: Jag noterade det. Vill du skapa en rapport eller uppdatera budgeten?</div>`), 500);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+  chatSend.onclick = sendMsg;
+  chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMsg(); }});
+
+  // Reports buttons
+  document.getElementById('btnGenPDF').onclick = ()=> alert('PDF genererad (mock)');
+  document.getElementById('btnGenSIE').onclick = ()=> alert('SIE export skapad (mock)');
+  document.getElementById('btnSendAuditor').onclick = ()=> alert('Skickad till revisor (mock)');
+
+  // Simple search filter (customers/products)
+  const searchBox = document.getElementById('searchBox');
+  searchBox.addEventListener('input', ()=>{
+    const q = searchBox.value.toLowerCase();
+    [...customersBody.querySelectorAll('tr')].forEach(tr=>{
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+    [...productsBody.querySelectorAll('tr')].forEach(tr=>{
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
 </script>
 </body>
 </html>

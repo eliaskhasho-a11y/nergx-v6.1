@@ -1,83 +1,40 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MergX • v8.37 Core</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="css/styles.css" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MergX v8.38 • Core</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
-  <div class="app">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" aria-label="Primär navigering">
-      <div class="brand">
-        <span class="logo-dot"></span>
-        <div class="brand-txt">
-          <strong>MergX</strong>
-          <small>v8.37 • Core</small>
-        </div>
-      </div>
-
-      <nav class="nav">
-        <button class="nav-link is-active" data-route="overview">
-          <span>Översikt</span>
-        </button>
-        <button class="nav-link" data-route="customers">Kunder</button>
-        <button class="nav-link" data-route="inventory">Inventarie</button>
-        <button class="nav-link" data-route="employees">Anställda</button>
-        <button class="nav-link" data-route="orders">Ordrar & fakturor</button>
-        <button class="nav-link" data-route="files">Filer & kvitton</button>
-        <button class="nav-link" data-route="ai-map">AI-Karta</button>
-        <button class="nav-link" data-route="teamchat">Teamchatt</button>
-        <button class="nav-link" data-route="settings">Inställningar</button>
+  <div id="app">
+    <aside class="sidebar">
+      <h1>MergX</h1>
+      <p class="version">v8.38 • Core</p>
+      <nav>
+        <ul>
+          <li data-page="overview">Översikt</li>
+          <li data-page="customers">Kunder</li>
+          <li data-page="inventory">Inventarie</li>
+          <li data-page="employees">Anställda</li>
+          <li data-page="orders">Ordrar & fakturor</li>
+          <li data-page="files">Filer & kvitton</li>
+          <li data-page="ai-map">AI-Karta</li>
+          <li data-page="teamchat">Teamchatt</li>
+          <li data-page="settings">Inställningar</li>
+        </ul>
       </nav>
-
-      <div class="sidebar-footer">
-        <div class="mini-controls">
-          <button class="chip" id="themeToggle" aria-label="Byt tema">Tema</button>
-          <button class="chip" id="langToggle" aria-label="Byt språk">Språk</button>
-        </div>
-      </div>
+      <footer>
+        <button id="themeToggle">🌓 Tema</button>
+      </footer>
     </aside>
 
-    <!-- MAIN -->
-    <main class="main">
-      <header class="topbar" aria-label="App-huvud">
-        <div class="search-wrap">
-          <input type="search" id="globalSearch" placeholder="Sök kunder, order, produkter…" />
-        </div>
-        <div class="topbar-actions">
-          <button class="btn ghost" id="askAI">Ask AI</button>
-          <button class="btn" id="openAINav" aria-expanded="false" aria-controls="aiNav">AI-Nav</button>
-        </div>
-      </header>
-
-      <!-- Innehåll som byts ut av router -->
-      <section id="app" class="content" aria-live="polite" aria-busy="true">
-        <!-- Laddas in via js/app.js (pages/*.html) -->
-      </section>
+    <main id="content">
+      <div class="loader">Laddar MergX ...</div>
     </main>
   </div>
 
-  <!-- OVERLAY + MODAL/AI-NAV ROOTS -->
-  <div id="overlay" class="overlay" hidden></div>
-
-  <aside id="aiNav" class="ai-nav" aria-label="AI-panel" aria-hidden="true">
-    <header class="ai-nav__hdr">
-      <strong>AI-Nav</strong>
-      <button class="icon-btn" id="closeAINav" aria-label="Stäng AI-Nav">✕</button>
-    </header>
-    <div class="ai-nav__scroll">
-      <!-- Steg 3 fyller detta med AI-Förslag, Notiser, Rutt & Leads -->
-      <div class="card muted">
-        <p>AI-Nav kommer här i steg 3 (separerad panel med glas, riktig layout och knappar).</p>
-      </div>
-    </div>
-  </aside>
-
-  <script src="js/app.js" type="module"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

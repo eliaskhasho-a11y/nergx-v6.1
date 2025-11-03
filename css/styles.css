@@ -1,179 +1,186 @@
-/* =========================================================
-   MergX v8.42 — Deep Aurora Glass (stabil)
-   ========================================================= */
+/* ================================
+   MergX v8.42 – Deep Aurora Glass
+   ================================ */
 
-/* ---------- CSS variables for quick tweaking ---------- */
-:root{
-  /* Base */
-  --bg-1: #070b1a;
-  --bg-2: #0e1a2e;
-  --glow-cyan: 36, 228, 255;  /* rgb */
+:root {
+  --bg-1: #050814;
+  --bg-2: #0d1a2b;
+  --glow-cyan: 36, 228, 255;
   --glow-violet: 139, 77, 255;
-
-  /* Glass */
-  --glass-bg: 255,255,255;          /* white base for translucency */
-  --glass-alpha: 0.12;              /* panel translucency */
-  --glass-alpha-strong: 0.14;       /* KPI/headers */
-  --glass-blur: 18px;               /* panel blur */
-  --glass-border: rgba(255,255,255,0.10);
-  --glass-border-soft: rgba(255,255,255,0.08);
-
-  /* Backdrop blur when modal/open overlay */
+  --glass-bg: 255, 255, 255;
+  --glass-alpha: 0.10;
+  --glass-alpha-strong: 0.14;
+  --glass-blur: 18px;
   --overlay-blur: 30px;
-
-  /* Text & accents */
   --text: #e8ecff;
-  --text-soft: rgba(232,236,255,0.88);
-  --muted: rgba(232,236,255,0.68);
   --accent: #5eaaff;
-  --success: #5ee6a9;
-  --warning: #ffd365;
-  --danger: #ff7b7b;
-
-  /* Radius & shadows */
   --radius: 18px;
-  --shadow: 0 8px 24px rgba(0,0,0,0.45);
-  --shadow-strong: 0 12px 40px rgba(0,0,0,0.55);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* ---------- Base layout ---------- */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-
-body{
-  margin:0;
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background:
-    radial-gradient(at 18% 22%, rgba(var(--glow-cyan),0.06), transparent 55%),
-    radial-gradient(at 82% 78%, rgba(var(--glow-violet),0.08), transparent 65%),
-    linear-gradient(135deg, var(--bg-1), var(--bg-2));
+  background: radial-gradient(at 20% 20%, rgba(var(--glow-cyan), 0.05), transparent 60%),
+              radial-gradient(at 80% 80%, rgba(var(--glow-violet), 0.06), transparent 70%),
+              linear-gradient(135deg, var(--bg-1), var(--bg-2));
   background-attachment: fixed;
 }
 
-/* ---------- Structural helpers (attach these classes in HTML) ---------- */
-.layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
-.sidebar{
-  position: sticky; top:0; height:100vh; padding:16px 12px;
-  background: rgba(var(--glass-bg), 0.06);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border-right: 1px solid var(--glass-border-soft);
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
 }
-.main{ padding: 20px; }
 
-/* ---------- Glass building blocks ---------- */
-.card, .panel, .module, .kpi, .nav-card{
-  position: relative;
+.sidebar {
+  padding: 20px 16px;
+  background: rgba(var(--glass-bg), 0.05);
+  backdrop-filter: blur(22px);
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar h1 {
+  font-size: 22px;
+  margin: 0 0 5px;
+}
+.sidebar small {
+  color: rgba(255,255,255,0.6);
+}
+.nav a {
+  display: block;
+  padding: 10px 12px;
+  margin: 3px 0;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+.nav a:hover,
+.nav a.active {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.sidebar-footer {
+  position: absolute;
+  bottom: 20px;
+}
+.main {
+  padding: 24px 28px;
+}
+
+/* Cards / Panels */
+.card {
   background: rgba(var(--glass-bg), var(--glass-alpha));
   backdrop-filter: blur(var(--glass-blur)) saturate(130%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(130%);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius);
+  padding: 18px 20px;
   box-shadow: var(--shadow);
+  position: relative;
 }
 
-/* Stronger glass for top KPIs or sticky surfaces */
-.kpi, .nav-card { background: rgba(var(--glass-bg), var(--glass-alpha-strong)); }
-
-/* Subtle color shimmer on glass */
-.card::before, .panel::before, .module::before, .kpi::before{
-  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background: linear-gradient(135deg,
-    rgba(var(--glow-violet),0.07), rgba(var(--glow-cyan),0.07));
-  mix-blend-mode: overlay;
-}
-
-/* Headings & text */
-h1,h2,h3,h4 { margin:0 0 10px; color: var(--text); font-weight: 600; letter-spacing: .2px; }
-p,span,li { color: var(--text-soft); }
-
-/* ---------- KPI cards ---------- */
-.kpi { padding:16px 18px; }
-.kpi-title{ font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); }
-.kpi-value{ font-size:22px; font-weight:700; line-height:1.2; }
-.kpi-delta{ font-size:12px; margin-top:6px; }
-.kpi-delta.up{ color: var(--success); }
-.kpi-delta.down{ color: var(--danger); }
-
-/* ---------- Buttons ---------- */
-button, .btn{
-  background: rgba(var(--glass-bg), 0.16);
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 40px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: all .2s ease;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-button:hover, .btn:hover{
-  background: rgba(var(--glass-bg), 0.22);
-  box-shadow: 0 0 14px rgba(var(--glow-violet),0.35);
-}
-
-/* ---------- Lists / nav ---------- */
-.nav a{
-  display:block; padding:10px 12px; margin:4px 0;
-  color: var(--text-soft); text-decoration:none; border-radius: 12px;
-}
-.nav a.active, .nav a:hover{
-  color: var(--text);
-  background: rgba(var(--glass-bg),0.16);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-/* ---------- Modal & overlay (background blur 30px) ---------- */
-.modal-backdrop{
-  position: fixed; inset:0; z-index: 1000;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(var(--overlay-blur)) brightness(.65);
-  -webkit-backdrop-filter: blur(var(--overlay-blur)) brightness(.65);
-}
-.modal{
-  position: fixed; inset: 50% auto auto 50%;
-  transform: translate(-50%,-50%);
-  width: min(900px, 92vw);
-  padding: 16px;
-  z-index: 1001;
-}
-.modal .modal-content{ padding: 14px; }
-
-/* ---------- Grid helpers ---------- */
-.grid { display:grid; gap:16px; }
-.grid.kpi-4 { grid-template-columns: repeat(4, 1fr); }
-.grid.two  { grid-template-columns: 1fr 1fr; }
-.grid.main3 { grid-template-columns: 2fr 1fr; }
-
-/* ---------- Cards spacing ---------- */
-.section { margin: 16px 0; }
-
-/* ---------- Charts placeholder (until library mounts) ---------- */
-.chart-placeholder{
-  height: 300px; display:flex; align-items:center; justify-content:center;
-  color: var(--muted);
-  background: repeating-linear-gradient(
-    135deg,
-    rgba(255,255,255,0.03) 0 12px, rgba(255,255,255,0.01) 12px 24px
-  );
+/* Subtle shimmer */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-radius: inherit;
+  background: linear-gradient(135deg, rgba(var(--glow-violet),0.07), rgba(var(--glow-cyan),0.07));
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
-/* ---------- Scrollbars ---------- */
-::-webkit-scrollbar{ width:8px; height:8px; }
-::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.14); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover{ background: rgba(255,255,255,0.22); }
+/* KPI grid */
+.grid.kpi-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.kpi {
+  background: rgba(var(--glass-bg), var(--glass-alpha-strong));
+  padding: 16px 18px;
+  border-radius: var(--radius);
+}
+.kpi-title {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.kpi-delta {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.kpi-delta.up { color: #5ee6a9; }
+.kpi-delta.down { color: #ff7b7b; }
 
-/* ---------- Reduced motion ---------- */
-@media (prefers-reduced-motion: reduce){
-  *{ transition:none !important; animation:none !important; }
+/* 2-column grid for lower panels */
+.grid.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-/* ---------- Backdrop-filter fallback ---------- */
-@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
-  .card, .panel, .module, .kpi, .nav-card{
-    background: rgba(20,24,40, 0.92); /* opaque fallback */
-    box-shadow: var(--shadow-strong);
-  }
+/* Chart placeholder */
+.chart-placeholder {
+  text-align: center;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+
+/* Chat */
+.chat {
+  background: rgba(255,255,255,0.06);
+  padding: 10px;
+  border-radius: 12px;
+  height: 100px;
+  overflow-y: auto;
+}
+.chat-input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+
+/* Buttons */
+.btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 30px;
+  padding: 8px 18px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn:hover {
+  background: rgba(255,255,255,0.22);
+  box-shadow: 0 0 12px rgba(var(--glow-violet),0.4);
+}
+
+/* Modal blur */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(var(--overlay-blur)) brightness(0.6);
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 80%;
+  max-width: 900px;
+  padding: 20px;
+  z-index: 1000;
 }

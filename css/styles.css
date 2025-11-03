@@ -1,76 +1,94 @@
-/* ==== Dark Transparent Glass — fixad ton ==== */
+/* ======================================================
+   MergX v8.41 — TRUE GLASS BLUR EDITION
+   Transparent dark theme with blur-on-focus modal
+   ====================================================== */
+
+/* -------- Root Variables -------- */
 :root {
-  --color-bg: #05091F; /* djupare bakgrund */
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-border: rgba(255, 255, 255, 0.10);
+  --color-bg: #05091F;
   --color-text: #EDEDED;
+  --color-surface: rgba(255,255,255,0.05);
+  --color-border: rgba(255,255,255,0.10);
 
   --color-accent-blue: #4D83FF;
   --color-accent-green: #58D0A6;
   --color-accent-pink: #E56F8C;
 
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-glow: rgba(90, 150, 255, 0.12);
+  --glass-bg: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-glow: rgba(77,131,255,0.12);
 
   --font-main: 'Inter', system-ui, sans-serif;
   --radius: 14px;
 }
 
-body {
-  background: radial-gradient(circle at 20% 10%, #0B1130 0%, #05091F 80%);
+/* -------- Base -------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: radial-gradient(circle at 25% 10%, #0B1130 0%, #05091F 80%);
   color: var(--color-text);
   font-family: var(--font-main);
   font-size: 15px;
+  overflow: hidden;
 }
 
-/* Glas-paneler med subtil skillnad mot bakgrund */
-.card,
-.kpi-card,
-.ai-section,
-.sidebar,
-.ai-nav {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  box-shadow:
-    inset 0 0 20px rgba(255,255,255,0.04),
-    0 0 25px var(--glass-glow);
-  transition: all 0.2s ease;
+/* -------- Layout -------- */
+#app {
+  display: grid;
+  grid-template-columns: 220px 1fr 340px;
+  height: 100vh;
 }
 
-/* Hover-effekt: tydligare ljusreflektion */
-.kpi-card:hover, .card:hover, .ai-section:hover {
-  background: rgba(255, 255, 255, 0.10);
-  box-shadow:
-    inset 0 0 25px rgba(255,255,255,0.08),
-    0 0 35px rgba(77,131,255,0.25);
-}
-
-/* Sidebar & AI-panel tydligare glasramar */
+/* -------- Sidebar -------- */
 .sidebar {
-  background: rgba(255,255,255,0.05);
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.04);
-}
-.ai-nav {
-  background: rgba(255,255,255,0.05);
-  box-shadow: inset 0 0 60px rgba(255,255,255,0.06);
+  background: var(--glass-bg);
+  border-right: 1px solid var(--glass-border);
+  padding: 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: inset 0 0 40px rgba(255,255,255,0.03);
 }
 
-/* Text-kontrastjustering */
-h3, h4 {
+.sidebar h1 {
+  font-size: 1.3rem;
+  margin: 0 0 0.3rem;
   color: var(--color-accent-blue);
 }
-.change.up { color: var(--color-accent-green); }
-.change.down { color: var(--color-accent-pink); }
 
-/* Modal fix — mer glas, mindre grå */
-.modal {
-  background: rgba(20, 25, 40, 0.6);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 0 40px var(--glass-glow);
+.sidebar .version {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-bottom: 1rem;
 }
-/* -------- Main Content -------- */
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 0.6rem 0.9rem;
+  margin: 0.2rem 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.sidebar li:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.sidebar li.active {
+  background: rgba(77,131,255,0.25);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(77,131,255,0.35);
+}
+
+/* -------- Main -------- */
 main#content {
   background: transparent;
   padding: 1.5rem 2rem;
@@ -83,7 +101,7 @@ main#content {
   opacity: 0.6;
 }
 
-/* KPI Row */
+/* KPI Cards */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -101,6 +119,7 @@ main#content {
 }
 
 .kpi-card:hover {
+  background: rgba(255,255,255,0.08);
   box-shadow: 0 0 20px rgba(255,255,255,0.15);
   transform: translateY(-2px);
 }
@@ -121,7 +140,6 @@ main#content {
   font-size: 0.85rem;
   font-weight: 500;
 }
-
 .change.up { color: var(--color-accent-green); }
 .change.down { color: var(--color-accent-pink); }
 
@@ -133,32 +151,25 @@ main#content {
   padding: 1rem 1.2rem;
   margin-top: 1.2rem;
   box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
+  transition: all 0.25s ease;
 }
-
-.card.large {
-  height: 260px;
-}
-
 .card h3 {
-  margin: 0 0 0.6rem 0;
+  margin: 0 0 0.6rem;
   color: var(--color-accent-blue);
   font-size: 1rem;
 }
-
-/* AI Card */
-.ai-card {
-  color: var(--color-text);
-  font-size: 0.9rem;
+.card:hover {
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 25px rgba(77,131,255,0.18);
 }
 
-/* Split Layout (AI-Map + Chat) */
+/* Split Layout (AI-karta + Chat) */
 .split {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 1.2rem;
 }
-
 .half {
   height: 280px;
 }
@@ -180,15 +191,12 @@ main#content {
   padding: 0.8rem 1rem;
   box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
 }
-
 .ai-section h3 {
   color: var(--color-accent-blue);
   margin: 0 0 0.5rem;
   font-size: 1rem;
 }
-
-.ai-section ul,
-.ai-section ol {
+.ai-section ul, .ai-section ol {
   margin: 0;
   padding-left: 1.2rem;
   font-size: 0.85rem;
@@ -204,12 +212,10 @@ main#content {
   padding: 0.6rem;
   margin-bottom: 0.6rem;
 }
-
 .msg {
   margin-bottom: 0.4rem;
   font-size: 0.85rem;
 }
-
 input[type="text"] {
   width: 100%;
   background: rgba(255,255,255,0.07);
@@ -220,30 +226,46 @@ input[type="text"] {
   font-size: 0.9rem;
 }
 
-/* -------- Modal -------- */
+/* -------- Modal Overlay + Blur -------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);      /* ≈30 % blur */
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
+  transition: all 0.3s ease;
 }
-.modal-overlay.hidden { display: none; }
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: none;
+}
 
+/* -------- Modal Window -------- */
 .modal {
-  background: rgba(20,22,25,0.6);
-  border: 1px solid var(--glass-border);
+  background: rgba(20,25,40,0.45);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 18px;
   padding: 2rem;
-  width: 480px;
+  width: 540px;
   max-width: 90%;
   color: #fff;
-  box-shadow: 0 0 35px var(--glass-glow);
+  box-shadow:
+    0 0 40px rgba(77,131,255,0.2),
+    inset 0 0 20px rgba(255,255,255,0.04);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   position: relative;
+  animation: glassFadeIn 0.25s ease forwards;
 }
-
+@keyframes glassFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
 #closeModal {
   position: absolute;
   top: 1rem;
@@ -255,10 +277,8 @@ input[type="text"] {
   cursor: pointer;
 }
 
-/* -------- Scrollbar (subtle) -------- */
-::-webkit-scrollbar {
-  width: 8px;
-}
+/* -------- Scrollbar -------- */
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.15);
   border-radius: 10px;
@@ -267,7 +287,7 @@ input[type="text"] {
   background: rgba(255,255,255,0.25);
 }
 
-/* -------- Light Mode (toggle) -------- */
+/* -------- Light Mode Toggle -------- */
 body.light {
   --color-bg: #F4F6FB;
   --color-text: #1E1E1E;

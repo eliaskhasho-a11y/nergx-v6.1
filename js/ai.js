@@ -1,100 +1,105 @@
-/* =====================================================
-   MergX v8.35 • AI Layer (Simulated Intelligence Engine)
-   ===================================================== */
+/* =========================================================
+   MergX v8.36 • ai.js
+   AI-panel, AI-karta (mock) & smarta analyser
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("AI Layer activated 🧠");
+  console.log("🤖 MergX AI-modul initierad");
 
-  const aiSummary = document.getElementById("ai-summary-text");
-  const mapArea = document.getElementById("mapArea");
-  const chatMessages = document.getElementById("chatMessages");
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
-  /* === AI MOCK DATA === */
-  const stores = [
-    { name: "Elon Kista", city: "Stockholm", note: "Vill köpa produkter om 20 dagar" },
-    { name: "Power Täby", city: "Täby", note: "Intresserade av laddare (A-Stick)" },
-    { name: "Mekonomen Solna", city: "Solna", note: "Behöver offert på 30 kablar" },
+  /* ---------- AI-NOTISER & FÖRSLAG ---------- */
+  const aiSuggestions = $("#ai-suggestions");
+  const aiNotifications = $("#ai-notifications");
+  const aiTotal = $("#ai-total-analysis");
+
+  const suggestions = [
+    "Planera nästa kundbesök hos Elon Kista (20 dagar).",
+    "Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm.",
+    "Föreslår prisjustering på Lightning 27 W – upp 5 %.",
+    "Lägg till AI-rapport för fortnox-export varje fredag."
   ];
 
-  const aiInsights = [
-    "Försäljningen ökar 12 % i norra Stockholm.",
-    "Tre återförsäljare har låg lagernivå – föreslå påfyllning.",
-    "Säljarna har i genomsnitt 1,8 möten per dag denna vecka.",
-    "AI-förslag: prioritera besök hos Power-kedjan imorgon.",
+  const notifications = [
+    "3 nya kvitton registrerade av anställda.",
+    "En ny order skapad för Power Barkarby.",
+    "AI-ruttuppdatering tillgänglig för Solna-området."
   ];
 
-  /* === AI-SAMMANFATTNING ROTATION === */
-  let insightIndex = 0;
-  setInterval(() => {
-    aiSummary.textContent = aiInsights[insightIndex];
-    insightIndex = (insightIndex + 1) % aiInsights.length;
-  }, 6000);
+  aiSuggestions.innerHTML = suggestions.map(s => `<li>${s}</li>`).join("");
+  aiNotifications.innerHTML = notifications.map(n => `<li>${n}</li>`).join("");
+  aiTotal.textContent = "AI-analys klar: stabil omsättning, stigande ordervolym och högre marginaler än föregående vecka.";
 
-  /* === AI-KARTA MOCK: VISAR NÄRLIGGANDE BUTIKER === */
-  if (mapArea) {
-    const list = document.createElement("ul");
-    list.className = "store-list";
-    stores.forEach((s) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${s.name}</strong> – ${s.city} <br><span>${s.note}</span>`;
-      list.appendChild(li);
+  /* ---------- AI-RUTT & KARTA ---------- */
+  function initMap(targetId, center = [59.334, 18.063], zoom = 10) {
+    const container = document.getElementById(targetId);
+    if (!container || typeof L === "undefined") return;
+
+    container.innerHTML = "";
+    const map = L.map(targetId, { scrollWheelZoom: false }).setView(center, zoom);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+
+    const mockPlaces = [
+      { name: "Elon Kista", pos: [59.42, 17.94], note: "Vill köpa produkter om 20 dagar" },
+      { name: "Mekonomen Solna", pos: [59.36, 18.02], note: "Befintlig kund" },
+      { name: "Power Barkarby", pos: [59.41, 17.86], note: "Bra läge för demo" }
+    ];
+
+    mockPlaces.forEach(p => {
+      L.marker(p.pos).addTo(map)
+        .bindPopup(`<b>${p.name}</b><br>${p.note}`);
     });
-    mapArea.innerHTML = "";
-    mapArea.appendChild(list);
   }
 
-  /* === SMART ROUTE-PLANER MOCK === */
-  function suggestRoute() {
-    const sorted = stores.sort(() => Math.random() - 0.5);
-    return sorted.map((s, i) => `${i + 1}. ${s.name} (${s.city})`).join("\n");
-  }
+  // Init mini- och fullkarta
+  initMap("map-mini");
+  initMap("map-full");
 
-  /* === AI-CHATT: DJUPARE ANALYS === */
-  function addAIResponse(userText) {
-    const msg = document.createElement("div");
-    msg.classList.add("msg", "system");
+  // Modal-kartan initieras när den öppnas
+  const modalAImap = document.getElementById("modal-aimap");
+  modalAImap?.addEventListener("close", () => console.log("🗺️ AI-karta stängd"));
+  modalAImap?.addEventListener("show", () => initMap("map-modal"));
 
-    let reply = "Jag analyserar ...";
+  /* ---------- AI-RUTT-FÖRSLAG ---------- */
+  const aiRoute = $("#ai-route");
+  aiRoute.innerHTML = `
+    <p><strong>Rekommenderad rutt:</strong></p>
+    <ol>
+      <li>Start – Acetek HQ (08:00)</li>
+      <li>Elon Kista (09:15)</li>
+      <li>Mekonomen Solna (11:00)</li>
+      <li>Lunch – Mall of Scandinavia (12:30)</li>
+      <li>Power Barkarby (14:00)</li>
+      <li>Åter till HQ (15:30)</li>
+    </ol>
+  `;
 
-    if (/kund|customer/i.test(userText))
-      reply = "Totalt 54 aktiva kunder. 3 nya potentiella identifierade via kart-AI.";
-    else if (/order/i.test(userText))
-      reply = "Orderflödet är stabilt. Rekommenderar uppföljning på 2 försenade fakturor.";
-    else if (/rutt|route/i.test(userText))
-      reply = `Föreslagen smart sälj-rutt:\n${suggestRoute()}`;
-    else if (/kostnad|budget|utgift/i.test(userText))
-      reply = "Utgifterna ökade 5 % senaste veckan. AI föreslår kostnadsöversyn av leverantörer.";
-    else if (/hej|hello/i.test(userText))
-      reply = "Hej! Jag är din MergX AI-assistent. Vad vill du veta?";
-    else if (/notis|note/i.test(userText))
-      reply = "AI har skapat en notis för Elon Kista: uppföljning om 20 dagar.";
-    else
-      reply = "Jag håller koll på data och förbereder en ny analys.";
+  // Mock-knappar som triggar AI-logik
+  document.querySelectorAll("[data-ai]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.ai;
+      console.log(`🧠 AI-trigger: ${type}`);
+      switch (type) {
+        case "eco":
+          alert("AI-analys av ekonomi: försäljningen drivs av USB-C 60 W.");
+          break;
+        case "route":
+          alert("AI-rutt beräknad! Se högerpanelen → AI-Rutt & Leads.");
+          break;
+        case "orders":
+          alert("AI-orderförslag: skapa ny order för Elon Kista.");
+          break;
+        case "kpi":
+          alert("AI-tolkning av KPI: stabil trend, fortsätt fokusera på Stockholm.");
+          break;
+        default:
+          alert("AI-funktion under utveckling.");
+      }
+    });
+  });
 
-    setTimeout(() => {
-      msg.textContent = reply;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 700);
-  }
-
-  // Knyt till chat-input
-  const chatInput = document.getElementById("chatInput");
-  const chatSend = document.getElementById("chatSend");
-  if (chatSend && chatInput) {
-    chatSend.addEventListener("click", () => addAIResponse(chatInput.value));
-  }
-
-  /* === AI-NOTISER (visual feedback) === */
-  function createAINotification(text) {
-    const note = document.createElement("div");
-    note.className = "ai-toast";
-    note.textContent = `🤖 ${text}`;
-    document.body.appendChild(note);
-    setTimeout(() => note.classList.add("show"), 50);
-    setTimeout(() => note.remove(), 4500);
-  }
-
-  // Exempel på automatisk AI-notis
-  setTimeout(() => createAINotification("AI har upptäckt låg lagerstatus på 2 artiklar."), 9000);
+  console.log("✅ AI-funktioner aktiva");
 });

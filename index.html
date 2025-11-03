@@ -1,578 +1,730 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MergX v8.19 – Admin</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MergX v8.20 — Admin</title>
 
-  <!-- Leaflet (karta) -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Chart.js (kombograf) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- Chart.js (grafer) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Leaflet (AI-karta) -->
+<link  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <style>
-    :root{
-      --bg:#f6f8fb;
-      --card:#ffffff;
-      --text:#101828;
-      --muted:#667085;
-      --primary:#2563eb;   /* blå pastell */
-      --accent:#22c55e;    /* grön */
-      --danger:#ef4444;
-      --shadow: 0 10px 32px rgba(16,24,40,.06), 0 4px 10px rgba(16,24,40,.04);
-      --radius:16px;
-      --gap:16px;
-      --glass-stroke:#e9edf5;
-    }
+<style>
+:root{
+  --bg:#f6f8fb;
+  --card:#ffffffcc;          /* glass */
+  --glass-stroke:#e7eef6;
+  --text:#0f1828;
+  --muted:#6b7a90;
+  --primary:#2563eb;         /* blå pastell */
+  --accent:#22c55e;          /* grön */
+  --danger:#ef4444;          /* röd */
+  --shadow:0 10px 30px rgba(16,24,40,.06);
+  --radius:16px;
+  --gap:16px;
+  --z-appbar:1000;
+  --z-pop:2000;              /* expander/AI-popovers över sökfält */
+}
 
-    /* EN (1) body – all layout startar här */
-    html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 20% -10%, #e9f0ff 0%, transparent 60%),
-        var(--bg);
-      font:15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial;
-      -webkit-font-smoothing:antialiased;
-      overflow-x:hidden;
-    }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:
+   radial-gradient(1200px 600px at 20% -10%,#e9f0ff 0%, transparent 60%),
+   var(--bg);
+  font:15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial;
+  color:var(--text);
+}
 
-    .app{
-      display:grid;
-      grid-template-columns: 260px 1fr;
-      min-height:100dvh;
-    }
+/* Layout */
+.app{
+  display:grid;
+  grid-template-columns: 260px 1fr;
+  min-height:100dvh;
+}
+.aside{
+  padding:20px 14px;
+  background: #ffffffb3;
+  backdrop-filter: blur(12px);
+  border-right:1px solid var(--glass-stroke);
+  position:sticky; top:0; align-self:start; height:100dvh;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:16px;
+}
+.brand .logo{
+  width:28px; height:28px; border-radius:8px;
+  background: linear-gradient(135deg,#4f46e5 0%, #22d3ee 100%);
+  box-shadow:0 8px 20px rgba(79,70,229,.35);
+}
+.brand small{color:var(--muted)}
+.nav a{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; margin:6px 0; border-radius:12px;
+  color:var(--text); text-decoration:none;
+}
+.nav a:hover,.nav a.active{background:#ffffff; box-shadow: var(--shadow);}
 
-    /* Sidebar */
-    .sidebar{
-      position:sticky; top:0; align-self:start;
-      background:rgba(255,255,255,.65);
-      backdrop-filter: blur(12px);
-      border-right:1px solid var(--glass-stroke);
-      padding:20px 12px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; margin-bottom:16px;
-      font-weight:700;
-    }
-    .brand .x{
-      width:28px; height:28px; border-radius:8px;
-      background:linear-gradient(135deg,#1d4ed8,#22d3ee); display:inline-block;
-    }
-    .nav{
-      display:flex; flex-direction:column; gap:8px;
-    }
-    .nav a{
-      text-decoration:none; color:var(--text);
-      padding:10px 12px; border-radius:10px; display:flex; gap:10px; align-items:center;
-    }
-    .nav a.active, .nav a:hover{
-      background:rgba(37,99,235,.08);
-    }
+.main{
+  display:grid; grid-template-rows: auto 1fr;
+}
 
-    /* Topbar */
-    .topbar{
-      position:sticky; top:0; z-index:10;
-      display:flex; gap:12px; align-items:center;
-      padding:12px;
-      background:rgba(255,255,255,.7);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--glass-stroke);
-    }
-    .search{
-      flex:1; position:relative;
-    }
-    .search input{
-      width:100%; border:1px solid var(--glass-stroke);
-      background:rgba(255,255,255,.8);
-      padding:12px 14px; border-radius:12px;
-      outline:none;
-    }
-    .to-oversikt{ padding:10px 12px; border-radius:10px; border:1px solid var(--glass-stroke); background:var(--card)}
+/* Appbar */
+.appbar{
+  position:sticky; top:0; z-index:var(--z-appbar);
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px;
+  background:#ffffffcc; backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--glass-stroke);
+}
+.search{
+  flex:1; position:relative;
+}
+.search input{
+  width:100%; padding:12px 14px 12px 38px; border-radius:14px;
+  border:1px solid var(--glass-stroke); outline:none; background:#fff;
+}
+.search .ico{position:absolute; left:12px; top:50%; translate:0 -50%; opacity:.55}
+.appbar .btn{
+  background:#fff; border:1px solid var(--glass-stroke); border-radius:12px;
+  padding:10px 12px; cursor:pointer;
+}
+.badge{
+  display:inline-block; min-width:18px; height:18px; line-height:18px; font-size:12px;
+  background:#ef4444; color:#fff; text-align:center; border-radius:999px; padding:0 6px;
+}
 
-    /* Containers & kort */
-    .main{ padding:18px; }
-    .grid{ display:grid; gap:16px }
-    .grid.cols-2{ grid-template-columns: 2fr 1fr }
-    .grid.cols-3{ grid-template-columns: repeat(3,1fr) }
-    .grid.cols-4{ grid-template-columns: repeat(4,1fr) }
+/* Content area */
+.content{padding:18px; display:grid; gap:18px}
 
-    .card{
-      background:rgba(255,255,255,.9);
-      backdrop-filter: blur(12px);
-      border:1px solid var(--glass-stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:16px;
-    }
-    .card h3{ margin:0 0 10px 0; font-size:16px }
+/* Cards */
+.card{
+  background:var(--card); backdrop-filter:blur(10px);
+  border:1px solid var(--glass-stroke); border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card .head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 14px; border-bottom:1px solid var(--glass-stroke);
+}
+.card .body{padding:14px}
 
-    .kpi{
-      display:flex; flex-direction:column; gap:8px;
-      min-height:110px;
-    }
-    .kpi .value{ font-size:28px; font-weight:800 }
-    .kpi .trend{ display:block; height:28px; border-radius:14px; background:#ecfdf5; color:#16a34a; font-weight:700; display:flex; align-items:center; padding:0 12px; width:30%}
+.kpi-grid{
+  display:grid; gap:18px;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+}
+.kpi{padding:16px}
+.kpi .muted{color:var(--muted); font-weight:600}
+.kpi .value{font-size:28px; font-weight:800; margin-top:4px}
+.kpi .delta{margin-top:10px; height:28px; background:#e8f8ee; color:#0a8851; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700}
+.kpi .delta.red{background:#eef5ff; color:#1e40af}
 
-    /* Tabeller */
-    table{ width:100%; border-collapse:collapse; }
-    th,td{ text-align:left; padding:10px 8px; border-bottom:1px solid #eef2f7 }
-    th{ color:var(--muted); font-weight:600 }
+.grid-2{
+  display:grid; grid-template-columns: 1.7fr .9fr; gap:18px;
+}
+.grid-2 .col{display:grid; gap:18px}
 
-    /* actions */
-    .btn{ border:1px solid var(--glass-stroke); background:var(--card); padding:8px 10px; border-radius:10px; cursor:pointer }
-    .btn.primary{ background:var(--primary); color:#fff; border-color:transparent }
-    .btn.danger{ background:var(--danger); color:#fff; border-color:transparent }
-    .btn.ghost{ background:transparent }
+/* Chart */
+#ecoChart{max-height:360px}
 
-    /* expand-sheet (icke blockerande modal) */
-    .sheet{
-      position:fixed; inset:auto 0 0 0; translate:0 100%;
-      transition:translate .25s ease; z-index:20;
-      background:rgba(255,255,255,.95); backdrop-filter:blur(10px);
-      border-top:1px solid var(--glass-stroke);
-      padding:16px 18px; max-height:60dvh; overflow:auto;
-      box-shadow:0 -12px 30px rgba(16,24,40,.08)
-    }
-    .sheet.open{ translate:0 0 }
-    .sheet h4{ margin:0 0 8px 0 }
+/* Map */
+.mapwrap{height:300px; border-radius:12px; overflow:hidden}
+#map{height:100%}
 
-    /* chatt-widget */
-    .chat{
-      position:fixed; right:16px; bottom:16px; width:360px; max-width:90dvw;
-      background:var(--card); border:1px solid var(--glass-stroke); border-radius:12px; box-shadow:var(--shadow); overflow:hidden;
-    }
-    .chat header{ padding:10px 12px; font-weight:700; background:rgba(37,99,235,.08) }
-    .chat .messages{ height:240px; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:8px}
-    .bubble{ padding:8px 10px; border-radius:10px; max-width:80%}
-    .me{ background:#e0f2fe; align-self:flex-end }
-    .other{ background:#eef2ff }
-    .chat .inputbar{ display:flex; gap:8px; padding:10px; border-top:1px solid var(--glass-stroke) }
-    .chat input{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--glass-stroke) }
+/* Chat */
+.chat-list{display:flex; flex-direction:column; gap:8px}
+.msg{max-width:82%; padding:10px 12px; border-radius:14px}
+.me{align-self:flex-end; background:#2563eb; color:#fff}
+.them{align-self:flex-start; background:#eef2ff; color:#1e3a8a}
+.chat-input{
+  display:flex; align-items:center; gap:8px; margin-top:10px
+}
+.chat-input input{
+  flex:1; padding:12px; border-radius:12px; border:1px solid var(--glass-stroke); background:#fff;
+}
+.chat-input .circle{
+  width:40px; height:40px; border-radius:999px; display:grid; place-items:center;
+  background:#fff; border:1px solid var(--glass-stroke); cursor:pointer;
+}
 
-    /* responsivt */
-    @media (max-width: 1100px){
-      .grid.cols-4{ grid-template-columns: repeat(2,1fr) }
-      .grid.cols-3{ grid-template-columns: repeat(2,1fr) }
-      .grid.cols-2{ grid-template-columns: 1fr }
-      .app{ grid-template-columns: 220px 1fr }
-    }
-    @media (max-width: 860px){
-      .app{ grid-template-columns: 1fr }
-      .sidebar{ position:static; border-right:0; border-bottom:1px solid var(--glass-stroke) }
-    }
-  </style>
+/* Tables */
+.table{width:100%; border-collapse:collapse}
+.table th,.table td{padding:10px 12px; border-bottom:1px solid var(--glass-stroke)}
+.table tbody tr:hover{background:#ffffffa6; cursor:pointer}
+.badge-pill{display:inline-block; padding:4px 8px; border-radius:10px; background:#eef2ff; color:#3730a3; font-weight:700}
+
+/* Floating AI action in cards */
+.actions{display:flex; gap:8px; align-items:center}
+.btn-sm{
+  padding:8px 10px; border-radius:12px; border:1px solid var(--glass-stroke);
+  background:#fff; cursor:pointer; font-weight:600;
+}
+.btn-primary{background:#2563eb; color:#fff; border-color:#2563eb}
+.btn-danger{background:#ef4444; color:#fff; border-color:#ef4444}
+
+/* Fullscreen modal (expand) */
+.modal{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  padding:28px; z-index:var(--z-pop);
+}
+.modal.show{display:flex}
+.modal .sheet{
+  width:min(1200px,95vw); max-height:90vh; overflow:auto;
+  background:var(--card); backdrop-filter: blur(14px);
+  border:1px solid var(--glass-stroke); border-radius:18px; box-shadow:var(--shadow);
+}
+.modal .sheet .head{position:sticky; top:0; background:inherit; backdrop-filter:inherit;}
+
+/* Popover (AI-svar) */
+.pop{
+  position:absolute; right:14px; top:56px; z-index:var(--z-pop);
+  display:none; width:min(520px, 92vw);
+  background:#fff; border:1px solid var(--glass-stroke); border-radius:14px; box-shadow:var(--shadow);
+}
+.pop.show{display:block}
+.pop .phead{padding:10px 12px; border-bottom:1px solid var(--glass-stroke); font-weight:700}
+.pop .pbody{padding:12px}
+
+/* Settings pills */
+.pills{display:flex; gap:8px; flex-wrap:wrap}
+.pill{padding:6px 10px; border:1px solid var(--glass-stroke); border-radius:10px; background:#fff}
+
+/* Small helpers */
+.mono{font-family: ui-monospace,SFMono-Regular,Menlo,monospace}
+.muted{color:var(--muted)}
+.right{margin-left:auto}
+.center{display:grid; place-items:center}
+.hide{display:none}
+</style>
 </head>
 <body>
-  <div class="app">
-    <!-- SIDOPANEL -->
-    <aside class="sidebar">
-      <div class="brand"><span class="x"></span> MergX Admin <small style="color:var(--muted)">v8.19</small></div>
-      <nav class="nav" id="nav">
-        <a href="#/oversikt">Översikt</a>
-        <a href="#/ordrar">Ordrar & fakturor</a>
-        <a href="#/kunder">Kunder (CRM)</a>
-        <a href="#/inventarie">Inventarie</a>
-        <a href="#/anstallda">Anställda</a>
-        <a href="#/filer">Filer & kvitton</a>
-        <a href="#/karta">AI-karta</a>
-        <a href="#/chatt">Chatt</a>
-        <a href="#/installningar">Inställningar</a>
-      </nav>
-    </aside>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="aside">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <strong>MergX Admin</strong><br>
+        <small>v8.20 · Light + Glass</small>
+      </div>
+    </div>
 
-    <!-- HÖGERKOL -->
-    <section>
-      <!-- TOP -->
-      <div class="topbar">
-        <div class="search">
-          <input id="globalSearch" placeholder="Sök i MergX… (kunder, ordrar, produkter)">
+    <nav class="nav" id="nav">
+      <a href="#dashboard"   class="active">🏠 Översikt</a>
+      <a href="#orders">🧾 Ordrar & fakturor</a>
+      <a href="#crm">👥 Kunder (CRM)</a>
+      <a href="#inventory">📦 Inventarie</a>
+      <a href="#staff">👤 Anställda</a>
+      <a href="#files">🗂️ Filer & kvitton</a>
+      <a href="#ai-map">🗺️ AI-karta</a>
+      <a href="#chat">💬 Chatt</a>
+      <a href="#settings">⚙️ Inställningar</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <section class="main">
+    <!-- Appbar -->
+    <div class="appbar">
+      <div class="search">
+        <span class="ico">🔍</span>
+        <input id="globalSearch" placeholder="Sök i MergX… (kunder, order, produkter)"/>
+      </div>
+      <button class="btn" id="goDash">Gå till Översikt</button>
+      <button class="btn">🔔 <span class="badge" id="bell">3</span></button>
+      <button class="btn">👤</button>
+    </div>
+
+    <!-- Content -->
+    <div class="content" id="dashboard">
+
+      <!-- KPI row -->
+      <div class="kpi-grid">
+        <div class="card kpi">
+          <div class="muted">Omsättning (idag)</div>
+          <div class="value" id="kpi-turnover">124 500 kr</div>
+          <div class="delta">+6.2%</div>
         </div>
-        <button class="to-oversikt btn" onclick="route('#/oversikt')">Gå till Översikt</button>
+        <div class="card kpi">
+          <div class="muted">Order idag</div>
+          <div class="value" id="kpi-orders">37</div>
+          <div class="delta">+4</div>
+        </div>
+        <div class="card kpi">
+          <div class="muted">Kostnader (idag)</div>
+          <div class="value">48 900 kr</div>
+          <div class="delta red">−2.1%</div>
+        </div>
+        <div class="card kpi">
+          <div class="muted">Bruttomarginal</div>
+          <div class="value">41.5%</div>
+          <div class="delta">+0.7 pp</div>
+        </div>
       </div>
 
-      <!-- INNEHÅLL -->
-      <main class="main" id="view"></main>
-    </section>
-  </div>
+      <!-- Grid main -->
+      <div class="grid-2">
+        <div class="col">
 
-  <!-- EXPANDER (sheet) -->
-  <div class="sheet" id="sheet">
-    <h4 id="sheetTitle">Detaljer</h4>
-    <div id="sheetBody"></div>
-  </div>
+          <!-- Eco chart -->
+          <div class="card" id="card-eco">
+            <div class="head">
+              <strong>Ekonomi — kombostaplar</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="eco">Ask AI</button>
+                <button class="btn-sm" data-expand="eco">Expandera</button>
+              </div>
+            </div>
+            <div class="body">
+              <canvas id="ecoChart"></canvas>
+            </div>
+            <div class="pop" id="ai-eco">
+              <div class="phead">AI-analys: Ekonomi</div>
+              <div class="pbody" id="ai-eco-body">Analyserar trender…</div>
+            </div>
+          </div>
 
-  <!-- CHAT -->
-  <div class="chat" id="chatBox">
-    <header>MergX Chatt & AI</header>
-    <div class="messages" id="chatMessages">
-      <div class="bubble other">Hej! Jag bevakar KPI:er, lager och notiser. Fråga mig vad som helst.</div>
+          <!-- Teamchat -->
+          <div class="card" id="card-chat">
+            <div class="head">
+              <strong>Teamchatt</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="chat">Ask AI</button>
+                <button class="btn-sm" data-expand="chat">Expandera</button>
+              </div>
+            </div>
+            <div class="body">
+              <div class="chat-list" id="chatList">
+                <div class="msg them">God morgon teamet!</div>
+                <div class="msg me">Jag tar kundmötet 11:00.</div>
+              </div>
+              <div class="chat-input">
+                <button class="circle" title="Bifoga filer" id="attachBtn">📎</button>
+                <button class="circle" title="Spela in röst" id="micBtn">🎤</button>
+                <input id="chatInput" placeholder="Skriv ett meddelande… (Enter för att skicka)"/>
+                <button class="btn-sm btn-primary" id="sendBtn">Skicka</button>
+              </div>
+              <div class="muted" id="chatMeta" style="margin-top:6px"></div>
+            </div>
+            <div class="pop" id="ai-chat">
+              <div class="phead">AI-coach</div>
+              <div class="pbody" id="ai-chat-body">Jag bevakar KPI:er, lager och deadlines. Fråga vad som helst.</div>
+            </div>
+          </div>
+
+          <!-- Orders & Fakturor -->
+          <div class="card" id="card-orders">
+            <div class="head">
+              <strong>Ordrar & fakturor</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="orders">Ask AI</button>
+                <button class="btn-sm" data-expand="orders">Expandera</button>
+                <button class="btn-sm btn-primary" id="newOrder">+ Skapa order</button>
+              </div>
+            </div>
+            <div class="body">
+              <table class="table" id="ordersTable">
+                <thead>
+                  <tr><th>Nr</th><th>Kund</th><th>Total</th><th>Status</th><th>Åtgärder</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono">#10234</td>
+                    <td>Acme AB</td>
+                    <td>24 900 kr</td>
+                    <td><span class="badge-pill">Skapad idag</span></td>
+                    <td>
+                      <button class="btn-sm" data-view="10234">👁️</button>
+                      <button class="btn-sm" data-pdf="10234">⇩ PDF</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="mono">#10231</td>
+                    <td>Elon City</td>
+                    <td>12 200 kr</td>
+                    <td><span class="badge-pill">Skapad igår</span></td>
+                    <td>
+                      <button class="btn-sm" data-view="10231">👁️</button>
+                      <button class="btn-sm" data-pdf="10231">⇩ PDF</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <small class="muted">PDF-export kopplas till Fortnox/Fraktjakt i kommande steg.</small>
+            </div>
+            <div class="pop" id="ai-orders">
+              <div class="phead">AI-rekommendationer (order)</div>
+              <div class="pbody" id="ai-orders-body">Analyserar ordermix…</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col">
+          <!-- AI-karta -->
+          <div class="card" id="card-map">
+            <div class="head">
+              <strong>AI-karta (mini)</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="map">Ask AI</button>
+                <button class="btn-sm" data-expand="map">Expandera</button>
+              </div>
+            </div>
+            <div class="body">
+              <div class="mapwrap"><div id="map"></div></div>
+              <div style="margin-top:10px; display:flex; gap:8px; align-items:center">
+                <button class="btn-sm" id="routeBtn">Skapa optimal rutt (mock)</button>
+                <input id="noteInput" placeholder="Lägg notis… ex. ‘Elon Kista vill köpa om 20 dagar’" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--glass-stroke); background:#fff"/>
+              </div>
+              <div class="muted" id="routeOut" style="margin-top:6px"></div>
+            </div>
+            <div class="pop" id="ai-map">
+              <div class="phead">AI-förslag (fältbesök)</div>
+              <div class="pbody" id="ai-map-body">Söker närliggande butiker…</div>
+            </div>
+          </div>
+
+          <!-- CRM -->
+          <div class="card" id="card-crm">
+            <div class="head">
+              <strong>Kunder (CRM)</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="crm">Ask AI</button>
+                <button class="btn-sm" data-expand="crm">Expandera</button>
+              </div>
+            </div>
+            <div class="body">
+              <table class="table" id="crmTable">
+                <thead><tr><th>ID</th><th>Företag</th><th>Kontakt</th><th>E-post</th><th>Telefon</th><th>Stad</th></tr></thead>
+                <tbody>
+                  <tr data-id="C1001"><td class="mono">C1001</td><td>Nordic AB</td><td>Eva Berg</td><td>eva@nordic.se</td><td>+46 70 1234567</td><td>Stockholm</td></tr>
+                  <tr data-id="C1002"><td class="mono">C1002</td><td>Stock Wireless</td><td>Jonas Ek</td><td>sales@stockwireless.se</td><td>+46 73 5556677</td><td>Stockholm</td></tr>
+                  <tr data-id="C1003"><td class="mono">C1003</td><td>Elon Ljud & Bild</td><td>Butikschef</td><td>info@elonlb.se</td><td>+46 8 1112233</td><td>Västerås</td></tr>
+                </tbody>
+              </table>
+              <small class="muted">Klicka rad för detaljer / redigera.</small>
+            </div>
+            <div class="pop" id="ai-crm">
+              <div class="phead">AI-insikter (CRM)</div>
+              <div class="pbody" id="ai-crm-body">Summerar kundvärde, sannolikhet för avslut och rekommenderade åtgärder…</div>
+            </div>
+          </div>
+
+          <!-- Inventarie -->
+          <div class="card" id="card-inv">
+            <div class="head">
+              <strong>Inventarie</strong>
+              <div class="actions">
+                <button class="btn-sm" data-ai="inv">Ask AI</button>
+                <button class="btn-sm" data-expand="inv">Expandera</button>
+              </div>
+            </div>
+            <div class="body">
+              <table class="table" id="invTable">
+                <thead><tr><th>SKU</th><th>Namn</th><th>Pris</th><th>Lagersaldo</th><th>Åtgärd</th></tr></thead>
+                <tbody>
+                  <tr data-sku="A-STICK-CC60"><td class="mono">A-STICK-CC60</td><td>USB-C till USB-C 60W</td><td>149</td><td>73</td>
+                    <td><button class="btn-sm" data-edit="A-STICK-CC60">Redigera</button> <button class="btn-sm btn-danger" data-del="A-STICK-CC60">Ta bort</button></td></tr>
+                  <tr data-sku="CAR-CHG-60W"><td class="mono">CAR-CHG-60W</td><td>Bil-laddare (2-port)</td><td>199</td><td>44</td>
+                    <td><button class="btn-sm" data-edit="CAR-CHG-60W">Redigera</button> <button class="btn-sm btn-danger" data-del="CAR-CHG-60W">Ta bort</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pop" id="ai-inv">
+              <div class="phead">AI-lager</div>
+              <div class="pbody" id="ai-inv-body">Prognoser och inköpsförslag…</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Files -->
+      <div class="card" id="card-files">
+        <div class="head">
+          <strong>Filer & kvitton</strong>
+          <div class="actions">
+            <button class="btn-sm" data-ai="files">Ask AI</button>
+            <button class="btn-sm" data-expand="files">Expandera</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="pills" style="margin-bottom:10px">
+            <span class="pill">#kvitto</span><span class="pill">#avtal</span><span class="pill">#faktura</span>
+          </div>
+          <input type="file" multiple id="fileUp"/>
+          <button class="btn-sm" id="fileBtn">Ladda upp</button>
+          <table class="table" id="fileTable" style="margin-top:10px">
+            <thead><tr><th>Filnamn</th><th>Typ</th><th>Anteckning</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="pop" id="ai-files">
+          <div class="phead">AI-dokument</div>
+          <div class="pbody" id="ai-files-body">Föreslår taggar, summerar kvitton och hittar avvikelser…</div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card" id="card-settings">
+        <div class="head"><strong>Inställningar</strong></div>
+        <div class="body">
+          <div class="grid-2">
+            <div class="col">
+              <h4>Företagsuppgifter</h4>
+              <div style="display:grid; gap:8px">
+                <input id="coName" placeholder="Företagsnamn" class="pill" />
+                <input id="coOrg" placeholder="Org.nr" class="pill"/>
+                <input id="coAddr" placeholder="Address" class="pill"/>
+                <input id="coEmail" placeholder="Faktura-e-post" class="pill"/>
+              </div>
+            </div>
+            <div class="col">
+              <h4>Integrationer</h4>
+              <label><input type="checkbox" checked/> Fortnox (mock)</label><br>
+              <label><input type="checkbox" checked/> Fraktjakt (mock)</label><br>
+              <label><input type="checkbox"/> Finans (mock)</label>
+              <div class="muted" style="margin-top:8px">Riktiga API-nycklar kopplas senare. Vi kör mock tills vidare för snabb UI-utveckling.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:30px"></div>
     </div>
-    <div class="inputbar">
-      <input id="chatInput" placeholder="Skriv meddelande… (Enter för att skicka)">
-      <button class="btn primary" onclick="sendChat()">Skicka</button>
+  </section>
+</div>
+
+<!-- Fullscreen Modal (reused) -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="head">
+      <strong id="modalTitle">Förhandsgranskning</strong>
+      <button class="btn-sm right" id="closeModal">Stäng</button>
     </div>
+    <div class="body" id="modalBody"></div>
   </div>
+</div>
 
 <script>
-/* ------------------ Mock-data ------------------ */
-const state = {
-  kpi:{ revenueToday:124500, ordersToday:37, costsToday:48900, gm:41.5, revTrend:'+6.2%', ordTrend:'+4', costTrend:'-2.1%', gmTrend:'+0.7 pp'},
-  orders:[
-    {nr:'O-230015', kund:'Nordic AB', summa:'24 200,00 kr', status:'Packas', betal:'30 dagar'},
-    {nr:'O-230016', kund:'Stock Wireless', summa:'12 890,00 kr', status:'Skapad', betal:'14 dagar'},
-    {nr:'O-230018', kund:'Nordic AB', summa:'10 049,00 kr', status:'Skapad', betal:'14 dagar'}
-  ],
-  customers:[
-    {id:'C1001', company:'Nordic AB', contact:'Eva Berg', email:'eva@nordic.se', tel:'+46 70 123 45 67', stad:'Stockholm'},
-    {id:'C1002', company:'Stock Wireless', contact:'Jonas Ek', email:'sales@stockwireless.se', tel:'+46 73 555 66 77', stad:'Stockholm'},
-    {id:'C1003', company:'Elon Ljud & Bild', contact:'Butikschef', email:'info@elonlb.se', tel:'+46 8 111 22 33', stad:'Västerås'},
-  ],
-  inventory:[
-    {sku:'A-STICK-CC60', name:'USB-C till USB-C 60W', pris:149, saldo:73},
-    {sku:'CAR-CHG-60W', name:'Bil-laddare 60W (2-port)', pris:199, saldo:42},
-    {sku:'LIGHT-27W', name:'USB-C till Lightning 27W', pris:179, saldo:172},
-  ],
-  employees:[
-    {id:'E-01', namn:'Jesper Karlsson', roll:'Sälj', form:'Heltid', email:'jesper@mergx.se', tel:'+46 73 000 00 01'},
-    {id:'E-02', namn:'Lea Nguyen', roll:'Lager', form:'Provanställd', email:'lea@mergx.se', tel:'+46 73 000 00 02'},
-  ],
-  files:[]
-};
+/* -------------- Nav active -------------- */
+const nav = document.getElementById('nav');
+nav.addEventListener('click',(e)=>{
+  if(e.target.tagName==='A'){
+    [...nav.querySelectorAll('a')].forEach(a=>a.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+});
+document.getElementById('goDash').onclick=()=>location.hash='#dashboard';
 
-/* -------------- Små verktyg -------------- */
-const $ = sel => document.querySelector(sel);
-function route(hash){ location.hash = hash; }
-function setActiveNav(){
-  document.querySelectorAll('#nav a').forEach(a=>{
-    a.classList.toggle('active', a.getAttribute('href')===location.hash);
-  });
-}
+/* -------------- Chart -------------- */
+const ecoCtx = document.getElementById('ecoChart');
+new Chart(ecoCtx, {
+  type:'bar',
+  data:{
+    labels:['v1','v2','v3','v4','v5'],
+    datasets:[
+      {label:'Omsättning', data:[100,124,90,140,160], backgroundColor:'#93c5fd'},
+      {label:'Kostnader',  data:[60,  68, 46,  65,  74],  backgroundColor:'#c7d2fe'},
+      {label:'Brutto%',    data:[60, 62, 60, 59, 62], type:'line', borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+    ]
+  },
+  options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}}
+});
 
-/* -------------- Vy-renderare -------------- */
-function viewOversikt(){
-  const v = document.getElementById('view');
-  v.innerHTML = `
-    <div class="grid cols-4">
-      ${kpiCard('Omsättning idag', state.kpi.revenueToday.toLocaleString('sv-SE')+' kr', state.kpi.revTrend)}
-      ${kpiCard('Order idag', state.kpi.ordersToday.toLocaleString('sv-SE'), state.kpi.ordTrend)}
-      ${kpiCard('Kostnader (idag)', state.kpi.costsToday.toLocaleString('sv-SE')+' kr', state.kpi.costTrend, true)}
-      ${kpiCard('Bruttomarginal', state.kpi.gm+'%', state.kpi.gmTrend)}
-    </div>
+/* -------------- Leaflet map (mock) -------------- */
+let map = L.map('map').setView([59.334, 18.063], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap'
+}).addTo(map);
+const pin = L.marker([59.334, 18.063]).addTo(map);
 
-    <div class="grid cols-2" style="margin-top:16px">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <h3>Ekonomi — kombostaplar</h3>
-          <button class="btn" onclick="openSheet('Ekonomi — AI-analys', econAI())">Expandera</button>
-        </div>
-        <canvas id="econChart" height="120"></canvas>
-      </div>
-
-      <div class="card">
-        <h3>AI-karta (mini)</h3>
-        <div id="map" style="height:260px;border-radius:12px;border:1px solid var(--glass-stroke)"></div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn" onclick="openSheet('AI-rekommendationer', routeAI())">AI-rekommendationer</button>
-          <button class="btn" onclick="addVisitNote()">Lägg notis</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid cols-2" style="margin-top:16px">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <h3>Teamchatt</h3>
-          <button class="btn" onclick="openSheet('Teamchatt', teamHistory())">Expandera</button>
-        </div>
-        <div class="bubble other">God morgon teamet!</div>
-        <div class="bubble me">Jag tar kundmötet 11:00.</div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <input id="dashChat" placeholder="Skriv och tryck Enter…" style="flex:1;padding:10px;border:1px solid var(--glass-stroke);border-radius:10px" />
-          <button class="btn" onclick="sendDashChat()">Skicka</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Ordrar & fakturor</h3>
-        <table>
-          <thead><tr><th>Nr</th><th>Kund</th><th>Total</th><th>Status</th><th>Åtgärder</th></tr></thead>
-          <tbody>
-            ${state.orders.map(o=>`
-              <tr>
-                <td>${o.nr}</td><td>${o.kund}</td><td>${o.summa}</td><td>${o.status}</td>
-                <td>
-                  <button class="btn" onclick="openSheet('Förhandsgranska', previewInvoice('${o.nr}','${o.kund}','${o.summa}'))">👁</button>
-                  <button class="btn" onclick="downloadPDF('${o.nr}')">⬇︎ PDF</button>
-                </td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-  initChart(); initMap(); // init efter DOM
-}
-
-function viewTable(rows, title, cols, actions=()=>{}) {
-  return `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>${title}</h3>
-        <div style="display:flex;gap:8px">
-          <button class="btn" onclick="${actions.create ?? 'alert(`Skapa (mock)`)'}">Skapa</button>
-          <button class="btn" onclick="openSheet('${title} — snabbfilter', '<small>Kommer i v8.20</small>')">Filter</button>
-        </div>
-      </div>
-      <table>
-        <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>Åtg</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-function viewKunder(){
-  const rows = state.customers.map(c=>`
-    <tr>
-      <td>${c.id}</td><td>${c.company}</td><td>${c.contact}</td><td>${c.email}</td><td>${c.tel}</td><td>${c.stad}</td>
-      <td>
-        <button class="btn" onclick="openSheet('Kundkort — ${c.company}', customerCard('${c.id}'))">Öppna</button>
-        <button class="btn" onclick="alert('Redigera (mock)')">Redigera</button>
-        <button class="btn danger" onclick="alert('Ta bort (mock)')">Ta bort</button>
-      </td>
-    </tr>`).join('');
-  $('#view').innerHTML = viewTable(rows,'Kunder (CRM)',['ID','Företag','Kontakt','E-post','Telefon','Stad']);
-}
-
-function viewInventarie(){
-  const rows = state.inventory.map(p=>`
-    <tr>
-      <td>${p.sku}</td><td>${p.name}</td><td>${p.pris} kr</td><td>${p.saldo}</td>
-      <td>
-        <button class="btn" onclick="alert('Redigera (mock)')">Redigera</button>
-        <button class="btn danger" onclick="alert('Ta bort (mock)')">Ta bort</button>
-      </td>
-    </tr>`).join('');
-  $('#view').innerHTML = viewTable(rows,'Inventarie',['SKU','Namn','Pris','Lagersaldo']);
-}
-
-function viewOrdrar(){
-  const rows = state.orders.map(o=>`
-    <tr>
-      <td>${o.nr}</td><td>${o.kund}</td><td>${o.summa}</td><td>${o.betal}</td>
-      <td>
-        <button class="btn" onclick="openSheet('Order ${o.nr}', previewInvoice('${o.nr}','${o.kund}','${o.summa}'))">Visa</button>
-        <button class="btn" onclick="downloadPDF('${o.nr}')">⬇︎ PDF</button>
-      </td>
-    </tr>`).join('');
-  $('#view').innerHTML = viewTable(rows,'Ordrar & fakturor',['Nr','Kund','Total','Betalvillkor'],{create:"alert('Skapa order (mock)')"});
-}
-
-function viewAnstallda(){
-  const rows = state.employees.map(e=>`
-    <tr>
-      <td>${e.id}</td><td>${e.namn}</td><td>${e.roll}</td><td>${e.email}</td><td>${e.tel}</td><td>${e.form}</td>
-      <td>
-        <button class="btn" onclick="alert('Redigera (mock)')">Redigera</button>
-        <button class="btn danger" onclick="alert('Ta bort (mock)')">Ta bort</button>
-      </td>
-    </tr>`).join('');
-  $('#view').innerHTML = viewTable(rows,'Anställda',['ID','Namn','Roll','E-post','Telefon','Anst.form'],{create:"alert('Lägg till anställd (mock)')"});
-}
-
-function viewFiler(){
-  $('#view').innerHTML = `
-    <div class="card">
-      <h3>Filer & kvitton</h3>
-      <p><small>Kommande: mappar, drag-and-drop, taggar, export till Ekonomi/Admin.</small></p>
-      <input type="file" multiple>
-    </div>`;
-}
-
-function viewKarta(){
-  $('#view').innerHTML = `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>AI-karta</h3>
-        <button class="btn" onclick="openSheet('AI-karta — rekommendationer', routeAI())">Ask AI</button>
-      </div>
-      <div id="map2" style="height:420px;border-radius:12px;border:1px solid var(--glass-stroke)"></div>
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <button class="btn" onclick="addVisitNote()">Lägg notis</button>
-        <button class="btn" onclick="openSheet('Besöksnotiser', '<ul><li>Elon Kista: köp om 20 dagar</li></ul>')">Visa notiser</button>
-      </div>
-    </div>`;
-  initMap('#map2', true);
-}
-
-function viewChatt(){
-  $('#view').innerHTML = `
-    <div class="card">
-      <h3>Teamchatt</h3>
-      <div class="bubble other">Välkommen tillbaka!</div>
-      <div class="bubble me">Redo för dagens rundor.</div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <input id="pageChat" placeholder="Skriv och tryck Enter…" style="flex:1;padding:10px;border:1px solid var(--glass-stroke);border-radius:10px" />
-        <button class="btn" onclick="sendPageChat()">Skicka</button>
-      </div>
-    </div>`;
-}
-
-function viewInst(){
-  $('#view').innerHTML = `
-    <div class="card">
-      <h3>Inställningar</h3>
-      <p>Företagsuppgifter (för faktura), fraktkoppling (Fraktjakt), finansbolag, SMTP/SMS-gateway – planerat mellan 8.20–8.22.</p>
-      <p><small>Välj gärna vilka integrationer du vill börja med först.</small></p>
-    </div>`;
-}
-
-/* -------------- Router -------------- */
-function render(){
-  setActiveNav();
-  switch(location.hash){
-    case '#/kunder': return viewKunder();
-    case '#/inventarie': return viewInventarie();
-    case '#/ordrar': return viewOrdrar();
-    case '#/anstallda': return viewAnstallda();
-    case '#/filer': return viewFiler();
-    case '#/karta': return viewKarta();
-    case '#/chatt': return viewChatt();
-    case '#/installningar': return viewInst();
-    default: return viewOversikt();
+/* -------------- AI helpers (mock) -------------- */
+function aiText(kind){
+  switch(kind){
+    case 'eco':return 'Bruttomarginalen ökar +0,7pp och veckans intäkter är +6,2% mot föregående. AI föreslår: öka lager av toppsäljare inför v5.';
+    case 'chat':return 'Jag bevakar KPI:er, lager & deadlines. Tips: skapa återkommande sammanfattning varje fredag kl 16.';
+    case 'orders':return '3 st B2B-ordrar står för 72% av dagens volym. Rek: auto-påminnelse om betalning efter 10 dagar.';
+    case 'map':return 'Föreslagen rutt: Elon Kista → Power Solna → Mekonomen Bromma. Total ca 43 min. Lägg notis för återbesök.';
+    case 'crm':return 'Kundvärde topp 3: Nordic AB, Stock Wireless, Elon Ljud & Bild. Rek: cross-sell kablar + laddare.';
+    case 'inv':return 'USB-C 60W ligger under tröskel (73). Rek: beställ 200 st för 14 dagar.';
+    case 'files':return 'AI hittade 2 kvitton utan kontering. Markera #kvitto & #resa. Skapa pdf-sammanställning till revisor.';
   }
 }
-window.addEventListener('hashchange', render);
-
-/* -------------- Komponenter -------------- */
-function kpiCard(title,val,trend,isCost){
-  const c = isCost ? '#eef6ff' : '#ecfdf5';
-  const tcol = isCost ? '#2563eb':'#16a34a';
-  return `
-  <div class="card kpi">
-    <div style="color:var(--muted)">${title}</div>
-    <div class="value">${val}</div>
-    <div class="trend" style="background:${c}; color:${tcol}">${trend}</div>
-  </div>`;
-}
-
-function openSheet(title, bodyHTML){
-  $('#sheetTitle').textContent = title;
-  $('#sheetBody').innerHTML = bodyHTML;
-  $('#sheet').classList.add('open');
-}
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') $('#sheet').classList.remove('open'); });
-
-/* -------------- Ekonomi-graf -------------- */
-let econChart;
-function initChart(){
-  const ctx = document.getElementById('econChart');
-  if(!ctx) return;
-  econChart && econChart.destroy();
-  econChart = new Chart(ctx, {
-    type:'bar',
-    data:{
-      labels:['v1','v2','v3','v4','v5'],
-      datasets:[
-        {label:'Omsättning', data:[100,125,90,140,160], backgroundColor:'rgba(37,99,235,.25)'},
-        {label:'Kostnader', data:[60,70,45,65,75], backgroundColor:'rgba(34,197,94,.20)'},
-        {label:'Brutto%', data:[40,40,41,40,42], type:'line', yAxisID:'y1', borderColor:'#6366f1', backgroundColor:'#6366f1'}
-      ]
-    },
-    options:{
-      responsive:true,
-      scales:{ y:{beginAtZero:true}, y1:{position:'right', min:0, max:100} },
-      plugins:{ legend:{labels:{color:'#6b7280'}}}
-    }
+document.querySelectorAll('[data-ai]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const k = btn.getAttribute('data-ai');
+    const pop = document.getElementById('ai-'+k);
+    const body = document.getElementById('ai-'+k+'-body');
+    body.textContent = aiText(k);
+    pop.classList.toggle('show');
+    // auto-close on outside click
+    const close = (e)=>{ if(!pop.contains(e.target) && e.target!==btn){ pop.classList.remove('show'); document.removeEventListener('click', close)}}
+    setTimeout(()=>document.addEventListener('click', close));
   });
-}
-function econAI(){
-  return `
-    <p><strong>AI-analys (mock)</strong></p>
-    <ul>
-      <li>Omsättning +6.2% vs igår; bruttomarginal stabil på 41–42%.</li>
-      <li>Rekommendation: höj pris på låg-marginalartiklar 2–3% och planera inköp för LIGHT-27W.</li>
-      <li>Förslag: erbjud cross-sell “Bil-laddare 60W” på order över 500 kr.</li>
-    </ul>`;
+});
+
+/* -------------- Expanders -> modal -------------- */
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody  = document.getElementById('modalBody');
+const closeModal = document.getElementById('closeModal');
+closeModal.onclick=()=>modal.classList.remove('show');
+
+function openModal(title, html){
+  modalTitle.textContent = title;
+  modalBody.innerHTML = html;
+  modal.classList.add('show');
 }
 
-/* -------------- Karta -------------- */
-let mapInstance;
-function initMap(sel='#map', zoomedMini=false){
-  const el = document.querySelector(sel);
-  if(!el) return;
-  mapInstance = L.map(el).setView([59.334591, 18.063240], zoomedMini?11:12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19 }).addTo(mapInstance);
-  const pin = L.marker([59.334591,18.063240]).addTo(mapInstance);
-  pin.bindPopup('Din position (mock)');
-}
-function routeAI(){
-  return `
-    <p><strong>AI-rutt (mock):</strong> Elon Kista → Power Solna → Mekonomen Bromma. Total ca 43 min.</p>
-    <p><em>Kommer kopplas till Google Places + Directions i v8.19→v8.20.</em></p>`;
-}
-function addVisitNote(){
-  openSheet('Ny notis', `
-    <label>Plats/Butik</label><br>
-    <input style="width:100%;padding:10px;border:1px solid var(--glass-stroke);border-radius:10px" placeholder="Elon Kista"><br><br>
-    <label>Notis</label><br>
-    <input style="width:100%;padding:10px;border:1px solid var(--glass-stroke);border-radius:10px" placeholder="Vill köpa produkter om 20 dagar"><br><br>
-    <button class="btn primary" onclick="alert('Sparad (mock)');$('#sheet').classList.remove('open')">Spara</button>
-  `);
+document.querySelectorAll('[data-expand]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const k = b.getAttribute('data-expand');
+    if(k==='eco'){
+      openModal('Ekonomi — kombostaplar (detalj)', '<canvas id="ecoBig" style="max-height:520px"></canvas><div class="muted" style="margin-top:10px">'+aiText('eco')+'</div>');
+      // rita ny för att undvika reuse-canvas
+      const ctx = document.getElementById('ecoBig');
+      new Chart(ctx,{type:'bar',data:{labels:['v1','v2','v3','v4','v5'],datasets:[
+        {label:'Omsättning', data:[100,124,90,140,160], backgroundColor:'#93c5fd'},
+        {label:'Kostnader',  data:[60,  68, 46,  65,  74],  backgroundColor:'#c7d2fe'},
+        {label:'Brutto%',    data:[60, 62, 60, 59, 62], type:'line', borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+      ]}, options:{plugins:{legend:{position:'top'}}, responsive:true, maintainAspectRatio:false}});
+    }
+    if(k==='map'){
+      openModal('AI-karta (stor)', '<div id="mapBig" style="height:520px; border-radius:14px; overflow:hidden"></div><div class="muted" style="margin-top:10px">'+aiText('map')+'</div>');
+      setTimeout(()=>{
+        const map2 = L.map('mapBig').setView([59.334, 18.063], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map2);
+        L.marker([59.334,18.063]).addTo(map2);
+      },0);
+    }
+    if(k==='chat'){
+      openModal('Teamchatt (stor)', document.getElementById('card-chat').querySelector('.body').outerHTML);
+    }
+    if(k==='crm'){
+      openModal('Kunder (CRM)', document.getElementById('card-crm').querySelector('.body').outerHTML + '<div class="muted" style="margin-top:8px">'+aiText('crm')+'</div>');
+    }
+    if(k==='inv'){
+      openModal('Inventarie', document.getElementById('card-inv').querySelector('.body').outerHTML + '<div class="muted" style="margin-top:8px">'+aiText('inv')+'</div>');
+    }
+    if(k==='orders'){
+      openModal('Ordrar & fakturor', document.getElementById('card-orders').querySelector('.body').outerHTML + '<div class="muted" style="margin-top:8px">'+aiText('orders')+'</div>');
+    }
+    if(k==='files'){
+      openModal('Filer & kvitton', document.getElementById('card-files').querySelector('.body').outerHTML + '<div class="muted" style="margin-top:8px">'+aiText('files')+'</div>');
+    }
+  })
+});
+
+/* -------------- Orders: view/pdf -------------- */
+document.getElementById('ordersTable').addEventListener('click', (e)=>{
+  const id = e.target.getAttribute('data-view');
+  if(id){ openModal('Faktura '+id, `<div><h3>Faktura #${id}</h3><p>Kund: <strong>${id==='10234'?'Acme AB':'Elon City'}</strong></p><p>Summa: <strong>${id==='10234'?'24 900 kr':'12 200 kr'}</strong></p><p class="muted">PDF-layout mock. Export sätts upp tillsammans med Fortnox i senare steg.</p></div>`); }
+  const pdf = e.target.getAttribute('data-pdf');
+  if(pdf){ alert('PDF (mock) genererad för #'+pdf); }
+});
+document.getElementById('newOrder').onclick=()=>{
+  openModal('Skapa order', `<div style="display:grid; gap:8px">
+    <input class="pill" placeholder="Kund (t.ex. Elon Kista)">
+    <input class="pill" placeholder="Produkter (t.ex. USB-C 60W x 50)">
+    <input class="pill" placeholder="Leveransadress">
+    <button class="btn-sm btn-primary" onclick="alert('Order skapad (mock)')">Spara</button>
+  </div>`);
+};
+
+/* -------------- CRM row click -------------- */
+document.getElementById('crmTable').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr'); if(!tr) return;
+  const id = tr.getAttribute('data-id');
+  openModal('Kundkort '+id, `<div style="display:grid; gap:8px">
+    <div><strong>${tr.children[1].textContent}</strong></div>
+    <div>Kontakt: ${tr.children[2].textContent}</div>
+    <div>E-post: ${tr.children[3].textContent}</div>
+    <div>Telefon: ${tr.children[4].textContent}</div>
+    <div>Stad: ${tr.children[5].textContent}</div>
+    <div class="muted">Skapa order, se historik och AI-insikter här.</div>
+  </div>`);
+});
+
+/* -------------- Inventory actions -------------- */
+document.getElementById('invTable').addEventListener('click',(e)=>{
+  const edit = e.target.getAttribute('data-edit');
+  const del  = e.target.getAttribute('data-del');
+  if(edit){
+    openModal('Redigera '+edit, `<div style="display:grid; gap:8px">
+      <input class="pill" value="${edit}">
+      <input class="pill" placeholder="Pris">
+      <input class="pill" placeholder="Saldo">
+      <button class="btn-sm btn-primary" onclick="alert('Sparat (mock)')">Spara</button>
+    </div>`);
+  }
+  if(del){
+    if(confirm('Ta bort '+del+'?')){ const row = document.querySelector('[data-sku="'+del+'"]'); row?.remove(); }
+  }
+});
+
+/* -------------- Files -------------- */
+const fileBtn = document.getElementById('fileBtn');
+const fileUp  = document.getElementById('fileUp');
+const fileTable= document.getElementById('fileTable').querySelector('tbody');
+fileBtn.onclick=()=>{
+  [...fileUp.files].forEach(f=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${f.name}</td><td>${f.type||'okänd'}</td><td><input class="pill" placeholder="anteckning…"></td><td><button class="btn-sm btn-danger">Ta bort</button></td>`;
+    tr.querySelector('button').onclick=()=>tr.remove();
+    fileTable.appendChild(tr);
+  });
+  fileUp.value='';
 }
 
-/* -------------- Chatt -------------- */
-function sendChat(){
-  const i = $('#chatInput'); const v=i.value.trim(); if(!v) return;
-  $('#chatMessages').insertAdjacentHTML('beforeend', `<div class="bubble me">${v}</div>`);
-  i.value=''; setTimeout(()=>$('#chatMessages').insertAdjacentHTML('beforeend', `<div class="bubble other">Noterat ✅</div>`), 500);
+/* -------------- Chat send / attach / voice (mock) -------------- */
+const chatList = document.getElementById('chatList');
+const chatInput= document.getElementById('chatInput');
+const chatMeta = document.getElementById('chatMeta');
+document.getElementById('sendBtn').onclick=sendMsg;
+chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){sendMsg()}});
+function addMsg(text, me=true){
+  const div=document.createElement('div'); div.className='msg '+(me?'me':'them'); div.textContent=text; chatList.appendChild(div); chatList.parentElement.scrollTop=chatList.parentElement.scrollHeight;
 }
-function sendPageChat(){
-  const i = $('#pageChat'); const v=i.value.trim(); if(!v) return;
-  i.value=''; alert('Skickat (mock)');
+function sendMsg(){
+  const t = chatInput.value.trim(); if(!t) return;
+  addMsg(t,true); chatInput.value='';
+  setTimeout(()=>addMsg('Noterat. 👍',false), 500);
 }
-function sendDashChat(){
-  const i = $('#dashChat'); const v=i.value.trim(); if(!v) return;
-  i.value=''; alert('Meddelande skickat (mock)');
+document.getElementById('attachBtn').onclick=()=>{
+  chatMeta.textContent='(mock) Bilagor: manual.pdf, bild.png';
+  addMsg('Bilagor uppladdade (mock).', true);
 }
-$('#chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(); });
-
-/* -------------- Orders (preview/PDF) -------------- */
-function previewInvoice(nr,kund,summa){
-  return `
-  <p><strong>Order:</strong> ${nr}</p>
-  <p><strong>Kund:</strong> ${kund}</p>
-  <p><strong>Summa:</strong> ${summa}</p>
-  <p><small>PDF-generator kopplas i v8.20 (jsPDF/Server).</small></p>`;
-}
-function downloadPDF(nr){ alert('Laddar ner PDF (mock) för '+nr); }
-
-/* -------------- Kundkort -------------- */
-function customerCard(id){
-  const c = state.customers.find(x=>x.id===id);
-  if(!c) return 'Saknas';
-  return `
-    <p><strong>${c.company}</strong></p>
-    <p>Kontakt: ${c.contact}</p>
-    <p>E-post: ${c.email} — Tel: ${c.tel}</p>
-    <p>Stad: ${c.stad}</p>
-    <div style="display:flex;gap:8px">
-      <button class="btn" onclick="alert('Skapa order (mock)')">Skapa order</button>
-      <button class="btn" onclick="alert('Skicka SMS/WhatsApp (mock)')">Skicka meddelande</button>
-    </div>`;
+let recTimer=null, recSec=0;
+document.getElementById('micBtn').onclick=()=>{
+  if(recTimer){ clearInterval(recTimer); recTimer=null; addMsg('🎙️ Röstmeddelande sparat ('+recSec+'s).', true); chatMeta.textContent=''; return; }
+  recSec=0; chatMeta.textContent='Spelar in… klicka igen för att stoppa.';
+  recTimer=setInterval(()=>{ recSec++; chatMeta.textContent='Spelar in… '+recSec+'s (mock)'; },1000);
 }
 
-/* -------------- Sök (inte blockera klick) -------------- */
-$('#globalSearch').addEventListener('focus', ()=>{/* reserv, men input ligger i topbar med hög z-index */});
+/* -------------- AI-karta actions -------------- */
+document.getElementById('routeBtn').onclick=()=>{
+  const note = document.getElementById('noteInput').value.trim();
+  document.getElementById('routeOut').textContent = 'Rutt: Elon Kista → Power Solna → Mekonomen Bromma. '+(note?('Notis sparad: '+note):'');
+}
 
-/* Init */
-if(!location.hash) location.hash = '#/oversikt';
-render();
+/* -------------- Hash routing basic -------------- */
+function scrollToHash(){
+  const hash = location.hash || '#dashboard';
+  const el = document.querySelector(hash==='#dashboard'?'.content':hash);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+window.addEventListener('hashchange', scrollToHash);
+scrollToHash();
+
+/* -------------- Small: protect expander above search -------------- */
+// Already handled with --z-pop higher than --z-appbar
+
 </script>
 </body>
 </html>

@@ -1,114 +1,75 @@
-/* ======================================================
-   MERGX v8.40 — TRANSPARENT THEME EDITION
-   Design: Glass + Dark Theme Palette (Blue, Green, Pink)
-   ====================================================== */
-
-/* -------- Root Variables -------- */
+/* ==== Dark Transparent Glass — fixad ton ==== */
 :root {
-  --color-bg: #0D1335;
-  --color-surface: rgba(255, 255, 255, 0.05);
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-text: #EAEAEA;
+  --color-bg: #05091F; /* djupare bakgrund */
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-text: #EDEDED;
 
-  /* Accent Palette */
   --color-accent-blue: #4D83FF;
   --color-accent-green: #58D0A6;
   --color-accent-pink: #E56F8C;
 
-  /* Glass */
-  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-bg: rgba(255, 255, 255, 0.06);
   --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-glow: rgba(255, 255, 255, 0.2);
+  --glass-glow: rgba(90, 150, 255, 0.12);
 
-  /* Font & sizing */
   --font-main: 'Inter', system-ui, sans-serif;
   --radius: 14px;
 }
 
-/* -------- Base Layout -------- */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: var(--color-bg);
+body {
+  background: radial-gradient(circle at 20% 10%, #0B1130 0%, #05091F 80%);
   color: var(--color-text);
   font-family: var(--font-main);
   font-size: 15px;
-  overflow: hidden;
 }
 
-/* GRID layout (sidebar + main + ai-nav) */
-#app {
-  display: grid;
-  grid-template-columns: 220px 1fr 320px;
-  height: 100vh;
-}
-
-/* -------- Sidebar -------- */
-.sidebar {
+/* Glas-paneler med subtil skillnad mot bakgrund */
+.card,
+.kpi-card,
+.ai-section,
+.sidebar,
+.ai-nav {
   background: var(--glass-bg);
-  border-right: 1px solid var(--glass-border);
-  padding: 1.2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow:
+    inset 0 0 20px rgba(255,255,255,0.04),
+    0 0 25px var(--glass-glow);
+  transition: all 0.2s ease;
 }
 
-.sidebar h1 {
-  font-size: 1.3rem;
-  margin: 0 0 0.3rem 0;
+/* Hover-effekt: tydligare ljusreflektion */
+.kpi-card:hover, .card:hover, .ai-section:hover {
+  background: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 0 25px rgba(255,255,255,0.08),
+    0 0 35px rgba(77,131,255,0.25);
+}
+
+/* Sidebar & AI-panel tydligare glasramar */
+.sidebar {
+  background: rgba(255,255,255,0.05);
+  box-shadow: inset 0 0 40px rgba(255,255,255,0.04);
+}
+.ai-nav {
+  background: rgba(255,255,255,0.05);
+  box-shadow: inset 0 0 60px rgba(255,255,255,0.06);
+}
+
+/* Text-kontrastjustering */
+h3, h4 {
   color: var(--color-accent-blue);
 }
+.change.up { color: var(--color-accent-green); }
+.change.down { color: var(--color-accent-pink); }
 
-.sidebar .version {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  margin-bottom: 1rem;
+/* Modal fix — mer glas, mindre grå */
+.modal {
+  background: rgba(20, 25, 40, 0.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 0 40px var(--glass-glow);
 }
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar li {
-  padding: 0.6rem 0.9rem;
-  margin: 0.2rem 0;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background 0.25s ease;
-}
-
-.sidebar li:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-.sidebar li.active {
-  background: var(--color-accent-blue);
-  color: #fff;
-}
-
-.sidebar footer {
-  text-align: center;
-  margin-top: 1rem;
-}
-
-#themeToggle {
-  background: var(--color-accent-blue);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 0.4rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-#themeToggle:hover {
-  background: var(--color-accent-green);
-}
-
 /* -------- Main Content -------- */
 main#content {
   background: transparent;

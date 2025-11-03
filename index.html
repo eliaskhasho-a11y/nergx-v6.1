@@ -1,146 +1,84 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MergX v8.22 – Admin</title>
 
-  <!-- TITLE -->
-  <title>MergX v8.22 — Admin</title>
-
-  <!-- FONTS -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- LEAFLET (om du använder AI-kartan) -->
-  <link
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" 
     rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-sA+e2JbE1tB2w1If9iIYBgcQKkPj8XKpGkR2B0iTl0A="
-    crossorigin=""
-  />
+  >
 
-  <!-- DIN EGEN CSS -->
+  <!-- Leaflet (utan integrity för Vercel-kompatibilitet) -->
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script 
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    defer
+  ></script>
+
+  <!-- Din huvudstil -->
   <link rel="stylesheet" href="./css/styles.css" />
-
-</head>  
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- TITLE -->
-  <title>MergX v8.22 — Admin</title>
-
-  <!-- FONTS (valfritt men rekommenderas för Inter / Apple-look) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- LEAFLET (om du har kartan i denna version) -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-sA+e2JbE1tB2w1If9iIYBgcQKkPj8XKpGkR2B0iTl0A="
-    crossorigin=""
-  />
-
-  <!-- DIN CSS -->
-  <link rel="stylesheet" href="css/style.css" />
-
-  <!-- META INFO -->
-  <meta name="description" content="MergX Admin Dashboard v8.22 — Light + Glass UI">
-  <meta name="theme-color" content="#0f1117">
 </head>
-
 <body>
-
-  <!-- ================================
-       APP LAYOUT
-       ================================ -->
-  <div class="app">
-
-    <!-- SIDOPANEL -->
+  <!-- Sido- och topplinje -->
+  <div class="layout">
     <aside class="sidebar">
       <div class="brand">
-        MergX Admin<br />
-        <span class="ver">v8.22 • Light + Glass</span>
+        <h1>MergX Admin</h1>
+        <span class="version">v8.22 • Light + Glass</span>
       </div>
-
-      <nav class="nav">
-        <button class="nav-link active" data-target="Översikt">Översikt</button>
-        <button class="nav-link" data-target="Ordrar & fakturor">Ordrar & fakturor</button>
-        <button class="nav-link" data-target="Kunder (CRM)">Kunder (CRM)</button>
-        <button class="nav-link" data-target="Inventarie">Inventarie</button>
-        <button class="nav-link" data-target="Anställda">Anställda</button>
-        <button class="nav-link" data-target="Filer & kvitton">Filer & kvitton</button>
-        <button class="nav-link" data-target="AI-karta">AI-karta</button>
-        <button class="nav-link" data-target="Chatt">Chatt</button>
-        <button class="nav-link" data-target="Inställningar">Inställningar</button>
+      <nav>
+        <ul>
+          <li class="active">Översikt</li>
+          <li>Ordrar & fakturor</li>
+          <li>Kunder (CRM)</li>
+          <li>Inventarie</li>
+          <li>Anställda</li>
+          <li>Filer & kvitton</li>
+          <li>AI-karta</li>
+          <li>Chatt</li>
+          <li>Inställningar</li>
+        </ul>
       </nav>
-
-      <div class="sidebar-foot">
+      <div class="footer-controls">
         <select id="lang">
-          <option value="sv">🇸🇪 Svenska</option>
-          <option value="en">🇬🇧 English</option>
+          <option selected>Svenska</option>
+          <option>English</option>
         </select>
-        <button id="theme-toggle" class="btn-ghost">Tema</button>
+        <button id="themeToggle">Tema</button>
       </div>
     </aside>
 
-    <!-- HUVUDDEL -->
-    <main class="main">
+    <!-- Huvudinnehåll -->
+    <main class="content">
       <header class="topbar">
-        <div class="search">
-          <input type="text" placeholder="Sök i MergX …" />
-        </div>
-        <div class="top-actions">
-          <button id="menu-toggle" class="icon-btn">☰</button>
-          <button class="avatar"><span class="avatar-initials">EK</span></button>
-        </div>
+        <input 
+          type="search" 
+          placeholder="Sök i MergX … (kunder, order, produkter)" 
+          class="searchbar"
+        />
+        <button class="ai-btn">EK</button>
       </header>
 
-      <section class="view">
-        <!-- Dynamiskt innehåll laddas här av app.js -->
+      <section id="overview">
         <h2>Översikt</h2>
-        <p>Välkommen till MergX Admin v8.22 – Glass UI testläge</p>
+        <p>Innehåll för <strong>Översikt</strong> har laddats.</p>
       </section>
 
-      <footer class="footer">
-        <span>© 2025 MergX Bas • v8.22</span>
-        <span id="status">Light + Glass UI</span>
+      <footer>
+        <p>© 2025 MergX Bas • v8.22 Light + Glass UI</p>
       </footer>
     </main>
   </div>
 
-  <!-- MODAL (används av expandera/AI-analyser) -->
-  <div class="modal">
-    <div class="modal-backdrop" data-modal-close></div>
-    <div class="modal-panel">
-      <div class="modal-head">
-        <h3>Expanderad modul</h3>
-      </div>
-      <div class="modal-body">
-        <!-- Fylls av JS -->
-      </div>
-      <div class="modal-foot modal-actions">
-        <button class="btn-ghost" data-modal-close>Stäng</button>
-        <button class="btn-ghost">Ask AI</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================================
-       SCRIPT IMPORTS
-       ================================ -->
-  <!-- Leaflet JS (endast om AI-karta används) -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o9N1jv6K6H0r5cjdO7o1GvQYdVe5wEN9Zf2z5D8E97w="
-    crossorigin=""
-  ></script>
-
-  <!-- DIN JS -->
-  <script src="./js/app.js"></script>
-
+  <!-- Din huvud-JavaScript -->
+  <script src="./js/app.js" defer></script>
 </body>
 </html>

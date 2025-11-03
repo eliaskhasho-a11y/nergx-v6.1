@@ -285,3 +285,42 @@
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .chat-window { max-height: 200px; }
 }
+/* === AI-LISTOR & TOASTER === */
+.store-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.store-list li {
+  background: rgba(255,255,255,0.05);
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.store-list li span {
+  color: #9aa1ad;
+  font-size: 0.8rem;
+}
+
+/* AI-toast-notiser */
+.ai-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(61,139,255,0.9);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+.ai-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}

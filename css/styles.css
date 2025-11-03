@@ -89,3 +89,43 @@ footer {
   opacity: 0.7;
   margin-top: 1rem;
 }
+/* ---------- Dashboard Layout ---------- */
+.dashboard { display:flex; flex-direction:column; gap:1.2rem; }
+
+.kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+.kpi-card {
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px; padding:1rem 1.2rem;
+  backdrop-filter:blur(8px);
+}
+.kpi-card h4 { margin:0; font-size:0.9rem; opacity:0.8; }
+.kpi-card .value { font-size:1.6rem; margin:0.2rem 0; }
+.kpi-card .change { font-size:0.8rem; }
+.change.up { color:#4cd964; }
+.change.down { color:#ff4f58; }
+
+.card.large { min-height:280px; }
+.ai-card { background:rgba(80,150,255,0.05); }
+
+.split { display:flex; gap:1.2rem; flex-wrap:wrap; }
+.split .half { flex:1; min-width:300px; }
+
+/* ---------- Chat ---------- */
+.chat-box {
+  height:200px; overflow-y:auto;
+  background:rgba(255,255,255,0.03);
+  border-radius:8px; padding:0.6rem; margin-bottom:0.5rem;
+}
+.chat-box .msg { margin:0.2rem 0; opacity:0.9; font-size:0.9rem; }
+input[type="text"] {
+  width:100%; padding:0.6rem;
+  border-radius:8px; border:none;
+  background:rgba(255,255,255,0.08); color:#fff;
+}
+
+/* ---------- Chart ---------- */
+canvas { width:100%!important; height:240px!important; }
+
+/* ---------- Map ---------- */
+#map { border-radius:8px; overflow:hidden; }

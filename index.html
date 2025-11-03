@@ -1,180 +1,378 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MergX v8.21 — Admin</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MergX v8.20 — Admin</title>
 
-  <!-- Glass tema / app CSS -->
-  <link rel="stylesheet" href="css/app.css" />
+<!-- libs (via CDN) -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Ikoner (valfritt, för små symboler) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f8fb; --glass:#ffffff; --text:#0f172a; --muted:#667085;
+  --primary:#2563eb; --accent:#22c55e; --danger:#ef4444;
+  --radius:16px; --shadow:0 10px 30px rgba(16,24,40,.08);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text);
+  font:15px/1.48 ui-sans-serif,system-ui,Segoe UI,Inter,Roboto,Helvetica,Arial;
+  background:
+    radial-gradient(900px 600px at 20% 10%, #e9f0ff 0%, transparent 60%),
+    var(--bg);
+}
 
-  <!-- Leaflet för AI-karta -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+/* layout */
+.app{display:grid; grid-template-columns:280px 1fr; min-height:100vh; gap:24px; padding:24px}
+.aside{
+  position:sticky; top:24px; height:calc(100vh - 48px);
+  background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.6));
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(255,255,255,.6);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:18px;
+}
+.brand{display:flex; align-items:center; gap:12px; font-weight:700; margin-bottom:8px}
+.brand .dot{width:12px; height:12px; border-radius:50%; background:linear-gradient(135deg,#60a5fa,#22d3ee)}
+.small{color:var(--muted); font-size:12px}
+.nav{display:grid; gap:8px; margin-top:18px}
+.nav a{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+  color:var(--text); text-decoration:none; border:1px solid rgba(15,23,42,.06); background:rgba(255,255,255,.7)
+}
+.nav a.active{border-color:rgba(37,99,235,.25); background:#fff}
+.main{display:grid; gap:24px}
 
-  <!-- Chart.js för ekonomi-graf -->
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+/* top row kpis */
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.7));
+  border:1px solid rgba(255,255,255,.7); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:16px; position:relative; overflow:hidden; cursor:pointer;
+}
+.card h4{margin:0 0 8px; color:var(--muted); font-weight:600}
+.card .value{font-size:28px; font-weight:800; letter-spacing:.3px}
+.badge{display:inline-block; margin-top:10px; padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; background:#eaf8ef; color:#0a7a3c}
+.badge.neg{background:#eaf1ff; color:#1e429f}
+.card:hover{outline:2px solid rgba(37,99,235,.18)}
 
-  <!-- App JS -->
-  <script defer src="js/app.js"></script>
+/* sections */
+.panel{background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.7));
+  border:1px solid rgba(255,255,255,.7); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
+.panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+.panel h3{margin:0; font-size:18px}
+.actions{display:flex; gap:8px}
+.btn{
+  padding:8px 12px; border-radius:10px; border:1px solid rgba(15,23,42,.08);
+  background:#fff; cursor:pointer; font-weight:600
+}
+.btn.primary{background:var(--primary); color:#fff; border-color:transparent}
+.btn.ghost{background:transparent}
+
+/* chart, map, chat grid */
+.grid-2{display:grid; grid-template-columns:1.4fr .8fr; gap:16px}
+.grid-2 > .panel{min-height:380px}
+#econChart{width:100% !important; height:300px !important}
+
+/* map */
+#map{height:300px; border-radius:12px; overflow:hidden}
+
+/* chat */
+.chat-wrap{display:grid; grid-template-rows:1fr auto; height:300px}
+.chat-log{overflow:auto; display:grid; gap:10px; padding-right:6px}
+.msg{max-width:70%; padding:10px 12px; border-radius:14px; background:#eef2ff}
+.msg.me{margin-left:auto; background:#e0ebff}
+.chat-input{display:flex; gap:8px; align-items:center; margin-top:10px}
+.chat-input input{
+  flex:1; padding:12px 14px; border-radius:12px; border:1px solid rgba(15,23,42,.1); background:#fff
+}
+.icon-btn{
+  width:40px; height:40px; display:grid; place-items:center; border-radius:10px;
+  border:1px solid rgba(15,23,42,.08); background:#fff; cursor:pointer
+}
+
+/* modal */
+.modal{
+  position:fixed; inset:0; background:rgba(15,23,42,.25);
+  display:none; align-items:center; justify-content:center; padding:24px; z-index:50
+}
+.modal.show{display:flex}
+.modal .box{max-width:740px; width:100%; background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:18px}
+.modal .box h3{margin:0 0 8px}
+.modal .box .ai{white-space:pre-wrap; color:#111827}
+
+/* responsive */
+@media (max-width:1100px){ .kpis{grid-template-columns:repeat(2,1fr)} .grid-2{grid-template-columns:1fr} }
+@media (max-width:680px){
+  .app{grid-template-columns:1fr; padding:12px}
+  .aside{position:static; height:auto}
+  .kpis{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="logo">X</div>
-      <div class="brand-meta">
-        <div class="brand-title">MergX Admin</div>
-        <div class="brand-sub">v8.21 • Light + Glass</div>
-      </div>
-      <button class="hamburger" id="menuToggle" aria-label="Meny">☰</button>
-    </div>
+<div class="app">
 
-    <nav class="nav">
-      <button class="nav-item active" data-route="dashboard">Översikt</button>
-      <button class="nav-item" data-route="orders">Ordrar & fakturor</button>
-      <button class="nav-item" data-route="customers">Kunder (CRM)</button>
-      <button class="nav-item" data-route="inventory">Inventarie</button>
-      <button class="nav-item" data-route="employees">Anställda</button>
-      <button class="nav-item" data-route="files">Filer & kvitton</button>
-      <button class="nav-item" data-route="aimap">AI-karta</button>
-      <button class="nav-item" data-route="chat">Chatt</button>
-      <button class="nav-item" data-route="settings">Inställningar</button>
+  <!-- SIDOPANEL -->
+  <aside class="aside">
+    <div class="brand"><span class="dot"></span> MergX Admin <span class="small">v8.20 • Light + Glass</span></div>
+    <nav class="nav" id="nav">
+      <a href="#dash" class="active">Översikt</a>
+      <a href="#orders">Ordrar & fakturor</a>
+      <a href="#crm">Kunder (CRM)</a>
+      <a href="#inv">Inventarie</a>
+      <a href="#staff">Anställda</a>
+      <a href="#files">Filer & kvitton</a>
+      <a href="#aimap">AI-karta</a>
+      <a href="#chat">Chatt</a>
+      <a href="#settings">Inställningar</a>
     </nav>
   </aside>
 
-  <main class="main">
-    <header class="topbar glass">
-      <input class="search" id="globalSearch" placeholder="Sök i MergX… (kunder, order, produkter)" />
-      <div class="topbar-actions">
-        <button class="btn" id="gotoDashboard">Gå till Översikt</button>
+  <!-- HUVUDINNEHÅLL -->
+  <main class="main" id="dash">
+    <!-- Sökfält -->
+    <div class="panel" style="padding:10px 16px">
+      <input id="globalSearch" placeholder="Sök i MergX… (kunder, order, produkter)" style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(15,23,42,.12); background:#fff">
+    </div>
+
+    <!-- KPI-kort -->
+    <section class="kpis" id="kpis">
+      <div class="card" data-kpi="revenue">
+        <h4>Omsättning (idag)</h4>
+        <div class="value" id="revVal">124 500 kr</div>
+        <div class="badge" id="revDelta">+6.2%</div>
       </div>
-    </header>
-
-    <!-- ROUTER-YTA -->
-    <section id="view"></section>
-  </main>
-
-  <!-- ======= TEMPLATES ======= -->
-  <!-- DASHBOARD -->
-  <template id="view-dashboard">
-    <div class="grid gap">
-      <!-- KPI-kort -->
-      <div class="kpi-grid">
-        <button class="kpi glass" data-expand="oms">
-          <div class="kpi-title">Omsättning (idag)</div>
-          <div class="kpi-value" id="kpi-oms">124 500 kr</div>
-          <div class="kpi-trend kpi-up">+6.2%</div>
-        </button>
-        <button class="kpi glass" data-expand="ord">
-          <div class="kpi-title">Order idag</div>
-          <div class="kpi-value" id="kpi-ord">37</div>
-          <div class="kpi-trend kpi-up">+4</div>
-        </button>
-        <button class="kpi glass" data-expand="kost">
-          <div class="kpi-title">Kostnader (idag)</div>
-          <div class="kpi-value" id="kpi-kost">48 900 kr</div>
-          <div class="kpi-trend kpi-down">−2.1%</div>
-        </button>
-        <button class="kpi glass" data-expand="gm">
-          <div class="kpi-title">Bruttomarginal</div>
-          <div class="kpi-value" id="kpi-gm">41.5%</div>
-          <div class="kpi-trend kpi-up">+0.7 pp</div>
-        </button>
+      <div class="card" data-kpi="orders">
+        <h4>Order idag</h4>
+        <div class="value" id="ordVal">37</div>
+        <div class="badge" id="ordDelta">+4</div>
       </div>
+      <div class="card" data-kpi="costs">
+        <h4>Kostnader (idag)</h4>
+        <div class="value" id="costVal">48 900 kr</div>
+        <div class="badge neg" id="costDelta">–2.1%</div>
+      </div>
+      <div class="card" data-kpi="margin">
+        <h4>Bruttomarginal</h4>
+        <div class="value" id="gmVal">41.5%</div>
+        <div class="badge" id="gmDelta">+0.7 pp</div>
+      </div>
+    </section>
 
-      <!-- Ekonomi graf -->
-      <div class="card glass">
-        <div class="card-head">
+    <!-- Graf + Karta -->
+    <section class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
           <h3>Ekonomi — kombostaplar</h3>
-          <div class="head-actions">
-            <button class="btn secondary" data-ask="economy">Ask AI</button>
-            <button class="btn" data-expand="economy">Expandera</button>
+          <div class="actions">
+            <button class="btn ghost" data-ask="econ">Ask AI</button>
+            <button class="btn" id="expandChart">Expandera</button>
           </div>
         </div>
-        <div class="card-body full-bleed">
-          <canvas id="ecoChart"></canvas>
-        </div>
+        <canvas id="econChart"></canvas>
       </div>
 
-      <!-- AI-karta (mini) -->
-      <div class="card glass">
-        <div class="card-head">
+      <div class="panel" id="aimap">
+        <div class="panel-head">
           <h3>AI-karta (mini)</h3>
-          <div class="head-actions">
-            <button class="btn secondary" data-ask="map">Ask AI</button>
-            <button class="btn" data-expand="map">Expandera</button>
+          <div class="actions">
+            <button class="btn ghost" data-ask="map">Ask AI</button>
+            <button class="btn" id="expandMap">Expandera</button>
           </div>
         </div>
-        <div class="card-body">
-          <div id="miniMap" class="map"></div>
-          <div class="hint">AI-rekommendationer: “Besök <b>Elon Kista → Power Solna → Mekonomen Bromma</b>. Totalt ca 43 min.”</div>
+        <div id="map"></div>
+        <div class="small" id="routeNote" style="margin-top:8px">
+          AI-rekommendation (mock): “Besök <b>Elon Kista</b> → <b>Power Solna</b> → <b>Mekonomen Bromma</b>. Totalt ca 43 min.”
         </div>
       </div>
+    </section>
 
-      <!-- Teamchatt -->
-      <div class="card glass">
-        <div class="card-head">
+    <!-- Chatt + Orderlista (kompakt) -->
+    <section class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
           <h3>Teamchatt</h3>
-          <div class="head-actions">
-            <button class="btn secondary" data-ask="chat">Ask AI</button>
-            <button class="btn" data-expand="chat">Expandera</button>
+          <div class="actions">
+            <button class="btn ghost" data-ask="chat">Ask AI</button>
+            <button class="btn" id="expandChat">Expandera</button>
           </div>
         </div>
-        <div class="card-body">
-          <div class="chat-window" id="chatWindow">
-            <div class="bubble bubble-left">God morgon teamet!</div>
-            <div class="bubble bubble-right">Jag tar kundmötet 11:00.</div>
+        <div class="chat-wrap">
+          <div class="chat-log" id="chatLog">
+            <div class="msg">God morgon teamet!</div>
+            <div class="msg me">Jag tar kundmötet 11:00.</div>
           </div>
-          <div class="chat-actions">
-            <label class="icon-btn" title="Bifoga filer">
-              📎 <input type="file" id="chatFile" hidden>
-            </label>
-            <button class="icon-btn" id="recBtn" title="Spela in röst">🎙️</button>
-            <input id="chatInput" class="chat-input" placeholder="Skriv ett meddelande… (Enter för att skicka)" />
-            <button id="chatSend" class="btn">Skicka</button>
+          <div class="chat-input">
+            <button class="icon-btn" id="attachBtn" title="Lägg till fil">📎</button>
+            <button class="icon-btn" id="micBtn" title="Spela in röst">🎤</button>
+            <input id="chatInput" placeholder="Skriv ett meddelande… (Enter för att skicka)" />
+            <button class="btn primary" id="sendBtn">Skicka</button>
+            <input type="file" id="fileHidden" hidden>
           </div>
-          <div class="hint">Röstinspelning sparas lokalt som mock och kan AI-sammanfattas per kund i kommande version.</div>
+        </div>
+        <div class="small" id="voiceNote" style="margin-top:6px;color:#475569">
+          Röstinspelning sparas lokalt (mock). AI-sammanfattning per kund i kommande version.
         </div>
       </div>
-    </div>
-  </template>
 
-  <!-- ÖVRIGA VYER (plats för framtida funktioner, klickbara nu) -->
-  <template id="view-placeholder">
-    <div class="card glass">
-      <div class="card-head">
-        <h3 id="ph-title">Titel</h3>
+      <div class="panel">
+        <div class="panel-head"><h3>Ordrar & fakturor — senast</h3></div>
+        <div class="small">#10234 • Acme AB • 24 900 kr • Skapad idag &nbsp;&nbsp;|&nbsp;&nbsp; #10231 • Elon City • 12 200 kr • Skapad igår</div>
+        <div class="small" style="margin-top:10px">PDF-export (jsPDF) kopplas i nästa sprint.</div>
       </div>
-      <div class="card-body">
-        <p>Detta är en förberedd vy. Här lägger vi riktig funktionalitet i nästa steg utan att ändra grund.</p>
-        <ul class="bullets">
-          <li>Klickbar tabell (mock)</li>
-          <li>Filter/search i topp</li>
-          <li>“Ask AI” för snabb analys</li>
-        </ul>
-      </div>
-    </div>
-  </template>
+    </section>
 
-  <!-- EXPAND OVERLAY -->
-  <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
-    <div class="overlay-inner glass">
-      <div class="overlay-head">
-        <h3 id="overlayTitle">Analys</h3>
-        <div class="head-actions">
-          <button class="btn secondary" id="overlayAsk">Ask AI</button>
-          <button class="btn" id="overlayClose">Stäng</button>
-        </div>
-      </div>
-      <div class="overlay-body" id="overlayBody">
-        <!-- Innehåll fylls dynamiskt -->
-      </div>
+  </main>
+</div>
+
+<!-- KPI-ANALYS MODAL -->
+<div class="modal" id="modal">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <h3 id="modalTitle">Analys</h3>
+      <button class="btn" id="closeModal">Stäng</button>
     </div>
+    <div class="ai" id="modalBody"></div>
   </div>
+</div>
+
+<script>
+/* --------- helper --------- */
+const $ = (q,ctx=document)=>ctx.querySelector(q);
+const $$ = (q,ctx=document)=>[...ctx.querySelectorAll(q)];
+
+/* --------- nav active --------- */
+$('#nav').addEventListener('click', e=>{
+  if(e.target.tagName!=='A') return;
+  $$('#nav a').forEach(a=>a.classList.remove('active'));
+  e.target.classList.add('active');
+});
+
+/* --------- KPI cards -> modal AI --------- */
+const modal = $('#modal'), mTitle = $('#modalTitle'), mBody = $('#modalBody');
+$('#closeModal').onclick = ()=> modal.classList.remove('show');
+
+const aiExplainers = {
+  revenue:`• Omsättning +6.2% vs igår.\n• Drivet av 3 större B2B-ordrar.\n• Prognos: +8–10% vecka.\n• Rek: tryck kampanj mot topp-3 artiklar.`,
+  orders:`• 37 ordrar idag, +4 mot rullande snitt.\n• B2B-andel 32%.\n• Rek: ring upp “varma” kundkort i CRM för högre snitt.`,
+  costs:`• Kostnader -2.1% (bra!).\n• Högst: frakt & returer.\n• Rek: batcha etiketter och förhandla zon-priser.`,
+  margin:`• GM 41.5% (+0.7pp).\n• Vinnare: USB-C 60W, Bil-laddare 60W.\n• Rek: höj 3% på topp-sälj utan tapp.`
+};
+
+$('#kpis').addEventListener('click', e=>{
+  const card = e.target.closest('.card'); if(!card) return;
+  const k = card.dataset.kpi;
+  mTitle.textContent = `AI-analys — ${({'revenue':'Omsättning','orders':'Order','costs':'Kostnader','margin':'Bruttomarginal'})[k]||''}`;
+  mBody.textContent = aiExplainers[k] || '—';
+  modal.classList.add('show');
+});
+
+/* --------- Ask AI knappar i paneler (mock) --------- */
+$$('[data-ask]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const what = btn.getAttribute('data-ask');
+    mTitle.textContent = `AI-analys — ${what==='econ'?'Ekonomi':what==='map'?'Karta':what==='chat'?'Chatt':'Modul'}`;
+    mBody.textContent =
+      what==='econ' ? '• Säsongs­effekt v4→v5.\n• Rek: kampanj inför helg, 12% rabatt på bundle.\n• Prognos nästa vecka +5%.' :
+      what==='map'  ? '• Föreslår rutt: Elon Kista → Power Solna → Mekonomen Bromma.\n• Undvik Essingeleden 08–09.\n• Lägg notis: “Elon Kista vill köpa om 20 dagar”.' :
+      '• Fler mentions kring “leverans”.\n• Rek: skicka sammanfattning till Ekonomi & Lager.';
+    modal.classList.add('show');
+  });
+});
+
+/* --------- Chart --------- */
+let econChart;
+function initChart(){
+  const ctx = $('#econChart');
+  econChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['v1','v2','v3','v4','v5'],
+      datasets:[
+        {label:'Omsättning', data:[100,120,90,140,160], backgroundColor:'#a5b4fc'},
+        {label:'Kostnader',  data:[50,60,45,60,70],    backgroundColor:'#c7d2fe'},
+        {label:'Brutto%',    data:[60,62,61,62,66],    type:'line', borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+      ]
+    },
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:14}}}, scales:{y:{beginAtZero:true}}}
+  });
+}
+initChart();
+$('#expandChart').onclick = ()=>{
+  mTitle.textContent='Ekonomi — detaljer';
+  mBody.innerHTML = '• v5 stark p.g.a. B2B-order.\n• Rek: följ upp topp-3 kunder.\n• Prognos: +7% nästa vecka.';
+  modal.classList.add('show');
+};
+
+/* --------- Map (Leaflet) --------- */
+let map;
+function initMap(){
+  map = L.map('map',{zoomControl:true}).setView([59.334591,18.06324], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap'
+  }).addTo(map);
+  const pin = L.marker([59.403, 17.944]).addTo(map);
+  pin.bindPopup('Rek. första stopp: <b>Elon Kista</b>').openPopup();
+
+  // Geolocation (om tillåtet)
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      map.setView([pos.coords.latitude, pos.coords.longitude], 12);
+    });
+  }
+}
+initMap();
+$('#expandMap').onclick = ()=>{
+  mTitle.textContent='AI-karta — rekommendationer';
+  mBody.innerHTML='• Föreslår rutt: Elon Kista → Power Solna → Mekonomen Bromma.\n• Total restid ca 43 min.\n• Lägg plats-notiser per stopp.';
+  modal.classList.add('show');
+};
+
+/* --------- Chatt --------- */
+const chatLog = $('#chatLog'), chatInput=$('#chatInput'), sendBtn=$('#sendBtn');
+function pushMsg(txt,me=false){
+  const d=document.createElement('div'); d.className='msg'+(me?' me':''); d.textContent=txt;
+  chatLog.appendChild(d); chatLog.scrollTop=chatLog.scrollHeight;
+}
+sendBtn.onclick = ()=>{ if(!chatInput.value.trim())return; pushMsg(chatInput.value,true); chatInput.value=''; };
+chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendBtn.click(); }});
+
+$('#attachBtn').onclick = ()=>$('#fileHidden').click();
+$('#fileHidden').onchange = (e)=>{
+  const f = e.target.files[0]; if(!f) return; pushMsg(`📎 Bilaga: ${f.name}`);
+};
+
+/* Röst (mock via MediaRecorder om finns) */
+let mediaRecorder, chunks=[];
+$('#micBtn').onclick = async ()=>{
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e=> chunks.push(e.data);
+    mediaRecorder.onstop = ()=>{
+      const blob = new Blob(chunks, {type:'audio/webm'}); chunks=[];
+      const url = URL.createObjectURL(blob);
+      pushMsg(`🎤 Röstanteckning sparad (lokalt).`); // kunde länkas: <audio controls src="url">
+    };
+    mediaRecorder.start();
+    pushMsg('🎙️ Inspelning startad… klicka igen för att stoppa.');
+    $('#micBtn').onclick = ()=>{ mediaRecorder.stop(); $('#micBtn').onclick = async ()=>{ /* re-arm */ }; };
+  }catch(err){
+    pushMsg('🎤 Mikrofon ej tillåten — sparar som mock.');
+  }
+};
+
+$('#expandChat').onclick = ()=>{
+  mTitle.textContent='Teamchatt — analys';
+  mBody.textContent='• Fler mentions kring “leverans” i morse.\n• Rek: skicka auto-sammanfattning till Ekonomi & Lager.';
+  modal.classList.add('show');
+};
+</script>
 </body>
 </html>

@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MergX v8.38 • Core</title>
+  <title>MergX v8.39 Pro • AI-Nav</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 
 <body>
   <div id="app">
+    <!-- SIDOBAR -->
     <aside class="sidebar">
       <h1>MergX</h1>
-      <p class="version">v8.38 • Core</p>
+      <p class="version">v8.39 • Pro + AI-Nav</p>
       <nav>
         <ul>
-          <li data-page="overview">Översikt</li>
+          <li data-page="overview" class="active">Översikt</li>
           <li data-page="customers">Kunder</li>
           <li data-page="inventory">Inventarie</li>
           <li data-page="employees">Anställda</li>
@@ -30,9 +31,52 @@
       </footer>
     </aside>
 
+    <!-- MITTKOLUMN -->
     <main id="content">
-      <div class="loader">Laddar MergX ...</div>
+      <div class="loader">Laddar MergX v8.39 …</div>
     </main>
+
+    <!-- HÖGER AI-NAV -->
+    <aside class="ai-nav">
+      <section class="ai-section">
+        <h3>AI-Förslag</h3>
+        <ul>
+          <li>Planera nästa kundbesök hos Elon Kista (20 dagar)</li>
+          <li>Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm</li>
+          <li>Prisjustering Lightning 27 W +5 %</li>
+          <li>Skapa AI-rapport för Fortnox export fredag</li>
+        </ul>
+      </section>
+
+      <section class="ai-section">
+        <h3>AI-Notiser</h3>
+        <ul>
+          <li>3 nya kvitton registrerade av anställda</li>
+          <li>Ny order skapad för Power Barkarby</li>
+          <li>AI-rutt uppdaterad för Solna-området</li>
+        </ul>
+      </section>
+
+      <section class="ai-section">
+        <h3>AI-Rutt & Leads</h3>
+        <ol>
+          <li>Start – Acetek HQ (08:00)</li>
+          <li>Elon Kista (09:15)</li>
+          <li>Mekonomen Solna (11:00)</li>
+          <li>Lunch – Mall of Scandinavia (12:30)</li>
+          <li>Power Barkarby (14:00)</li>
+          <li>Åter till HQ (15:30)</li>
+        </ol>
+      </section>
+    </aside>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal">
+      <button id="closeModal">×</button>
+      <h3 id="modalTitle">Expanderad modul</h3>
+      <p id="modalContent">Här visas mer detaljer och AI-analys.</p>
+    </div>
   </div>
 
   <script src="js/app.js"></script>

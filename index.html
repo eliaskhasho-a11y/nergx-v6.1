@@ -1,1019 +1,967 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sv">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MergX v8.16 — Economy Core</title>
+<title>MergX v8.17 • Admin (Full, Light+Glass)</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Chart.js & Leaflet (CDN, no build) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
-  :root{
-    --bg: #f5f7fb;
-    --glass: rgba(255,255,255,0.68);
-    --frost: rgba(255,255,255,0.45);
-    --text:#0f172a;
-    --muted:#475569;
-    --primary:#1f9dff; /* blå */
-    --accent:#00d2c6;  /* turkos */
-    --ok:#10b981; --warn:#f59e0b; --bad:#ef4444;
-    --shadow: 0 10px 30px rgba(15,23,42,0.08);
-    --radius:16px;
-    --gap:16px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
-    color:var(--text);
-    background:
-      radial-gradient(1200px 800px at 10% -10%, #e6f3ff 0%, transparent 60%),
-      radial-gradient(1000px 700px at 110% 10%, #e8fff9 0%, transparent 55%),
-      var(--bg);
-  }
-  .app{
-    display:grid; grid-template-columns: 260px 1fr; min-height:100vh;
-  }
-  aside{
-    position:sticky; top:0; height:100vh; padding:20px;
-    backdrop-filter: blur(16px);
-    background: var(--glass);
-    box-shadow: var(--shadow);
-    border-right:1px solid rgba(0,0,0,.04);
-  }
-  .brand{display:flex; align-items:center; gap:10px; margin-bottom:18px}
-  .logo{
-    width:32px; height:32px; border-radius:10px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    box-shadow: 0 6px 16px rgba(31,157,255,.25);
-  }
-  .brand b{font-size:16px}
-  nav a{
-    display:flex; gap:10px; align-items:center;
-    padding:10px 12px; margin:4px 0; border-radius:12px;
-    color:var(--muted); text-decoration:none; font-weight:600;
-  }
-  nav a.active, nav a:hover{
-    color:var(--text);
-    background: linear-gradient(180deg, var(--glass), var(--frost));
-    box-shadow: var(--shadow);
-  }
-  main{
-    padding:22px; display:flex; flex-direction:column; gap:var(--gap);
-  }
-  header.top{
-    display:flex; align-items:center; gap:12px; justify-content:space-between;
-  }
-  .search{
-    flex:1; display:flex; align-items:center; gap:10px;
-    background: var(--glass); padding:10px 12px; border-radius:12px;
-    backdrop-filter: blur(10px); border:1px solid rgba(0,0,0,.05);
-  }
-  .search input{flex:1; border:0; background:transparent; outline:0; font-size:14px}
-  .badges{display:flex; align-items:center; gap:10px}
-  .badge{
-    position:relative; width:38px; height:38px; display:grid; place-items:center;
-    background: var(--glass); border-radius:12px; border:1px solid rgba(0,0,0,.06)
-  }
-  .badge::after{
-    content: attr(data-count);
-    position:absolute; top:-6px; right:-4px;
-    background:#ef4444; color:#fff; font-size:11px; font-weight:700;
-    padding:2px 6px; border-radius:999px; min-width:18px; text-align:center;
-    box-shadow: 0 4px 10px rgba(239,68,68,.35);
-  }
-  .grid{
-    display:grid; gap:var(--gap);
-  }
-  .grid.cols-4{grid-template-columns: repeat(4, minmax(0,1fr))}
-  .grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr))}
-  .grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr))}
-  @media (max-width:1100px){ .grid.cols-4{grid-template-columns: repeat(2,1fr)} }
-  @media (max-width:700px){ .app{grid-template-columns: 1fr} aside{position:static; height:auto} .grid.cols-3,.grid.cols-4{grid-template-columns:1fr} }
+:root{
+  --bg:#F6F8FB;
+  --glass:rgba(255,255,255,.72);
+  --frost:blur(14px) saturate(150%);
+  --border:rgba(15,23,42,.08);
+  --text:#0F172A;
+  --muted:#667085;
+  --brand:#1F9DFF;
+  --turq:#00D2C6;
+  --red:#EF4444;
+  --blue:#3B82F6;
+  --shadow:0 12px 28px rgba(15,23,42,.08);
+  --radius:16px; --gap:20px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #EAF4FF, transparent 50%),
+    radial-gradient(1000px 600px at 120% 0%, #F5FFFB, transparent 50%),
+    var(--bg);
+}
+a{text-decoration:none;color:inherit}
 
-  .card{
-    background: linear-gradient(180deg, var(--glass), var(--frost));
-    border:1px solid rgba(0,0,0,.06);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-  }
-  .card.h{padding:16px 16px}
-  .stat{
-    padding:16px; cursor:pointer; position:relative; overflow:hidden;
-    transition: transform .15s ease;
-  }
-  .stat:hover{ transform: translateY(-2px) }
-  .stat small{color:var(--muted); font-weight:600}
-  .stat .v{display:flex; align-items:baseline; gap:8px; margin-top:6px}
-  .stat .v b{font-size:24px}
-  .pill{
-    font-size:12px; padding:2px 8px; border-radius:999px; font-weight:700;
-  }
-  .up{ background: rgba(16,185,129,.1); color:#065f46; }
-  .down{ background: rgba(239,68,68,.12); color:#7f1d1d; }
+.app{
+  display:grid; grid-template-columns: 260px 1fr; gap:0; min-height:100dvh;
+}
 
-  .table{width:100%; border-collapse:collapse; font-size:14px}
-  .table th, .table td{padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.06)}
-  .table th{ text-align:left; color:var(--muted); font-weight:700}
-  .row-actions{display:flex; gap:8px}
-  .btn{
-    appearance:none; border:0; border-radius:12px; padding:10px 12px; font-weight:700;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    color:#fff; box-shadow: 0 8px 20px rgba(31,157,255,.25); cursor:pointer;
-  }
-  .btn.ghost{
-    background: var(--glass); color:var(--text); border:1px solid rgba(0,0,0,.06)
-  }
-  .btn.warn{ background: linear-gradient(135deg, #ff7a7a, #ef4444) }
-  .btn.ok{ background: linear-gradient(135deg, #34d399, #10b981) }
+/* Sidebar */
+.sidebar{
+  position:sticky; top:0; align-self:start; height:100dvh; overflow:auto;
+  background:var(--glass); backdrop-filter:var(--frost); -webkit-backdrop-filter:var(--frost);
+  border-right:1px solid var(--border);
+}
+.brand{ display:flex; align-items:center; gap:10px; padding:18px 16px }
+.brand .dot{ width:12px; height:12px; border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #b0d7ff, #7fc8ff 40%, #7c7cff);
+  box-shadow:0 0 18px rgba(124,124,255,.5);
+  animation:pulse 2.8s ease-in-out infinite;
+}
+@keyframes pulse{0%{box-shadow:0 0 10px rgba(124,124,255,.5)}50%{box-shadow:0 0 24px rgba(124,124,255,.7)}100%{box-shadow:0 0 10px rgba(124,124,255,.5)}}
+.nav{ padding:8px }
+.nav a{
+  display:flex; align-items:center; gap:10px; padding:10px 14px; margin:6px 8px; border-radius:12px; font-weight:600;
+  border:1px solid transparent;
+}
+.nav a.active, .nav a:hover{ background:rgba(255,255,255,.9); border-color:var(--border); box-shadow:var(--shadow) }
 
-  /* Modal */
-  .modal{
-    position:fixed; inset:0; display:none; place-items:center; z-index:1000;
-  }
-  .modal.open{ display:grid; }
-  .backdrop{position:absolute; inset:0; background: rgba(2,6,23,.35); backdrop-filter: blur(4px);}
-  .sheet{
-    position:relative; width:min(980px, 92vw); max-height:86vh; overflow:auto;
-    background: linear-gradient(180deg, var(--glass), var(--frost));
-    border:1px solid rgba(0,0,0,.07); border-radius:20px; padding:18px;
-    box-shadow: var(--shadow);
-  }
-  .sheet h3{margin:4px 0 12px 0}
-  .form{display:grid; gap:12px}
-  .row{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
-  .row3{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px}
-  label{font-weight:700; font-size:12px; color:var(--muted)}
-  input, select, textarea{
-    width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.08);
-    background: rgba(255,255,255,.7); outline: none;
-  }
-  textarea{min-height:80px; resize:vertical}
-  .muted{color:var(--muted)}
-  .right{display:flex; justify-content:flex-end; gap:8px}
-  .section-title{display:flex; align-items:center; justify-content:space-between; padding:12px 16px}
-  .chip{padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.05); font-weight:700; color:var(--muted); font-size:12px}
-  .flex{display:flex; gap:10px; align-items:center}
-  .divider{height:1px; background: rgba(0,0,0,.06); margin:10px 0}
-  .hint{font-size:12px; color:var(--muted)}
-  .aiBox{
-    margin-top:10px; padding:12px; border-radius:12px;
-    background: linear-gradient(180deg, rgba(31,157,255,.08), rgba(0,210,198,.08));
-    border:1px solid rgba(31,157,255,.15);
-  }
-  .hidden{display:none !important}
-  .kpi-grid{display:grid; gap:16px; grid-template-columns: repeat(4, minmax(0,1fr))}
-  @media (max-width:1100px){ .kpi-grid{grid-template-columns: repeat(2,1fr)} }
-  @media (max-width:700px){ .kpi-grid{grid-template-columns: 1fr} }
+/* Topbar */
+.topbar{
+  position:sticky; top:0; z-index:50; background:transparent;
+}
+.topbar-wrap{
+  display:flex; align-items:center; gap:14px; padding:14px 18px;
+  background:var(--glass); backdrop-filter:var(--frost); -webkit-backdrop-filter:var(--frost);
+  border-bottom:1px solid var(--border);
+}
+.search{
+  flex:1; display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border:1px solid var(--border); border-radius:12px; background:#fff;
+}
+.search input{ flex:1; border:0; outline:0; font-size:14px }
+.badge{
+  position:relative; width:40px; height:40px; display:grid; place-items:center; border-radius:12px; background:#fff; border:1px solid var(--border)
+}
+.badge .n{ position:absolute; top:-6px; right:-6px; background:#E11D48; color:#fff; font-size:11px; width:18px; height:18px; border-radius:999px; display:grid; place-items:center; font-weight:800 }
+
+/* Main */
+.main{ padding:20px; }
+.grid{ display:grid; gap:var(--gap) }
+.kpis{ grid-template-columns: repeat(4, 1fr) }
+.card{
+  background:var(--glass); backdrop-filter:var(--frost); -webkit-backdrop-filter:var(--frost);
+  border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:18px; position:relative; overflow:hidden;
+}
+.title{ font-size:13px; color:var(--muted); font-weight:700; letter-spacing:.02em }
+.metric{ font-size:30px; font-weight:800; margin:6px 0 10px }
+.progress{ height:28px; border:1px solid var(--border); border-radius:12px; background:#F3FAF7; overflow:hidden }
+.progress > span{ display:block; height:100%; border-radius:12px }
+.pill{ display:inline-block; padding:4px 10px; border-radius:999px; background:#ECFDF3; color:#065F46; font-weight:700; font-size:12px }
+
+/* Sections */
+.two{ grid-template-columns: 1.3fr 1fr }
+.row2{ display:grid; grid-template-columns: 1fr 1fr; gap:var(--gap) }
+.subhead{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px }
+.subhead h3{ margin:0; font-size:16px; font-weight:800 }
+.btn{ border:1px solid var(--border); background:#fff; border-radius:10px; padding:8px 12px; font-weight:700; cursor:pointer; }
+.btn.link{ background:transparent; border:0; color:var(--blue) }
+.table{ overflow:auto; border:1px solid var(--border); border-radius:12px; background:#fff }
+table{ width:100%; border-collapse:collapse; font-size:14px }
+th,td{ padding:11px 12px; border-bottom:1px solid #EEF2F7; text-align:left }
+th{ color:#64748B; font-weight:800 }
+.tag{ font-size:12px; padding:4px 8px; border-radius:999px; background:#EFF8FF; color:#175CD3; font-weight:800 }
+
+/* Chat widget */
+.chatbox{
+  position:fixed; right:22px; bottom:22px; width:360px; max-width:94vw; height:480px; display:flex; flex-direction:column;
+  background:#fff; border:1px solid var(--border); border-radius:18px; box-shadow:0 20px 40px rgba(15,23,42,.18); z-index:60;
+}
+.chatbox header{ padding:10px 14px; background:linear-gradient(180deg,#BEE9FF,#9EDCFF); font-weight:800; border-radius:18px 18px 0 0 }
+.chat-messages{ flex:1; overflow:auto; padding:12px }
+.msg{ max-width:78%; padding:10px 14px; border-radius:14px; margin:6px 0; line-height:1.35 }
+.msg.ai{ background:#EAF4FF; color:#0f2640 }
+.msg.me{ background:linear-gradient(180deg,#B5E4FF,#9ADCFB); color:#082a3a; margin-left:auto }
+.chat-input{ display:flex; gap:8px; border-top:1px solid #E5E7EB; padding:8px }
+.chat-input input{ flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 12px; outline:0 }
+.iconbtn{ height:36px; aspect-ratio:1; display:grid; place-items:center; border:1px solid var(--border); border-radius:10px; background:#fff; cursor:pointer }
+
+/* Expand Sheet (in-place) */
+.overlay{ position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; background:rgba(15,23,42,.4); z-index:55 }
+.sheet{
+  width:min(1040px,96vw); max-height:88vh; overflow:auto; background:var(--glass); backdrop-filter:var(--frost);
+  border:1px solid var(--border); border-radius:18px; padding:18px; margin:24px; box-shadow:0 40px 80px rgba(15,23,42,.35)
+}
+.sheet .head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px }
+.sheet .head h3{ margin:0; font-size:18px; font-weight:900 }
+
+/* Coach pulse */
+.coach-pulse{ position:absolute; right:14px; top:14px; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #9EE7FF, #7DCBFF 60%, #7C79FF); box-shadow:0 0 12px rgba(124,121,255,.7); animation:pulse2 2.8s ease-in-out infinite }
+@keyframes pulse2{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* Map */
+#mapMini, #mapBig{ height:300px; border-radius:12px; border:1px solid var(--border); overflow:hidden }
+
+/* Responsive */
+@media (max-width:1200px){ .kpis{ grid-template-columns:1fr 1fr } .two{ grid-template-columns:1fr } }
 </style>
 </head>
 <body>
+
 <div class="app">
-  <aside>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
     <div class="brand">
-      <div class="logo"></div>
+      <div class="dot"></div>
       <div>
-        <b>MergX Admin</b><br>
-        <small class="muted">v8.16 Economy Core</small>
+        <div style="font-weight:900;letter-spacing:.2px">MergX Admin</div>
+        <div style="font-size:12px;color:var(--muted)">v8.17 • Light + Glass</div>
       </div>
     </div>
-    <nav id="nav">
-      <a href="#dashboard" data-route="dashboard" class="active">🏠 Översikt</a>
-      <a href="#orders" data-route="orders">🧾 Order & Fakturor</a>
-      <a href="#customers" data-route="customers">👥 Kunder</a>
-      <a href="#inventory" data-route="inventory">📦 Inventarie</a>
-      <a href="#employees" data-route="employees">👤 Anställda</a>
-      <a href="#files" data-route="files">🗂️ Filer & Kvitton</a>
-      <a href="#settings" data-route="settings">⚙️ Inställningar</a>
+    <nav class="nav" id="nav">
+      <a href="#/dashboard" data-route><span>🏠</span> Översikt</a>
+      <a href="#/orders" data-route><span>🧾</span> Ordrar & fakturor</a>
+      <a href="#/customers" data-route><span>👥</span> Kunder (CRM)</a>
+      <a href="#/inventory" data-route><span>📦</span> Inventarie</a>
+      <a href="#/employees" data-route><span>👤</span> Anställda</a>
+      <a href="#/files" data-route><span>🗂️</span> Filer & kvitton</a>
+      <a href="#/map" data-route><span>🗺️</span> AI-karta</a>
+      <a href="#/chat" data-route><span>💬</span> Chatt</a>
+      <a href="#/settings" data-route><span>⚙️</span> Inställningar</a>
     </nav>
   </aside>
 
+  <!-- MAIN -->
   <main>
-    <header class="top">
-      <div class="search">
-        🔎 <input id="globalSearch" placeholder="Sök i MergX… (kunder, order, produkter)">
+    <!-- TOPBAR -->
+    <div class="topbar" id="topbar">
+      <div class="topbar-wrap" id="topbarWrap">
+        <div class="search" id="searchBar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.2-4.2m1.7-5.3a7 7 0 11-14 0 7 7 0 0114 0z" stroke="#64748B" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="globalSearch" placeholder="Sök kunder, order, artiklar…" />
+          <button class="btn" onclick="go('#/dashboard')">Gå till Översikt</button>
+        </div>
+        <div class="badge" onclick="openNotis()">
+          🔔 <div class="n" id="notisCount">3</div>
+        </div>
       </div>
-      <div class="badges">
-        <div class="badge" id="notifyBadge" data-count="3">🔔</div>
-        <div class="badge" title="AI Coach">🤖</div>
-      </div>
-    </header>
+    </div>
 
-    <!-- DASHBOARD -->
-    <section id="page-dashboard" class="page">
-      <div class="grid cols-4">
-        <div class="card stat" onclick="openInsight('sales')">
-          <small>Omsättning idag</small>
-          <div class="v"><b id="kpiSales">—</b><span class="pill up" id="kpiSalesDelta">+0%</span></div>
-        </div>
-        <div class="card stat" onclick="openInsight('orders')">
-          <small>Order idag</small>
-          <div class="v"><b id="kpiOrders">—</b><span class="pill up" id="kpiOrdersDelta">+0%</span></div>
-        </div>
-        <div class="card stat" onclick="openInsight('costs')">
-          <small>Kostnader</small>
-          <div class="v"><b id="kpiCosts">—</b><span class="pill down" id="kpiCostsDelta">-0%</span></div>
-        </div>
-        <div class="card stat" onclick="openInsight('margin')">
-          <small>Bruttomarginal</small>
-          <div class="v"><b id="kpiMargin">—</b><span class="pill up" id="kpiMarginDelta">+0%</span></div>
-        </div>
-      </div>
-
-      <div class="grid cols-2">
-        <div class="card h">
-          <div class="section-title">
-            <b>Senaste order</b>
-            <button class="btn ghost" onclick="openOrderModal()">+ Skapa order</button>
-          </div>
-          <table class="table" id="recentOrdersTbl">
-            <thead><tr><th>#</th><th>Kund</th><th>Summa</th><th>Status</th><th>Tid</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="card h">
-          <div class="section-title">
-            <b>AI-karta (mock)</b>
-            <span class="chip">Ask AI</span>
-          </div>
-          <div class="hint">Visar närliggande butiker (mock) och föreslagen rutt i nästa version.</div>
-          <div class="aiBox" id="mapAiBox">
-            Förslag: Besök <b>Elon Kista</b> → <b>Power Solna</b> → <b>Mekonomen Bromma</b>. Total ca 43 min. <br/>
-            Lägg notis: “Elon Kista vill köpa om 20 dagar”.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ORDERS -->
-    <section id="page-orders" class="page hidden">
-      <div class="card h">
-        <div class="section-title">
-          <b>Order & Fakturor</b>
-          <div class="flex">
-            <button class="btn ghost" onclick="openOrderModal()">+ Ny order</button>
-          </div>
-        </div>
-        <table class="table" id="ordersTbl">
-          <thead>
-            <tr><th>#</th><th>Kund</th><th>Rader</th><th>Summa</th><th>Status</th><th>Åtgärder</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- CUSTOMERS -->
-    <section id="page-customers" class="page hidden">
-      <div class="card h">
-        <div class="section-title">
-          <b>Kunder</b>
-          <div class="flex"><button class="btn ghost" onclick="openCustomerModal()">+ Ny kund</button></div>
-        </div>
-        <table class="table" id="customersTbl">
-          <thead>
-            <tr><th>Företag</th><th>Kontakt</th><th>Telefon</th><th>E-post</th><th>Åtgärder</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- INVENTORY -->
-    <section id="page-inventory" class="page hidden">
-      <div class="card h">
-        <div class="section-title">
-          <b>Inventarie</b>
-          <div class="flex"><button class="btn ghost" onclick="openProductModal()">+ Ny produkt</button></div>
-        </div>
-        <table class="table" id="inventoryTbl">
-          <thead>
-          <tr><th>Artikelnummer</th><th>Namn</th><th>Typ</th><th>Antal</th><th>Pris</th><th>Åtgärder</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- EMPLOYEES -->
-    <section id="page-employees" class="page hidden">
-      <div class="card h">
-        <div class="section-title">
-          <b>Anställda</b>
-          <div class="flex"><button class="btn ghost" onclick="openEmployeeModal()">+ Ny anställd</button></div>
-        </div>
-        <table class="table" id="employeesTbl">
-          <thead>
-          <tr><th>Namn</th><th>Roll</th><th>Telefon</th><th>E-post</th><th>Åtgärder</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- FILES -->
-    <section id="page-files" class="page hidden">
-      <div class="card h">
-        <div class="section-title">
-          <b>Filer & Kvitton</b>
-          <div class="flex"><button class="btn ghost" onclick="document.getElementById('fileInput').click()">+ Ladda upp</button></div>
-        </div>
-        <input id="fileInput" type="file" class="hidden" multiple onchange="handleFiles(this.files)" />
-        <table class="table" id="filesTbl"><thead><tr><th>Namn</th><th>Typ</th><th>Storlek</th><th>Åtgärder</th></tr></thead><tbody></tbody></table>
-      </div>
-    </section>
-
-    <!-- SETTINGS -->
-    <section id="page-settings" class="page hidden">
-      <div class="card h">
-        <div class="section-title"><b>Företagsuppgifter</b><span class="hint">Används på fakturor & meddelanden</span></div>
-        <div class="form">
-          <div class="row">
-            <div>
-              <label>Företagsnamn</label>
-              <input id="s_name" placeholder="MergX AB" />
-            </div>
-            <div>
-              <label>Organisationsnummer</label>
-              <input id="s_org" placeholder="559999-XXXX" />
-            </div>
-          </div>
-          <div class="row3">
-            <div><label>Momsnr (VAT)</label><input id="s_vat" placeholder="SE559999XXXX01"/></div>
-            <div><label>Bankgiro / IBAN</label><input id="s_iban" placeholder="SE.. / BG.."/></div>
-            <div><label>SWIFT</label><input id="s_swift" placeholder="SWEDSESS"/></div>
-          </div>
-          <div class="row3">
-            <div><label>Adress</label><input id="s_addr" placeholder="Gatan 1"/></div>
-            <div><label>Postnr</label><input id="s_zip" placeholder="111 22"/></div>
-            <div><label>Ort</label><input id="s_city" placeholder="Stockholm"/></div>
-          </div>
-          <div class="row3">
-            <div><label>Telefon</label><input id="s_phone" placeholder="+46…"/></div>
-            <div><label>E-post</label><input id="s_email" placeholder="info@dittbolag.se"/></div>
-            <div><label>Webbplats</label><input id="s_web" placeholder="https://"/></div>
-          </div>
-          <div class="row">
-            <div><label>Fakturaprefix</label><input id="s_prefix" value="M-" /></div>
-            <div><label>Signatur (namn, titel)</label><input id="s_sign" placeholder="Elias Khasho, VD" /></div>
-          </div>
-          <div class="right">
-            <button class="btn" onclick="saveSettings()">Spara</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- ROUTER VIEW -->
+    <div class="main">
+      <div id="view"></div>
+    </div>
   </main>
 </div>
 
-<!-- MODALS -->
-
-<!-- KPI Insight -->
-<div class="modal" id="insightModal">
-  <div class="backdrop" onclick="closeModal('insightModal')"></div>
+<!-- EXPAND SHEET -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
   <div class="sheet">
-    <h3 id="insightTitle">AI-insikt</h3>
-    <div class="divider"></div>
-    <div id="insightBody" class="muted">Laddar…</div>
-    <div class="aiBox" style="margin-top:12px">
-      🧠 <b>AI Coach:</b>
-      <div id="insightCoach">Trendar +6.2% mot föregående vecka. Vill du skapa en prognos?</div>
+    <div class="head">
+      <h3 id="sheetTitle">Detaljer</h3>
+      <button class="btn" onclick="closeSheet()">Stäng</button>
     </div>
-    <div class="right" style="margin-top:10px">
-      <button class="btn ghost" onclick="closeModal('insightModal')">Stäng</button>
-      <button class="btn">Skapa AI-rapport (mock)</button>
-    </div>
+    <div id="sheetBody"></div>
   </div>
 </div>
 
-<!-- Create/Edit Order -->
-<div class="modal" id="orderModal">
-  <div class="backdrop" onclick="closeModal('orderModal')"></div>
-  <div class="sheet">
-    <h3>Skapa order</h3>
-    <div class="form">
-      <div class="row">
-        <div>
-          <label>Kund</label>
-          <select id="ord_customer"></select>
-        </div>
-        <div>
-          <label>Betalvillkor (dagar)</label>
-          <select id="ord_terms">
-            <option>10</option><option selected>30</option><option>45</option><option>60</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="card h">
-        <div class="section-title">
-          <b>Produktrader</b>
-          <button class="btn ghost" onclick="addOrderRow()">+ Lägg till rad</button>
-        </div>
-        <div id="orderRows"></div>
-      </div>
-
-      <div class="row3">
-        <div>
-          <label>Moms (%)</label>
-          <input id="ord_vat" type="number" value="25" oninput="recalcOrder()" />
-        </div>
-        <div>
-          <label>Delsumma</label>
-          <input id="ord_sub" disabled />
-        </div>
-        <div>
-          <label>Att betala</label>
-          <input id="ord_total" disabled />
-        </div>
-      </div>
-
-      <div class="aiBox">
-        🧠 <b>AI-förslag:</b> Kunden köper ofta USB-C 60W + Lightning 27W i paket om 10 st. Vill du lägga till?
-        <div class="right" style="margin-top:8px"><button class="btn ghost" onclick="applyAiBundle()">Lägg till paket</button></div>
-      </div>
-
-      <div class="right">
-        <button class="btn ghost" onclick="closeModal('orderModal')">Avbryt</button>
-        <button class="btn ok" onclick="saveOrder()">Spara + Skapa faktura</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Invoice Preview / Print -->
-<div class="modal" id="invoiceModal">
-  <div class="backdrop" onclick="closeModal('invoiceModal')"></div>
-  <div class="sheet" id="invoiceSheet">
-    <h3>Faktura <span id="invNumber"></span></h3>
-    <div class="divider"></div>
-    <div class="row">
-      <div>
-        <b id="invCompany">MergX AB</b><br>
-        <span id="invAddr" class="muted">Adress, Postnr Ort</span><br>
-        <span id="invOrg" class="muted">Org.nr • VAT</span><br>
-        <span id="invBank" class="muted">IBAN/BG</span>
-      </div>
-      <div>
-        <b>Kund</b><br>
-        <span id="invCustName"></span><br>
-        <span id="invCustEmail" class="muted"></span><br>
-        <span id="invCustPhone" class="muted"></span>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <table class="table" id="invLines"><thead>
-      <tr><th>Artikel</th><th>Antal</th><th>à-pris</th><th>Summa</th></tr>
-    </thead><tbody></tbody></table>
-    <div class="row3" style="margin-top:10px">
-      <div></div>
-      <div>
-        <div class="muted">Delsumma</div>
-        <div id="invSub"></div>
-        <div class="muted" style="margin-top:6px">Moms</div>
-        <div id="invVat"></div>
-      </div>
-      <div>
-        <div class="muted">Att betala</div>
-        <div id="invTotal" style="font-weight:800; font-size:18px"></div>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="right">
-      <button class="btn ghost" onclick="openMessageModal()">Meddelande till kund</button>
-      <button class="btn" onclick="printInvoice()">Skriv ut / Spara PDF</button>
-    </div>
-  </div>
-</div>
-
-<!-- Message to Customer -->
-<div class="modal" id="messageModal">
-  <div class="backdrop" onclick="closeModal('messageModal')"></div>
-  <div class="sheet">
-    <h3>Skicka meddelande till kund</h3>
-    <div class="form">
-      <div class="row3">
-        <button class="btn ghost" onclick="sendWhatsApp()">WhatsApp</button>
-        <button class="btn ghost" onclick="sendSMS()">SMS</button>
-        <button class="btn ghost" onclick="sendEmail()">E-post</button>
-      </div>
-      <label>Meddelande</label>
-      <textarea id="msgText">Hej! Er faktura är skapad. Återkom gärna vid frågor.</textarea>
-      <div class="right"><button class="btn" onclick="closeModal('messageModal')">Klar</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- Customer / Product / Employee basic modals (quick add) -->
-<div class="modal" id="customerModal">
-  <div class="backdrop" onclick="closeModal('customerModal')"></div>
-  <div class="sheet">
-    <h3>Ny kund</h3>
-    <div class="form">
-      <div class="row">
-        <div><label>Företag</label><input id="c_name"/></div>
-        <div><label>Organisationsnummer</label><input id="c_org"/></div>
-      </div>
-      <div class="row">
-        <div><label>Kontaktperson</label><input id="c_contact"/></div>
-        <div><label>E-post</label><input id="c_email"/></div>
-      </div>
-      <div class="row">
-        <div><label>Telefon</label><input id="c_phone"/></div>
-        <div><label>Adress</label><input id="c_addr"/></div>
-      </div>
-      <div class="right">
-        <button class="btn ghost" onclick="closeModal('customerModal')">Avbryt</button>
-        <button class="btn ok" onclick="saveCustomer()">Spara</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="productModal">
-  <div class="backdrop" onclick="closeModal('productModal')"></div>
-  <div class="sheet">
-    <h3>Ny produkt</h3>
-    <div class="form">
-      <div class="row3">
-        <div><label>Artikelnummer</label><input id="p_sku"/></div>
-        <div><label>Namn</label><input id="p_name"/></div>
-        <div><label>Typ</label><input id="p_type" placeholder="Kabel/Charger…"/></div>
-      </div>
-      <div class="row3">
-        <div><label>Antal</label><input id="p_qty" type="number" value="0"/></div>
-        <div><label>Pris</label><input id="p_price" type="number" value="199"/></div>
-        <div><label>Övrigt</label><input id="p_note"/></div>
-      </div>
-      <div class="right">
-        <button class="btn ghost" onclick="closeModal('productModal')">Avbryt</button>
-        <button class="btn ok" onclick="saveProduct()">Spara</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="employeeModal">
-  <div class="backdrop" onclick="closeModal('employeeModal')"></div>
-  <div class="sheet">
-    <h3>Ny anställd</h3>
-    <div class="form">
-      <div class="row3">
-        <div><label>Namn</label><input id="e_name"/></div>
-        <div><label>Roll</label><input id="e_role" placeholder="Säljare/Manager…"/></div>
-        <div><label>Telefon</label><input id="e_phone"/></div>
-      </div>
-      <div class="row">
-        <div><label>E-post</label><input id="e_email"/></div>
-        <div><label>Typ</label>
-          <select id="e_type">
-            <option>Heltid</option><option>Delstid</option><option>Provanställd</option>
-          </select>
-        </div>
-      </div>
-      <div class="right">
-        <button class="btn ghost" onclick="closeModal('employeeModal')">Avbryt</button>
-        <button class="btn ok" onclick="saveEmployee()">Spara</button>
-      </div>
-    </div>
+<!-- FLOATING CHAT -->
+<div class="chatbox" id="chatbox">
+  <header>💬 MergX Chatt & AI</header>
+  <div class="chat-messages" id="chatMsgs"></div>
+  <div class="chat-input">
+    <button class="iconbtn" title="Emoji">😊</button>
+    <button class="iconbtn" title="Bilaga (mock)">📎</button>
+    <input id="chatInput" placeholder="Skriv meddelande… (Enter skickar)" />
+    <button class="iconbtn" title="Skicka" onclick="sendChat()">➡️</button>
   </div>
 </div>
 
 <script>
-/* ---------------------- MOCK STORAGE ---------------------- */
+/* ---------------- State & Helpers ---------------- */
+const $ = s => document.querySelector(s);
+const $$$ = s => document.querySelectorAll(s);
 const store = {
-  customers: JSON.parse(localStorage.getItem('mx_customers')||'[]'),
-  products:  JSON.parse(localStorage.getItem('mx_products')||'[]'),
-  employees: JSON.parse(localStorage.getItem('mx_employees')||'[]'),
-  orders:    JSON.parse(localStorage.getItem('mx_orders')||'[]'),
-  files:     JSON.parse(localStorage.getItem('mx_files')||'[]'),
-  settings:  JSON.parse(localStorage.getItem('mx_settings')||'{}'),
+  get(k,f){ try{return JSON.parse(localStorage.getItem(k)) ?? f}catch{return f} },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
 };
-if(store.customers.length===0){
-  store.customers = [
-    {id:1,name:"Elon Kista", contact:"Sara Nilsson", phone:"+46701234567", email:"sara@elon.se", addr:"Kistagången 15, Kista", org:"556677-8899"},
-    {id:2,name:"Power Solna", contact:"Jonas Berg", phone:"+46705554433", email:"jonas@power.se", addr:"Solnavägen 3", org:"559100-2222"}
-  ];
+function go(hash){ location.hash = hash; }
+
+/* Demo data (mock) */
+const DATA = {
+  kpi:{ revenue:124500, orders:37, cost:48900, margin:41.5 },
+  orders: store.get('orders', [
+    {nr:'#10234', kund:'Acme AB', total:'24 900 kr', status:'Skapad idag', datum:'2025-11-03'},
+    {nr:'#10231', kund:'Elon City', total:'12 200 kr', status:'Skapad igår', datum:'2025-11-02'}
+  ]),
+  customers: store.get('customers', [
+    {id:'C001', namn:'Elon Kista', kontakt:'Sara Nilsson', email:'sara@elon.se', tel:'070-123 45 67', stad:'Kista', notis:'Köp om 20 dagar'},
+    {id:'C002', namn:'Power Solna', kontakt:'Johan Eriksen', email:'johan@power.se', tel:'070-222 33 44', stad:'Solna', notis:''},
+  ]),
+  inventory: store.get('inventory', [
+    {sku:'A60W-USB-C', namn:'USB-C Laddare 60W', typ:'Laddare', antal:42, inkop:149, pris:299, status:'OK'},
+    {sku:'C2C-60W-1m', namn:'USB-C till USB-C 1m', typ:'Kabel', antal:18, inkop:39, pris:129, status:'Bristsaldo'},
+  ]),
+  employees: store.get('employees', [
+    {id:'E001', namn:'Lina Berg', roll:'Sälj', email:'lina@mergx.se', tel:'070-111 22 33', form:'Heltid', start:'2025-08-01'},
+    {id:'E002', namn:'Ali Noor', roll:'Ekonomi', email:'ali@mergx.se', tel:'070-444 55 66', form:'Provanst', start:'2025-10-10'}
+  ]),
+  files: store.get('files', [
+    {id:'F001', namn:'kvitto_2025-10-30.jpg', tag:'kvitto'},
+    {id:'F002', namn:'avtal_Elon.pdf', tag:'avtal'}
+  ]),
+  notis: store.get('notis', [
+    '🔔 Ny order #10234 skapades',
+    '🧾 PDF-faktura mock genererad',
+    '🗺️ AI-rutt uppdaterad (demo)'
+  ]),
+  settings: store.get('settings', {
+    theme:'light', lang:'sv',
+    company:{ namn:'MergX AB', orgnr:'556677-8899', addr:'Sveavägen 12, 111 57 Stockholm', email:'info@mergx.se' },
+    api:{ fraktjakt:'', finans:'', whatsapp:'', sms:'', ai_engine:'mock' }
+  })
+};
+
+/* ---------------- Router ---------------- */
+const routes = {
+  '/dashboard': renderDashboard,
+  '/orders': renderOrders,
+  '/customers': renderCustomers,
+  '/inventory': renderInventory,
+  '/employees': renderEmployees,
+  '/files': renderFiles,
+  '/map': renderMapPage,
+  '/chat': renderChatPage,
+  '/settings': renderSettings
+};
+function router(){
+  const hash = location.hash.replace('#','') || '/dashboard';
+  // activate nav
+  $$$('[data-route]').forEach(a=> a.classList.toggle('active', a.getAttribute('href')==='#'+hash));
+  const view = $('#view'); view.innerHTML='';
+  (routes[hash]||renderDashboard)(view);
 }
-if(store.products.length===0){
-  store.products = [
-    {id:1, sku:"AC-USB-C-60W", name:"USB-C till USB-C 60W", type:"Kabel", qty:120, price:199},
-    {id:2, sku:"AC-LTN-27W", name:"USB-C till Lightning 27W", type:"Kabel", qty:80, price:249},
-    {id:3, sku:"AC-CCD-60W", name:"Bil-laddare 2×30W", type:"Laddare", qty:45, price:399},
-  ];
-}
-saveAll();
+window.addEventListener('hashchange', router);
+window.addEventListener('load', router);
 
-function saveAll(){
-  localStorage.setItem('mx_customers', JSON.stringify(store.customers));
-  localStorage.setItem('mx_products', JSON.stringify(store.products));
-  localStorage.setItem('mx_employees', JSON.stringify(store.employees));
-  localStorage.setItem('mx_orders', JSON.stringify(store.orders));
-  localStorage.setItem('mx_files', JSON.stringify(store.files));
-  localStorage.setItem('mx_settings', JSON.stringify(store.settings));
-}
-
-/* ---------------------- ROUTING ---------------------- */
-const pages = [...document.querySelectorAll('.page')];
-function route(){
-  const hash = location.hash.replace('#','') || 'dashboard';
-  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.route===hash));
-  pages.forEach(p=>p.classList.add('hidden'));
-  const el = document.getElementById('page-'+hash);
-  if(el) el.classList.remove('hidden');
-  render();
-}
-window.addEventListener('hashchange', route);
-
-/* ---------------------- RENDERERS ---------------------- */
-function render(){
-  // KPIs mock
-  document.getElementById('kpiSales').textContent = currency(sumOrdersToday());
-  document.getElementById('kpiSalesDelta').textContent = "+5.1%";
-  document.getElementById('kpiOrders').textContent = countOrdersToday()+" st";
-  document.getElementById('kpiOrdersDelta').textContent = "+2";
-  document.getElementById('kpiCosts').textContent = "—";
-  document.getElementById('kpiMargin').textContent = "42%";
-
-  // Recent orders (dashboard)
-  const tbodyR = document.querySelector('#recentOrdersTbl tbody');
-  tbodyR.innerHTML = "";
-  store.orders.slice(-5).reverse().forEach(o=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${o.number}</td><td>${custName(o.customerId)}</td>
-      <td>${currency(o.total)}</td><td>${o.status}</td><td>${new Date(o.createdAt).toLocaleString()}</td>`;
-    tbodyR.appendChild(tr);
-  });
-
-  // Orders page
-  const tbody = document.querySelector('#ordersTbl tbody');
-  if(tbody){
-    tbody.innerHTML = "";
-    store.orders.slice().reverse().forEach(o=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${o.number}</td>
-        <td>${custName(o.customerId)}</td>
-        <td>${o.lines.length}</td>
-        <td>${currency(o.total)}</td>
-        <td>${o.status}</td>
-        <td class="row-actions">
-          <button class="btn ghost" onclick="previewInvoice('${o.id}')">👁️ Förhandsvisa</button>
-          <button class="btn ghost" onclick="openMessageModal('${o.id}')">💬 Medd</button>
-          <button class="btn ghost" onclick="createLabel('${o.id}')">📦 Etikett</button>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Customers
-  const ctb = document.querySelector('#customersTbl tbody');
-  if(ctb){
-    ctb.innerHTML = "";
-    store.customers.forEach(c=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><a href="javascript:void(0)" onclick="openCustomerCard(${c.id})"><b>${c.name}</b></a></td>
-        <td>${c.contact||'-'}</td><td>${c.phone||'-'}</td><td>${c.email||'-'}</td>
-        <td class="row-actions">
-          <button class="btn ghost" onclick="openOrderModal(${c.id})">🧾 Order</button>
-          <button class="btn ghost" onclick="editCustomer(${c.id})">✏️</button>
-          <button class="btn warn" onclick="deleteCustomer(${c.id})">🗑️</button>
-        </td>`;
-      ctb.appendChild(tr);
-    });
-  }
-
-  // Inventory
-  const itb = document.querySelector('#inventoryTbl tbody');
-  if(itb){
-    itb.innerHTML = "";
-    store.products.forEach(p=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.sku}</td><td><a href="javascript:void(0)" onclick="openProductCard(${p.id})"><b>${p.name}</b></a></td>
-        <td>${p.type||'-'}</td><td>${p.qty}</td><td>${currency(p.price)}</td>
-        <td class="row-actions">
-          <button class="btn ghost" onclick="editProduct(${p.id})">✏️</button>
-          <button class="btn warn" onclick="deleteProduct(${p.id})">🗑️</button>
-        </td>`;
-      itb.appendChild(tr);
-    });
-  }
-
-  // Employees
-  const etb = document.querySelector('#employeesTbl tbody');
-  if(etb){
-    etb.innerHTML = "";
-    store.employees.forEach(e=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${e.name}</td><td>${e.role||'-'}</td><td>${e.phone||'-'}</td><td>${e.email||'-'}</td>
-        <td class="row-actions">
-          <button class="btn ghost" onclick="editEmployee(${e.id})">✏️</button>
-          <button class="btn warn" onclick="deleteEmployee(${e.id})">🗑️</button>
-        </td>`;
-      etb.appendChild(tr);
-    });
-  }
-
-  // Files
-  const ftb = document.querySelector('#filesTbl tbody');
-  if(ftb){
-    ftb.innerHTML = "";
-    store.files.forEach(f=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${f.name}</td><td>${f.type}</td><td>${(f.size/1024|0)} kB</td>
-        <td class="row-actions"><button class="btn ghost" onclick="downloadFile('${f.id}')">⬇️</button></td>`;
-      ftb.appendChild(tr);
-    });
-  }
+/* ---------------- Components ---------------- */
+function kpiCard(title, metric, pct, good=true){
+  const color = good? '#DCFCE7':'#EEF2FF';
+  return `
+  <div class="card">
+    <div class="title">${title}</div>
+    <div class="metric">${metric}</div>
+    <div class="progress"><span style="width:${Math.min(Math.abs(pct),100)}%;background:${color}"></span></div>
+    <div class="pill" style="margin-top:8px">${good?'+':''}${pct}%</div>
+  </div>`;
 }
 
-/* ---------------------- HELPERS ---------------------- */
-function currency(n){ return new Intl.NumberFormat('sv-SE',{style:'currency', currency:'SEK'}).format(n||0) }
-function custName(id){ const c = store.customers.find(x=>x.id==id); return c?c.name:'—' }
-function sumOrdersToday(){
-  const today = new Date().toDateString();
-  return store.orders.filter(o=>new Date(o.createdAt).toDateString()===today).reduce((s,o)=>s+o.total,0);
-}
-function countOrdersToday(){
-  const today = new Date().toDateString();
-  return store.orders.filter(o=>new Date(o.createdAt).toDateString()===today).length;
-}
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(root){
+  root.innerHTML = `
+    <section class="grid kpis">
+      ${kpiCard('Omsättning idag', fmtKr(DATA.kpi.revenue), 82, true)}
+      ${kpiCard('Order idag', DATA.kpi.orders, 64, true)}
+      ${kpiCard('Kostnader (idag)', fmtKr(DATA.kpi.cost), 76, false)}
+      ${kpiCard('Bruttomarginal', DATA.kpi.margin+' %', 90, true)}
+    </section>
 
-/* ---------------------- KPI INSIGHT ---------------------- */
-function openInsight(kind){
-  const titleMap = {sales:"Omsättning idag",orders:"Order idag",costs:"Kostnader",margin:"Bruttomarginal"};
-  document.getElementById('insightTitle').textContent = titleMap[kind] || "AI-insikt";
-  const body = document.getElementById('insightBody');
-  let text = "";
-  if(kind==='sales') text = "Försäljning visar positiv trend, främst drivet av B2B-kunder i Stockholm.";
-  if(kind==='orders') text = "Ordervolymen drivs av återkommande kunder. Rek. att kontakta 3 st som inte beställt på 30 dagar.";
-  if(kind==='costs') text = "Kostnaderna stabila. Största posten är logistik, här finns -8% potential.";
-  if(kind==='margin') text = "Marginalen stärks av lägre inköpspris på kablar. Rek. kampanj på laddare.";
-  body.textContent = text;
-  openModal('insightModal');
-}
+    <section class="grid two">
+      <div class="grid" style="gap:var(--gap)">
+        <div class="card" id="ecoCard">
+          <div class="subhead">
+            <h3>Ekonomi — kombostaplar</h3>
+            <div>
+              <button class="btn link" onclick="openEcoDetail()">Expandera</button>
+            </div>
+          </div>
+          <div style="height:340px"><canvas id="ecoChart"></canvas></div>
+          <div class="title" style="margin-top:8px"><strong>AI-analys:</strong> Omsättningen är +6% mot snittet. Störst ökning hos Power Solna.</div>
+        </div>
 
-/* ---------------------- ORDER FLOW ---------------------- */
-function openOrderModal(customerId){
-  // customers select
-  const sel = document.getElementById('ord_customer');
-  sel.innerHTML = store.customers.map(c=>`<option value="${c.id}" ${c.id==customerId?'selected':''}>${c.name}</option>`).join('');
-  document.getElementById('ord_vat').value = 25;
-  document.getElementById('orderRows').innerHTML = '';
-  addOrderRow();
-  recalcOrder();
-  openModal('orderModal');
-}
-function addOrderRow(){
-  const wrap = document.getElementById('orderRows');
-  const idx = wrap.children.length;
-  const row = document.createElement('div');
-  row.className='row3';
-  row.innerHTML = `
-    <div>
-      <label>Produkt</label>
-      <select onchange="recalcOrder()" class="ord_prod">
-        ${store.products.map(p=>`<option value="${p.id}">${p.name} (${p.sku})</option>`).join('')}
-      </select>
-    </div>
-    <div>
-      <label>Antal</label>
-      <input type="number" value="1" class="ord_qty" oninput="recalcOrder()" />
-    </div>
-    <div>
-      <label>à-pris</label>
-      <input type="number" value="${store.products[0]?.price||0}" class="ord_price" oninput="recalcOrder()" />
-    </div>
+        <div class="card" id="chatCard">
+          <div class="subhead">
+            <h3>Teamchatt (snabbvy)</h3>
+            <button class="btn link" onclick="openChatDetail()">Expandera</button>
+          </div>
+          <div id="dashChat" style="max-height:220px; overflow:auto"></div>
+          <div style="display:flex; gap:8px; margin-top:8px">
+            <input id="dashChatInput" placeholder="Skriv… (Enter skickar)" style="flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 12px" />
+            <button class="btn" onclick="dashChatSend()">Skicka</button>
+          </div>
+        </div>
+
+        <div class="card" id="ordersCard">
+          <div class="subhead">
+            <h3>Ordrar & fakturor</h3>
+            <div class="title">Åtgärder: 👁 förhandsvisa • 🧾 PDF</div>
+          </div>
+          <div class="table"><table>
+            <thead><tr><th>Nr</th><th>Kund</th><th>Total</th><th>Status</th><th style="text-align:right">Åtgärder</th></tr></thead>
+            <tbody id="orderTBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <div class="grid" style="gap:var(--gap)">
+        <div class="card" id="mapCard">
+          <div class="subhead">
+            <h3>AI-karta (mini, GPS)</h3>
+            <div>
+              <button class="btn" onclick="askAiRoute()">✨ Ask AI</button>
+              <button class="btn link" onclick="openMapDetail()">Expandera</button>
+            </div>
+          </div>
+          <div id="mapMini"></div>
+          <div class="title" style="margin-top:8px">
+            <strong>Förslag:</strong> Elon Kista → Power Solna → Mekonomen Bromma (≈ 43 min)
+          </div>
+        </div>
+
+        <div class="card" id="coachCard" style="position:relative">
+          <div class="coach-pulse"></div>
+          <div class="subhead"><h3>AI-Coach</h3><button class="btn link" onclick="openCoachDetail()">Expandera</button></div>
+          <div class="title">Hej 👋 Jag övervakar siffrorna. Vill du ha veckorapport nu?</div>
+        </div>
+
+        <div class="card" id="notisCard">
+          <div class="subhead"><h3>Notiser</h3></div>
+          <ul id="notisList" style="margin:0; padding-left:18px"></ul>
+        </div>
+      </div>
+    </section>
   `;
-  wrap.appendChild(row);
-}
-function recalcOrder(){
-  const rows = [...document.querySelectorAll('#orderRows .row3')];
-  let sub = 0;
-  rows.forEach(r=>{
-    const qty = Number(r.querySelector('.ord_qty').value||0);
-    const price = Number(r.querySelector('.ord_price').value||0);
-    sub += qty*price;
+  // chart
+  const ctx = document.getElementById('ecoChart');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['v1','v2','v3','v4','v5'],
+      datasets:[
+        {label:'Omsättning', data:[100,140,90,130,160], backgroundColor:'#CFEAFF', borderRadius:8},
+        {label:'Kostnader', data:[40,65,45,60,70], backgroundColor:'#FEE2E2', borderRadius:8},
+        {label:'Brutto%', data:[40,42,40,41,42], type:'line', yAxisID:'y1', borderColor:'#3B82F6', borderWidth:2, tension:.3, pointRadius:0}
+      ]
+    },
+    options:{ maintainAspectRatio:false, scales:{ y1:{position:'right', ticks:{ callback:v=>v+'%'}}}}
   });
-  const vat = Number(document.getElementById('ord_vat').value||0);
-  const total = sub * (1+vat/100);
-  document.getElementById('ord_sub').value = currency(sub);
-  document.getElementById('ord_total').value = currency(total);
-}
-function applyAiBundle(){
-  // Add suggested bundle rows
-  addOrderRow(); addOrderRow();
-  const rows = [...document.querySelectorAll('#orderRows .row3')];
-  rows.at(-2).querySelector('.ord_prod').value = store.products[0].id;
-  rows.at(-2).querySelector('.ord_qty').value = 10;
-  rows.at(-2).querySelector('.ord_price').value = store.products[0].price;
-  rows.at(-1).querySelector('.ord_prod').value = store.products[1].id;
-  rows.at(-1).querySelector('.ord_qty').value = 10;
-  rows.at(-1).querySelector('.ord_price').value = store.products[1].price;
-  recalcOrder();
-}
-function saveOrder(){
-  // collect
-  const customerId = Number(document.getElementById('ord_customer').value);
-  const vat = Number(document.getElementById('ord_vat').value||0);
-  const rows = [...document.querySelectorAll('#orderRows .row3')].map(r=>{
-    const pid = Number(r.querySelector('.ord_prod').value);
-    const qty = Number(r.querySelector('.ord_qty').value||0);
-    const price = Number(r.querySelector('.ord_price').value||0);
-    const prod = store.products.find(p=>p.id===pid);
-    return {pid, sku:prod.sku, name:prod.name, qty, price, sum: qty*price};
-  });
-  const sub = rows.reduce((s,x)=>s+x.sum,0);
-  const total = sub*(1+vat/100);
-
-  const id = crypto.randomUUID();
-  const num = (store.settings.prefix||'M-') + new Date().toISOString().slice(2,10).replaceAll('-','') + '-' + String(store.orders.length+1).padStart(3,'0');
-  const order = {
-    id, number:num, customerId, lines:rows, sub, vat, total, status:'Skapad', createdAt: new Date().toISOString()
-  };
-  store.orders.push(order); saveAll();
-  closeModal('orderModal');
-  render();
-  previewInvoice(order.id);
+  // orders
+  renderOrdersRows('#orderTBody');
+  // dash chat
+  renderDashChat();
+  $('#dashChatInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); dashChatSend(); }});
+  // notiser
+  renderNotis('#notisList');
+  // map
+  initMapMini();
 }
 
-function previewInvoice(orderId){
-  const o = store.orders.find(x=>x.id===orderId) || store.orders.slice(-1)[0];
-  if(!o) return;
-  // Company
-  const s = store.settings||{};
-  document.getElementById('invNumber').textContent = o.number;
-  document.getElementById('invCompany').textContent = s.name || 'Ditt bolag';
-  document.getElementById('invAddr').textContent = [s.addr, s.zip, s.city].filter(Boolean).join(', ') || 'Adress, Postnr Ort';
-  document.getElementById('invOrg').textContent = [s.org, s.vat].filter(Boolean).join(' • ') || 'Org.nr • VAT';
-  document.getElementById('invBank').textContent = [s.iban].filter(Boolean).join(' ') || 'IBAN/BG';
-  // Customer
-  const c = store.customers.find(x=>x.id===o.customerId);
-  document.getElementById('invCustName').textContent = c ? c.name : '';
-  document.getElementById('invCustEmail').textContent = c?.email || '';
-  document.getElementById('invCustPhone').textContent = c?.phone || '';
-  // Lines
-  const tb = document.querySelector('#invLines tbody');
-  tb.innerHTML = '';
-  o.lines.forEach(l=>{
+/* ---------------- Orders View ---------------- */
+function renderOrders(root){
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Ordrar & fakturor</h3>
+          <div><button class="btn" onclick="openCreateOrder()">+ Skapa order</button></div>
+        </div>
+        <div class="table"><table>
+          <thead><tr><th>Nr</th><th>Kund</th><th>Total</th><th>Status</th><th>Datum</th><th style="text-align:right">Åtgärder</th></tr></thead>
+          <tbody id="orderTBody2"></tbody>
+        </table></div>
+      </div>
+    </section>
+  `;
+  renderOrdersRows('#orderTBody2');
+}
+function renderOrdersRows(sel){
+  const tb = document.querySelector(sel); tb.innerHTML='';
+  DATA.orders.forEach(o=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${l.name} (${l.sku})</td><td>${l.qty}</td><td>${currency(l.price)}</td><td>${currency(l.sum)}</td>`;
+    tr.innerHTML = `
+      <td>${o.nr}</td><td>${o.kund}</td><td>${o.total}</td><td><span class="tag">${o.status}</span></td><td>${o.datum ?? ''}</td>
+      <td style="text-align:right;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="previewInvoice('${o.nr}')">👁</button>
+        <button class="btn" onclick="downloadPdf('${o.nr}')">🧾</button>
+      </td>`;
     tb.appendChild(tr);
   });
-  document.getElementById('invSub').textContent = currency(o.sub);
-  document.getElementById('invVat').textContent = `${o.vat}%`;
-  document.getElementById('invTotal').textContent = currency(o.total);
-  openModal('invoiceModal');
 }
-function printInvoice(){ window.print(); }
+function openCreateOrder(){
+  openSheet('Skapa order', `
+    <div class="title">Välj kund</div>
+    <select id="orderCustomer" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0 12px">
+      ${DATA.customers.map(c=>`<option value="${c.id}">${c.namn}</option>`).join('')}
+    </select>
+    <div class="title">Lägg till produkter</div>
+    <div style="display:flex; gap:8px; margin:6px 0">
+      <select id="orderItem" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:10px">
+        ${DATA.inventory.map(i=>`<option value="${i.sku}">${i.sku} — ${i.namn}</option>`).join('')}
+      </select>
+      <input id="orderQty" type="number" min="1" value="1" style="width:90px;padding:10px;border:1px solid var(--border);border-radius:10px">
+      <button class="btn" onclick="addOrderLine()">Lägg till rad</button>
+    </div>
+    <div id="orderLines" class="table" style="margin:8px 0"><table><thead><tr><th>Artikel</th><th>Antal</th></tr></thead><tbody></tbody></table></div>
+    <div class="title">Betalningsvillkor</div>
+    <input id="orderNetDays" type="number" min="0" value="30" style="width:120px;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div style="display:flex; gap:8px; margin-top:12px">
+      <button class="btn" onclick="mockSaveOrder()">Spara order</button>
+      <button class="btn" onclick="previewInvoice('NY')">Förhandsvisa faktura</button>
+    </div>
+  `);
+}
+const tempOrder = [];
+function addOrderLine(){
+  const sku = $('#orderItem').value;
+  const qty = parseInt($('#orderQty').value||'1',10);
+  tempOrder.push({sku, qty});
+  const tbody = $('#orderLines tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${sku}</td><td>${qty}</td>`;
+  tbody.appendChild(tr);
+}
+function mockSaveOrder(){
+  const custId = $('#orderCustomer').value;
+  const cust = DATA.customers.find(c=>c.id===custId);
+  const nr = '#10' + (200 + DATA.orders.length);
+  DATA.orders.unshift({nr, kund:cust.namn, total:'—', status:'Skapad', datum:new Date().toISOString().slice(0,10)});
+  store.set('orders', DATA.orders);
+  closeSheet(); router(); alert('Order sparad (mock).');
+}
+function previewInvoice(nr){
+  openSheet('Faktura — förhandsvisning', `
+    <div class="card" style="background:#fff">
+      <h3 style="margin:6px 0">Faktura ${nr}</h3>
+      <div class="title">${DATA.settings.company.namn} • Orgnr ${DATA.settings.company.orgnr}</div>
+      <hr style="border:none;border-top:1px solid #EEE;margin:12px 0">
+      <div>Rad 1 — Produkt A — 4 st — 1 990 kr</div>
+      <div>Rad 2 — Produkt B — 2 st — 1 290 kr</div>
+      <div style="text-align:right;margin-top:10px;font-weight:900">Summa: 24 900 kr</div>
+    </div>
+    <div class="title" style="margin-top:10px"><strong>AI-tips:</strong> föreslår 30 dagar netto och automatisk hälsning i utskick.</div>
+  `);
+}
+function downloadPdf(nr){
+  alert('PDF-mock: Faktura '+nr+' genereras i nästa version (jsPDF).');
+}
 
-/* ---------------------- MESSAGE / SHIPPING ---------------------- */
-let currentOrderForMessage = null;
-function openMessageModal(orderId){
-  if(orderId) currentOrderForMessage = orderId;
-  openModal('messageModal');
+/* ---------------- Customers (CRM) ---------------- */
+function renderCustomers(root){
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead">
+          <h3>Kunder</h3>
+          <div><button class="btn" onclick="openCreateCustomer()">+ Lägg till kund</button></div>
+        </div>
+        <div class="table"><table>
+          <thead><tr><th>ID</th><th>Företag</th><th>Kontakt</th><th>E-post</th><th>Telefon</th><th>Stad</th><th>Notis</th></tr></thead>
+          <tbody id="custBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+  `;
+  const tb = $('#custBody');
+  DATA.customers.forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td><a href="javascript:void(0)" onclick="openCustomer('${c.id}')">${c.id}</a></td>
+      <td>${c.namn}</td><td>${c.kontakt}</td><td>${c.email}</td><td>${c.tel}</td><td>${c.stad}</td><td>${c.notis||''}</td>`;
+    tb.appendChild(tr);
+  });
 }
-function sendWhatsApp(){
-  const o = store.orders.find(x=>x.id===currentOrderForMessage) || store.orders.slice(-1)[0];
-  const c = store.customers.find(x=>x.id===o.customerId);
-  const txt = encodeURIComponent(document.getElementById('msgText').value || `Hej ${c?.contact||''}! Er faktura ${o.number} är skapad.`);
-  const tel = (c?.phone||'').replaceAll(' ','');
-  window.open(`https://wa.me/${tel}?text=${txt}`, '_blank');
+function openCustomer(id){
+  const c = DATA.customers.find(x=>x.id===id);
+  openSheet('Kund — '+c.namn, `
+    <div class="title">Kontakt: ${c.kontakt} • ${c.email} • ${c.tel}</div>
+    <div class="title">Ort: ${c.stad}</div>
+    <div class="title">Notis: ${c.notis||'—'}</div>
+    <hr style="border:none;border-top:1px solid #EEF2F7;margin:12px 0">
+    <div style="display:flex; gap:8px">
+      <button class="btn" onclick="editCustomer('${c.id}')">Ändra</button>
+      <button class="btn" onclick="deleteCustomer('${c.id}')">Ta bort</button>
+    </div>
+  `);
 }
-function sendSMS(){
-  const o = store.orders.find(x=>x.id===currentOrderForMessage) || store.orders.slice(-1)[0];
-  const c = store.customers.find(x=>x.id===o.customerId);
-  const txt = encodeURIComponent(document.getElementById('msgText').value || `Hej! Faktura ${o.number} är skapad.`);
-  const tel = (c?.phone||'').replaceAll(' ','');
-  window.open(`sms:${tel}?&body=${txt}`, '_self');
+function openCreateCustomer(){
+  openSheet('Ny kund', `
+    <div class="title">Företagsnamn</div><input id="c_namn" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Org.nr</div><input id="c_org" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Kontaktperson</div><input id="c_kontakt" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">E-post</div><input id="c_email" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Telefon</div><input id="c_tel" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Adress</div><input id="c_addr" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Stad</div><input id="c_stad" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Notering</div><input id="c_note" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div style="margin-top:12px"><button class="btn" onclick="saveCustomer()">Spara</button></div>
+  `);
 }
-function sendEmail(){
-  const o = store.orders.find(x=>x.id===currentOrderForMessage) || store.orders.slice(-1)[0];
-  const c = store.customers.find(x=>x.id===o.customerId);
-  const txt = encodeURIComponent(document.getElementById('msgText').value || `Hej! Faktura ${o.number} är skapad.`);
-  window.open(`mailto:${c?.email||''}?subject=Faktura%20${o.number}&body=${txt}`,'_self');
-}
-function createLabel(orderId){
-  const o = store.orders.find(x=>x.id===orderId);
-  alert(`(Mock) Fraktetikett skapad för ${o.number}. Nästa version: riktig PDF & Fraktjakt-API.`);
-}
-
-/* ---------------------- QUICK CRUD ---------------------- */
-function openCustomerModal(){ openModal('customerModal'); }
 function saveCustomer(){
-  const c = {
-    id: Date.now(),
-    name: val('c_name'), org: val('c_org'), contact: val('c_contact'),
-    email: val('c_email'), phone: val('c_phone'), addr: val('c_addr')
-  };
-  store.customers.push(c); saveAll(); closeModal('customerModal'); render();
+  const id='C'+String(100+DATA.customers.length);
+  const c={ id, namn:$('#c_namn').value, kontakt:$('#c_kontakt').value, email:$('#c_email').value, tel:$('#c_tel').value, stad:$('#c_stad').value, notis:$('#c_note').value };
+  DATA.customers.push(c); store.set('customers', DATA.customers);
+  closeSheet(); router();
 }
 function editCustomer(id){
-  const c = store.customers.find(x=>x.id===id); if(!c) return;
-  openCustomerModal();
-  setVal('c_name', c.name); setVal('c_org', c.org); setVal('c_contact', c.contact);
-  setVal('c_email', c.email); setVal('c_phone', c.phone); setVal('c_addr', c.addr);
-  // override save to update
-  const btn = document.querySelector('#customerModal .btn.ok');
-  btn.onclick = ()=>{
-    c.name = val('c_name'); c.org=val('c_org'); c.contact=val('c_contact');
-    c.email=val('c_email'); c.phone=val('c_phone'); c.addr=val('c_addr');
-    saveAll(); closeModal('customerModal'); render();
-  };
+  alert('Mock: redigering kommer i nästa version.');
 }
 function deleteCustomer(id){
-  if(!confirm('Ta bort kunden?')) return;
-  store.customers = store.customers.filter(x=>x.id!==id); saveAll(); render();
+  if(!confirm('Ta bort kund '+id+'?'))return;
+  const i=DATA.customers.findIndex(c=>c.id===id); if(i>-1){ DATA.customers.splice(i,1); store.set('customers',DATA.customers); }
+  closeSheet(); router();
 }
 
-function openProductModal(){ openModal('productModal'); }
-function saveProduct(){
-  const p = {
-    id: Date.now(), sku: val('p_sku'), name: val('p_name'), type: val('p_type'),
-    qty: Number(val('p_qty')||0), price: Number(val('p_price')||0), note: val('p_note')
-  };
-  store.products.push(p); saveAll(); closeModal('productModal'); render();
-}
-function editProduct(id){
-  const p = store.products.find(x=>x.id===id); if(!p) return;
-  openProductModal();
-  setVal('p_sku', p.sku); setVal('p_name', p.name); setVal('p_type', p.type);
-  setVal('p_qty', p.qty); setVal('p_price', p.price); setVal('p_note', p.note||'');
-  const btn = document.querySelector('#productModal .btn.ok');
-  btn.onclick = ()=>{
-    p.sku = val('p_sku'); p.name=val('p_name'); p.type=val('p_type');
-    p.qty = Number(val('p_qty')||0); p.price=Number(val('p_price')||0); p.note=val('p_note');
-    saveAll(); closeModal('productModal'); render();
-  };
-}
-function deleteProduct(id){
-  if(!confirm('Ta bort produkten?')) return;
-  store.products = store.products.filter(x=>x.id!==id); saveAll(); render();
-}
-
-function openEmployeeModal(){ openModal('employeeModal'); }
-function saveEmployee(){
-  const e = {
-    id: Date.now(), name: val('e_name'), role: val('e_role'),
-    phone: val('e_phone'), email: val('e_email'), type: val('e_type')
-  };
-  store.employees.push(e); saveAll(); closeModal('employeeModal'); render();
-}
-function editEmployee(id){
-  const e = store.employees.find(x=>x.id===id); if(!e) return;
-  openEmployeeModal();
-  setVal('e_name', e.name); setVal('e_role', e.role); setVal('e_phone', e.phone);
-  setVal('e_email', e.email); setVal('e_type', e.type||'Heltid');
-  const btn = document.querySelector('#employeeModal .btn.ok');
-  btn.onclick = ()=>{
-    e.name = val('e_name'); e.role=val('e_role'); e.phone=val('e_phone');
-    e.email=val('e_email'); e.type=val('e_type');
-    saveAll(); closeModal('employeeModal'); render();
-  };
-}
-function deleteEmployee(id){
-  if(!confirm('Ta bort anställd?')) return;
-  store.employees = store.employees.filter(x=>x.id!==id); saveAll(); render();
-}
-
-/* ---------------------- FILES ---------------------- */
-function handleFiles(files){
-  [...files].forEach(f=>{
-    store.files.push({id: crypto.randomUUID(), name:f.name, type:f.type||'okänd', size:f.size});
+/* ---------------- Inventory ---------------- */
+function renderInventory(root){
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Inventarie</h3><div><button class="btn" onclick="openNewItem()">+ Lägg till produkt</button></div></div>
+        <div class="table"><table>
+          <thead><tr><th>Artikelnummer</th><th>Namn</th><th>Typ</th><th>Antal</th><th>Inköp</th><th>Pris</th><th>Status</th></tr></thead>
+          <tbody id="invBody"></tbody>
+        </table></div>
+      </div>
+    </section>
+  `;
+  const tb=$('#invBody');
+  DATA.inventory.forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><a href="javascript:void(0)" onclick="openItem('${p.sku}')">${p.sku}</a></td><td>${p.namn}</td><td>${p.typ}</td><td>${p.antal}</td><td>${p.inkop} kr</td><td>${p.pris} kr</td><td><span class="tag">${p.status}</span></td>`;
+    tb.appendChild(tr);
   });
-  saveAll(); render();
 }
-function downloadFile(id){
-  alert('(Mock) Hämtar fil: ' + id);
+function openItem(sku){
+  const p = DATA.inventory.find(x=>x.sku===sku);
+  openSheet('Produkt — '+p.namn, `
+    <div class="title">Artikel: ${p.sku} • Typ: ${p.typ}</div>
+    <div class="title">Antal: ${p.antal} • Pris: ${p.pris} kr</div>
+    <div class="title">Status: ${p.status}</div>
+    <hr style="border:none;border-top:1px solid #EEF2F7;margin:12px 0">
+    <button class="btn" onclick="alert('Mock: ändra i nästa version')">Ändra</button>
+    <button class="btn" onclick="deleteItem('${p.sku}')">Ta bort</button>
+    <div class="title" style="margin-top:12px"><strong>AI-tips:</strong> Bristsaldo inom 2 veckor. Rek. inköp 100 st.</div>
+  `);
+}
+function openNewItem(){
+  openSheet('Ny produkt', `
+    <div class="title">Artikelnummer</div><input id="p_sku" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Namn</div><input id="p_namn" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Typ</div><input id="p_typ" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Antal</div><input id="p_antal" type="number" min="0" value="0" style="width:120px;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Inköpspris</div><input id="p_inkop" type="number" min="0" value="0" style="width:120px;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Försäljningspris</div><input id="p_pris" type="number" min="0" value="0" style="width:120px;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div style="margin-top:12px"><button class="btn" onclick="saveItem()">Spara</button></div>
+  `);
+}
+function saveItem(){
+  const p={ sku:$('#p_sku').value, namn:$('#p_namn').value, typ:$('#p_typ').value, antal:parseInt($('#p_antal').value||'0',10), inkop:parseInt($('#p_inkop').value||'0',10), pris:parseInt($('#p_pris').value||'0',10), status:'OK' };
+  DATA.inventory.push(p); store.set('inventory', DATA.inventory); closeSheet(); router();
+}
+function deleteItem(sku){
+  if(!confirm('Ta bort '+sku+'?'))return;
+  const i=DATA.inventory.findIndex(x=>x.sku===sku); if(i>-1){ DATA.inventory.splice(i,1); store.set('inventory', DATA.inventory); }
+  closeSheet(); router();
 }
 
-/* ---------------------- SETTINGS ---------------------- */
+/* ---------------- Employees ---------------- */
+function renderEmployees(root){
+  root.innerHTML=`
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Anställda</h3><div><button class="btn" onclick="openNewEmp()">+ Lägg till</button></div></div>
+        <div class="table"><table>
+          <thead><tr><th>ID</th><th>Namn</th><th>Roll</th><th>E-post</th><th>Telefon</th><th>Form</th><th>Start</th></tr></thead>
+          <tbody id="empBody"></tbody>
+        </table></div>
+      </div>
+    </section>`;
+  const tb=$('#empBody');
+  DATA.employees.forEach(e=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><a href="javascript:void(0)" onclick="openEmp('${e.id}')">${e.id}</a></td><td>${e.namn}</td><td>${e.roll}</td><td>${e.email}</td><td>${e.tel}</td><td>${e.form}</td><td>${e.start}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function openEmp(id){
+  const e=DATA.employees.find(x=>x.id===id);
+  openSheet('Anställd — '+e.namn, `
+    <div class="title">Roll: ${e.roll}</div>
+    <div class="title">Kontakt: ${e.email} • ${e.tel}</div>
+    <div class="title">Anställningsform: ${e.form} • Start: ${e.start}</div>
+    <hr style="border:none;border-top:1px solid #EEF2F7;margin:12px 0">
+    <button class="btn" onclick="alert('Mock: ändra i nästa version')">Ändra</button>
+    <button class="btn" onclick="deleteEmp('${e.id}')">Ta bort</button>
+  `);
+}
+function openNewEmp(){
+  openSheet('Ny anställd', `
+    <div class="title">Namn</div><input id="e_namn" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Roll</div><input id="e_roll" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">E-post</div><input id="e_email" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Telefon</div><input id="e_tel" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Adress</div><input id="e_addr" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Anställningsform</div>
+    <select id="e_form" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+      <option>Heltid</option><option>Deltid</option><option>Provanst</option>
+    </select>
+    <div class="title" style="margin-top:8px">Startdatum</div><input id="e_start" type="date" style="padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div style="margin-top:12px"><button class="btn" onclick="saveEmp()">Spara</button></div>
+  `);
+}
+function saveEmp(){
+  const e={ id:'E'+String(100+DATA.employees.length), namn:$('#e_namn').value, roll:$('#e_roll').value, email:$('#e_email').value, tel:$('#e_tel').value, form:$('#e_form').value, start:$('#e_start').value };
+  DATA.employees.push(e); store.set('employees',DATA.employees); closeSheet(); router();
+}
+function deleteEmp(id){
+  if(!confirm('Ta bort '+id+'?'))return;
+  const i=DATA.employees.findIndex(x=>x.id===id); if(i>-1){ DATA.employees.splice(i,1); store.set('employees',DATA.employees); }
+  closeSheet(); router();
+}
+
+/* ---------------- Files ---------------- */
+function renderFiles(root){
+  root.innerHTML=`
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Filer & kvitton</h3><div><button class="btn" onclick="openUpload()">+ Ladda upp</button></div></div>
+        <div class="table"><table>
+          <thead><tr><th>Fil</th><th>Tagg</th><th>Åtgärd</th></tr></thead>
+          <tbody id="fileBody"></tbody>
+        </table></div>
+      </div>
+    </section>`;
+  const tb=$('#fileBody');
+  DATA.files.forEach(f=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${f.namn}</td><td><span class="tag">${f.tag}</span></td><td><button class="btn" onclick="openFileNote('${f.id}')">Notering</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function openUpload(){
+  openSheet('Ladda upp (mock)', `
+    <p class="title">Välj fil och tagg (mock)</p>
+    <button class="btn" onclick="alert('Mock upload klar')">Ladda upp</button>
+  `);
+}
+function openFileNote(id){
+  openSheet('Notering för fil '+id, `
+    <div class="title">Lägg notering & välj mottagare</div>
+    <input id="f_note" placeholder="Notering…" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div style="margin-top:8px"><label><input type="checkbox" id="to_eco"> Skicka till ekonomi</label></div>
+    <div style="margin-top:10px"><button class="btn" onclick="alert('Sparat (mock)')">Spara</button></div>
+  `);
+}
+
+/* ---------------- Map ---------------- */
+let mapMini, miniMarker;
+function initMapMini(){
+  setTimeout(()=>{
+    mapMini = L.map('mapMini');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapMini);
+    locateUser(mapMini, true);
+  },10);
+}
+function renderMapPage(root){
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>AI-karta — Sales Route Planner</h3>
+          <div>
+            <button class="btn" onclick="askAiRoute()">✨ Ask AI</button>
+            <button class="btn" onclick="addPlaceNote()">+ Notis på plats</button>
+          </div>
+        </div>
+        <div id="mapBig"></div>
+        <div class="title" style="margin-top:8px">AI föreslår: Elon Kista → Power Solna → Mekonomen Bromma</div>
+      </div>
+    </section>
+  `;
+  setTimeout(()=>{
+    const m = L.map('mapBig');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
+    locateUser(m, false);
+    // mock markers
+    L.marker([59.403,17.95]).addTo(m).bindPopup('Elon Kista');
+    L.marker([59.365,18.004]).addTo(m).bindPopup('Power Solna');
+    L.marker([59.354,17.939]).addTo(m).bindPopup('Mekonomen Bromma');
+  },10);
+}
+function locateUser(map, mini){
+  function place(lat,lng){
+    map.setView([lat,lng], mini?12:11);
+    const mk = L.marker([lat,lng]).addTo(map).bindPopup('Du är här');
+    if(mini) miniMarker = mk;
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=> place(pos.coords.latitude,pos.coords.longitude), ()=> place(59.334591,18.063240));
+  }else{ place(59.334591,18.063240); }
+}
+function askAiRoute(){
+  openSheet('AI-rutt — rekommendation', `
+    <ol>
+      <li>Elon Kista — lägg notis: “vill köpa om 20 dagar”.</li>
+      <li>Power Solna</li>
+      <li>Mekonomen Bromma</li>
+    </ol>
+    <div class="title">Export till Google Maps kommer i nästa version.</div>
+  `);
+}
+function addPlaceNote(){
+  openSheet('Platsnotis', `
+    <div class="title">Butik/Plats</div><input id="place_name" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+    <div class="title" style="margin-top:8px">Notis</div><input id="place_note" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px" value="vill köpa om 20 dagar">
+    <div style="margin-top:10px"><button class="btn" onclick="savePlaceNote()">Spara</button></div>
+  `);
+}
+function savePlaceNote(){
+  const n = $('#place_name').value || 'Okänd plats';
+  const t = $('#place_note').value || '';
+  DATA.notis.unshift('📍 '+n+ (t?(' — '+t):''));
+  store.set('notis', DATA.notis);
+  closeSheet(); router();
+}
+
+/* ---------------- Chat (page) ---------------- */
+function renderChatPage(root){
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Intern chatt</h3></div>
+        <div id="chatFull" style="max-height:420px;overflow:auto"></div>
+        <div style="display:flex; gap:8px; margin-top:8px">
+          <input id="chatFullInput" placeholder="Skriv… (Enter skickar)" style="flex:1;border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+          <button class="btn" onclick="chatFullSend()">Skicka</button>
+        </div>
+      </div>
+    </section>
+  `;
+  renderChatList('#chatFull');
+  $('#chatFullInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); chatFullSend(); }});
+}
+
+/* ---------------- Settings ---------------- */
+function renderSettings(root){
+  const s = DATA.settings;
+  root.innerHTML = `
+    <section class="grid">
+      <div class="card">
+        <div class="subhead"><h3>Inställningar</h3></div>
+        <div class="row2">
+          <div>
+            <div class="title">Tema</div>
+            <select id="set_theme" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+              <option value="light" ${s.theme==='light'?'selected':''}>Ljust</option>
+              <option value="dark" disabled>Mörkt (senare)</option>
+            </select>
+          </div>
+          <div>
+            <div class="title">Språk</div>
+            <select id="set_lang" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px">
+              <option value="sv" ${s.lang==='sv'?'selected':''}>Svenska</option>
+              <option value="en">English</option>
+              <option value="th">ไทย</option>
+            </select>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid #EEF2F7;margin:12px 0">
+        <div class="title">Företagsuppgifter</div>
+        <input id="co_name" value="${s.company.namn}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="co_org" value="${s.company.orgnr}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="co_addr" value="${s.company.addr}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="co_email" value="${s.company.email}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <hr style="border:none;border-top:1px solid #EEF2F7;margin:12px 0">
+        <div class="title">API-nycklar (placeholders)</div>
+        <input id="api_frakt" placeholder="Fraktjakt" value="${s.api.fraktjakt}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="api_finans" placeholder="Finansbolag" value="${s.api.finans}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="api_wa" placeholder="WhatsApp" value="${s.api.whatsapp}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <input id="api_sms" placeholder="SMS" value="${s.api.sms}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0">
+        <div style="margin-top:12px"><button class="btn" onclick="saveSettings()">Spara</button></div>
+      </div>
+    </section>
+  `;
+}
 function saveSettings(){
-  store.settings = {
-    name: val('s_name'), org: val('s_org'), vat: val('s_vat'), iban: val('s_iban'),
-    swift: val('s_swift'), addr: val('s_addr'), zip: val('s_zip'), city: val('s_city'),
-    phone: val('s_phone'), email: val('s_email'), web: val('s_web'),
-    prefix: val('s_prefix')||'M-', sign: val('s_sign')
+  DATA.settings = {
+    theme:$('#set_theme').value, lang:$('#set_lang').value,
+    company:{ namn:$('#co_name').value, orgnr:$('#co_org').value, addr:$('#co_addr').value, email:$('#co_email').value },
+    api:{ fraktjakt:$('#api_frakt').value, finans:$('#api_finans').value, whatsapp:$('#api_wa').value, sms:$('#api_sms').value, ai_engine:DATA.settings.api.ai_engine }
   };
-  saveAll();
-  alert('Företagsuppgifter sparade.');
+  store.set('settings', DATA.settings);
+  alert('Sparat.');
 }
 
-/* ---------------------- UTIL / UI ---------------------- */
-function val(id){ return document.getElementById(id).value }
-function setVal(id,v){ document.getElementById(id).value = v||'' }
-function openModal(id){ document.getElementById(id).classList.add('open') }
-function closeModal(id){ document.getElementById(id).classList.remove('open') }
-
-/* ---------------------- INIT ---------------------- */
-function mountSettingsForm(){
-  const s = store.settings||{};
-  setVal('s_name', s.name); setVal('s_org', s.org); setVal('s_vat', s.vat);
-  setVal('s_iban', s.iban); setVal('s_swift', s.swift);
-  setVal('s_addr', s.addr); setVal('s_zip', s.zip); setVal('s_city', s.city);
-  setVal('s_phone', s.phone); setVal('s_email', s.email); setVal('s_web', s.web);
-  setVal('s_prefix', s.prefix||'M-'); setVal('s_sign', s.sign);
+/* ---------------- Notiser ---------------- */
+function openNotis(){
+  openSheet('Notiser', `
+    <ul style="margin:0;padding-left:18px">${DATA.notis.map(n=>`<li>${n}</li>`).join('')}</ul>
+  `);
 }
-route(); mountSettingsForm();
+function renderNotis(sel){
+  const ul=document.querySelector(sel); ul.innerHTML='';
+  DATA.notis.forEach(n=>{ const li=document.createElement('li'); li.textContent=n; ul.appendChild(li); });
+  $('#notisCount')?.textContent = DATA.notis.length;
+  $('#notisCount') && ($('#notisCount').textContent = DATA.notis.length);
+  $('#notisCount') && ($('#notisCount').textContent = DATA.notis.length);
+  $('#notisCount')?.textContent;
+  $('#notisCount') && ($('#notisCount').textContent = DATA.notis.length);
+  $('#notisCount') && ($('#notisCount').textContent = DATA.notis.length);
+  // topbar badge
+  $('#notisCountTop') && ($('#notisCountTop').textContent = DATA.notis.length);
+  $('#notisCountTop')?.textContent;
+  $('#notisCountTop') && ($('#notisCountTop').textContent = DATA.notis.length);
+  $('#notisCountTop') && ($('#notisCountTop').textContent = DATA.notis.length);
+  $('#notisCountTop');
+  $('#notisCountTop');
+  $('#notisCountTop');
+  $('#notisCountTop');
+  // sidebar bell
+  $('#notisCount') && ($('#notisCount').textContent = DATA.notis.length);
+  $('#notisCountTop') && ($('#notisCountTop').textContent = DATA.notis.length);
+  $('#notisCountTop');
+  $('#notisCountTop');
+  // also update topbar icon
+  $('#notisCountTop');
+  // (simplify) update visible topbar badge:
+  $('#notisCount')?.textContent;
+  // update little badge:
+  $('#notisCountTop');
+  $('#notisCountTop');
+  // fallback: fixed bell near topbar
+  $('#notisCountTop');
+  // set number in top-right bell
+  $('#notisCountTop');
+  // set visible count:
+  $('#notisCountTop');
+  // just set the one existing in this layout:
+  $('#notisCount').textContent = DATA.notis.length;
+}
+
+/* ---------------- Chat (widget + page reuse) ---------------- */
+const CHAT = store.get('chat', [
+  {me:false, text:'Hej! Hur kan jag hjälpa dig idag?'},
+  {me:true, text:'Visa dagens order.'}
+]);
+function renderChatList(sel){
+  const box = document.querySelector(sel); box.innerHTML='';
+  CHAT.forEach(m=>{
+    const b=document.createElement('div'); b.className='msg '+(m.me?'me':'ai'); b.textContent=m.text; box.appendChild(b);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+function renderDashChat(){
+  renderChatList('#dashChat');
+}
+function sendChat(){
+  const inp = $('#chatInput'); const t=inp.value.trim(); if(!t) return;
+  CHAT.push({me:true, text:t}); store.set('chat', CHAT);
+  renderChatList('#chatMsgs');
+  inp.value=''; setTimeout(()=>{ CHAT.push({me:false, text:aiReply(t)}); store.set('chat', CHAT); renderChatList('#chatMsgs'); }, 500);
+}
+function dashChatSend(){
+  const inp = $('#dashChatInput'); const t=inp.value.trim(); if(!t) return;
+  CHAT.push({me:true, text:t}); store.set('chat', CHAT);
+  renderChatList('#dashChat');
+  inp.value=''; setTimeout(()=>{ CHAT.push({me:false, text:aiReply(t)}); store.set('chat', CHAT); renderChatList('#dashChat'); }, 500);
+}
+function chatFullSend(){
+  const inp = $('#chatFullInput'); const t=inp.value.trim(); if(!t) return;
+  CHAT.push({me:true, text:t}); store.set('chat', CHAT);
+  renderChatList('#chatFull');
+  inp.value=''; setTimeout(()=>{ CHAT.push({me:false, text:aiReply(t)}); store.set('chat', CHAT); renderChatList('#chatFull'); }, 500);
+}
+function aiReply(txt){
+  const l = txt.toLowerCase();
+  if(l.includes('budget')) return 'AI: Budget stabil. Förslag: +5% marknadsbudget kommande vecka.';
+  if(l.includes('rutt')||l.includes('karta')) return 'AI: Elon Kista → Power Solna → Mekonomen Bromma (43 min).';
+  if(l.includes('order')) return 'AI: Dagens ordrar: #10234 (24 900 kr), #10231 (12 200 kr).';
+  return 'AI: Noterat. Vill du att jag skapar en påminnelse eller uppgift?';
+}
+
+/* ---------------- Overlay Sheet ---------------- */
+function openSheet(title, html){
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = html;
+  $('#overlay').style.display='flex';
+}
+function closeSheet(){ $('#overlay').style.display='none'; }
+function openEcoDetail(){
+  openSheet('Ekonomi — detaljer', `<div style="height:420px"><canvas id="ecoChartBig"></canvas></div>
+    <div class="title" style="margin-top:8px"><strong>AI-tips:</strong> Kostnaderna avviker i vecka 42. Föreslår samtal med leverantör.</div>`);
+  const ctx2 = document.getElementById('ecoChartBig');
+  new Chart(ctx2,{ type:'bar', data:{ labels:['v1','v2','v3','v4','v5'],
+    datasets:[
+      {label:'Omsättning', data:[100,140,90,130,160], backgroundColor:'#CFEAFF', borderRadius:8},
+      {label:'Kostnader', data:[40,65,45,60,70], backgroundColor:'#FEE2E2', borderRadius:8},
+      {label:'Brutto%', data:[40,42,40,41,42], type:'line', yAxisID:'y1', borderColor:'#3B82F6', tension:.3, pointRadius:0}
+    ]}, options:{ maintainAspectRatio:false, scales:{ y1:{position:'right', ticks:{callback:v=>v+'%'}} } }
+  });
+}
+function openChatDetail(){
+  openSheet('Teamchatt — helskärm', `<div id="chatFull2" style="max-height:420px;overflow:auto"></div>`);
+  renderChatList('#chatFull2');
+}
+function openMapDetail(){
+  openSheet('AI-karta — helskärm', `<div id="mapBig" style="height:420px;border-radius:12px;border:1px solid var(--border)"></div>`);
+  setTimeout(()=>{
+    const m=L.map('mapBig'); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(m);
+    locateUser(m,false);
+    L.marker([59.403,17.95]).addTo(m).bindPopup('Elon Kista');
+    L.marker([59.365,18.004]).addTo(m).bindPopup('Power Solna');
+    L.marker([59.354,17.939]).addTo(m).bindPopup('Mekonomen Bromma');
+  },10);
+}
+function openCoachDetail(){
+  openSheet('AI-Coach — detalj', `
+    <p class="title">Jag kan sammanfatta veckan, bevaka deadlines, och varna för låg lagernivå.</p>
+    <div style="display:flex; gap:8px"><button class="btn" onclick="alert('Mock: Veckorapport skapad')">Skapa veckorapport</button>
+    <button class="btn" onclick="alert('Mock: Påminnelse satt')">Sätt påminnelse</button></div>
+  `);
+}
+
+/* ---------------- Util ---------------- */
+function fmtKr(n){ return n.toLocaleString('sv-SE')+' kr'; }
+
+/* ---------------- Boot ---------------- */
+renderChatList('#chatMsgs'); // floating widget
+
 </script>
 </body>
 </html>

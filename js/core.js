@@ -1,135 +1,165 @@
-/* =====================================================
-   MergX v8.35 • Base-Core Master Logic
-   ===================================================== */
+/* =========================================================
+   MergX v8.36 • core.js
+   Navigation, modaler, språk/tema, chatt och demo-data
+   ========================================================= */
+
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("MergX v8.35 Core loaded ✅");
+  console.log("✅ MergX v8.36 core.js loaded");
 
-  // === ELEMENTER ===
-  const kpiSales = document.getElementById("kpi-sales");
-  const kpiOrders = document.getElementById("kpi-orders");
-  const kpiCosts = document.getElementById("kpi-costs");
-  const aiSummary = document.getElementById("ai-summary-text");
-  const chatInput = document.getElementById("chatInput");
-  const chatSend = document.getElementById("chatSend");
-  const chatMessages = document.getElementById("chatMessages");
-  const modal = document.getElementById("modal");
-  const modalBody = document.getElementById("modal-body");
-  const closeModalBtn = document.querySelector(".close-modal");
+  /* ---------- Hjälpfunktioner ---------- */
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
-  /* === SLUMPAD DEMO-DATA === */
-  function randomVal(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  const kpis = {
-    sales: randomVal(18000, 22000),
-    orders: randomVal(60, 100),
-    costs: randomVal(7000, 9000),
-  };
+  /* ---------- Navigation ---------- */
+  const navButtons = $$(".nav__item");
+  const routes = $$(".route");
 
-  kpiSales.textContent = `${kpis.sales.toLocaleString()} kr`;
-  kpiOrders.textContent = kpis.orders;
-  kpiCosts.textContent = `${kpis.costs.toLocaleString()} kr`;
+  navButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const route = btn.dataset.route;
+      navButtons.forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
 
-  // === TREND VISUAL (enkla pilar) ===
-  ["sales", "orders", "costs"].forEach((key) => {
-    const el = document.getElementById(`trend-${key}`);
-    const diff = randomVal(-5, 15);
-    el.textContent = diff > 0 ? `▲ ${diff}%` : `▼ ${Math.abs(diff)}%`;
-    el.style.color = diff > 0 ? "#4ade80" : "#f87171";
-  });
-
-  /* === AI-SAMMANFATTNING (mock) === */
-  setTimeout(() => {
-    aiSummary.textContent =
-      "AI-analysen visar stabil tillväxt. Kostnaderna hålls inom ramen, men försäljningen kan ökas med riktade kampanjer i Stockholm-regionen.";
-  }, 1000);
-
-  /* === MODAL-SYSTEM === */
-  const kpiCards = document.querySelectorAll(".kpi-card");
-  kpiCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      const type = card.dataset.type;
-      openModal(type);
+      routes.forEach(r => {
+        r.classList.toggle("is-visible", r.id === `route-${route}`);
+      });
     });
   });
 
-  function openModal(type) {
-    modal.classList.remove("hidden");
-    modalBody.innerHTML = `
-      <h2>${type.toUpperCase()}-detaljer</h2>
-      <canvas id="chart-${type}" height="200"></canvas>
-      <p class="ai-note">AI-analys: ${type === "sales"
-        ? "försäljningen ökar i centrala butiker"
-        : type === "orders"
-        ? "orderflödet stabilt, måndag topp"
-        : "kostnader oförändrade, fokus logistik"
-      }.</p>
-    `;
-  }
-  closeModalBtn.addEventListener("click", () =>
-    modal.classList.add("hidden")
-  );
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.add("hidden");
+  /* ---------- Modaler ---------- */
+  $$("[data-open]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.open;
+      const dlg = document.getElementById(id);
+      if (dlg) dlg.showModal();
+    });
+  });
+  $$("[data-close]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.close;
+      const dlg = document.getElementById(id);
+      if (dlg) dlg.close();
+    });
   });
 
-  /* === TEAM-CHATT === */
-  function addMessage(text, sender = "user") {
-    const msg = document.createElement("div");
-    msg.classList.add("msg", sender);
-    msg.textContent = text;
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  /* ---------- Tema & Språk ---------- */
+  const btnTheme = $("#btn-theme");
+  const btnLang = $("#btn-lang");
+  const body = document.body;
+
+  btnTheme?.addEventListener("click", () => {
+    const current = body.dataset.theme;
+    const next = current === "dark" ? "light" : "dark";
+    body.dataset.theme = next;
+    btnTheme.textContent = next === "dark" ? "Mörk" : "Ljus";
+  });
+
+  btnLang?.addEventListener("click", () => {
+    const current = body.dataset.lang;
+    const next = current === "sv" ? "en" : "sv";
+    body.dataset.lang = next;
+    btnLang.textContent = next === "sv" ? "Svenska" : "English";
+  });
+
+  /* ---------- KPI-demo (mockdata) ---------- */
+  const kpiData = {
+    revenue: { value: 128500, delta: +4 },
+    orders: { value: 37, delta: +12 },
+    costs: { value: 88500, delta: -3 },
+    margin: { value: 34, delta: +5 },
+  };
+
+  Object.entries(kpiData).forEach(([key, { value, delta }]) => {
+    const valEl = $(`#kpi-${key}`);
+    const dEl = $(`#kpi-${key}-delta`);
+    const barEl = $(`#kpi-${key}-bar`);
+    if (valEl) valEl.textContent = value.toLocaleString("sv-SE");
+    if (dEl) {
+      dEl.textContent = `${delta > 0 ? "+" : ""}${delta}%`;
+      dEl.classList.toggle("up", delta > 0);
+      dEl.classList.toggle("down", delta < 0);
+    }
+    if (barEl) barEl.style.width = Math.min(100, Math.abs(delta) * 5) + "%";
+  });
+
+  /* ---------- Chatt (dock + full) ---------- */
+  const chatInput = $("#chat-input");
+  const chatSend = $("#chat-send");
+  const chatFeed = $("#chat-feed");
+  const dockInput = $("#chat-dock-input");
+  const dockFeed = $("#chat-dock-feed");
+
+  function appendBubble(feed, msg, self = false) {
+    const div = document.createElement("div");
+    div.className = "bubble " + (self ? "bubble--me" : "bubble--sys");
+    div.textContent = msg;
+    feed.appendChild(div);
+    feed.scrollTop = feed.scrollHeight;
   }
 
-  function aiReply(userText) {
-    const lower = userText.toLowerCase();
-    let reply = "Intressant, berätta mer.";
-    if (lower.includes("hej")) reply = "Hej! Hur kan jag hjälpa dig idag?";
-    else if (lower.includes("budget"))
-      reply = "Budgeten ser bra ut, men håll koll på Q4-kostnader.";
-    else if (lower.includes("tack")) reply = "Alltid ett nöje 😊";
-    setTimeout(() => addMessage(reply, "system"), 600);
-  }
-
-  chatSend.addEventListener("click", () => {
-    const val = chatInput.value.trim();
-    if (!val) return;
-    addMessage(val, "user");
-    aiReply(val);
+  chatSend?.addEventListener("click", () => {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    appendBubble(chatFeed, msg, true);
     chatInput.value = "";
+    // AI-svar (mock)
+    setTimeout(() => appendBubble(chatFeed, "AI: Tack, meddelandet mottaget.", false), 500);
   });
 
-  chatInput.addEventListener("keydown", (e) => {
+  chatInput?.addEventListener("keydown", e => {
     if (e.key === "Enter") {
       e.preventDefault();
       chatSend.click();
     }
   });
 
-  /* === MAP MOCK === */
-  const mapArea = document.getElementById("mapArea");
-  if (mapArea) {
-    setTimeout(() => {
-      mapArea.textContent = "Butiker i närheten identifierade (mock-data)";
-    }, 1500);
-  }
-
-  /* === TEMA-OCH-SPRÅKTOGGLING (mock) === */
-  const themeToggle = document.getElementById("themeToggle");
-  const langToggle = document.getElementById("langToggle");
-
-  themeToggle?.addEventListener("click", () => {
-    document.body.classList.toggle("light");
-    const isLight = document.body.classList.contains("light");
-    themeToggle.textContent = isLight ? "🌙 Mörkt" : "☀️ Ljust";
+  dockInput?.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const msg = dockInput.value.trim();
+      if (!msg) return;
+      appendBubble(dockFeed, msg, true);
+      dockInput.value = "";
+      setTimeout(() => appendBubble(dockFeed, "AI: registrerat.", false), 400);
+    }
   });
 
-  langToggle?.addEventListener("click", () => {
-    const current = langToggle.dataset.lang || "sv";
-    const next = current === "sv" ? "en" : "sv";
-    langToggle.dataset.lang = next;
-    langToggle.textContent = next === "sv" ? "🌐 Svenska" : "🌐 English";
-    alert(`Språk växlat till ${next === "sv" ? "svenska" : "engelska"}.`);
+  /* ---------- Globala knappar (AI-panel, sökning) ---------- */
+  const btnAI = $("#btn-ask-ai");
+  const panelAI = $("#panel-ai");
+
+  btnAI?.addEventListener("click", () => {
+    panelAI.hidden = !panelAI.hidden;
   });
+  $$("[data-close='panel-ai']").forEach(btn => btn.addEventListener("click", () => (panelAI.hidden = true)));
+
+  /* ---------- Enkel sökning (mock-filter) ---------- */
+  $("#global-search")?.addEventListener("input", e => {
+    const term = e.target.value.toLowerCase();
+    if (!term) return;
+    console.log("🔍 sökning:", term);
+  });
+
+  /* ---------- Klick utanför modaler ---------- */
+  document.addEventListener("click", e => {
+    $$("dialog[open]").forEach(modal => {
+      const rect = modal.getBoundingClientRect();
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
+      ) {
+        modal.close();
+      }
+    });
+  });
+
+  /* ---------- Placeholder-laddning (tabeller osv.) ---------- */
+  const placeholders = $$(".table-placeholder, .files-placeholder");
+  placeholders.forEach(el => {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:#aaa;">Data laddas…</div>`;
+  });
+
+  /* ---------- Init-status ---------- */
+  console.log("📊 KPI och grundlogik initierad");
 });

@@ -3,82 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MergX v8.39 Pro • AI-Nav</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>MergX v8.42 — Deep Aurora Glass</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
-  <div id="app">
-    <!-- SIDOBAR -->
+  <div class="layout">
+    <!-- SIDOMENY -->
     <aside class="sidebar">
       <h1>MergX</h1>
-      <p class="version">v8.39 • Pro + AI-Nav</p>
-      <nav>
-        <ul>
-          <li data-page="overview" class="active">Översikt</li>
-          <li data-page="customers">Kunder</li>
-          <li data-page="inventory">Inventarie</li>
-          <li data-page="employees">Anställda</li>
-          <li data-page="orders">Ordrar & fakturor</li>
-          <li data-page="files">Filer & kvitton</li>
-          <li data-page="ai-map">AI-Karta</li>
-          <li data-page="teamchat">Teamchatt</li>
-          <li data-page="settings">Inställningar</li>
-        </ul>
+      <small>v8.42 • Pro + AI-Nav</small>
+      <nav class="nav">
+        <a href="#" class="active">Översikt</a>
+        <a href="#">Kunder</a>
+        <a href="#">Inventarie</a>
+        <a href="#">Anställda</a>
+        <a href="#">Ordrar & fakturor</a>
+        <a href="#">Filer & kvitton</a>
+        <a href="#">AI-Karta</a>
+        <a href="#">Teamchatt</a>
+        <a href="#">Inställningar</a>
       </nav>
-      <footer>
-        <button id="themeToggle">🌓 Tema</button>
-      </footer>
+      <div class="sidebar-footer">
+        <button class="btn">🌓 Tema</button>
+      </div>
     </aside>
 
-    <!-- MITTKOLUMN -->
-    <main id="content">
-      <div class="loader">Laddar MergX v8.39 …</div>
+    <!-- HUVUDINNEHÅLL -->
+    <main class="main">
+      <!-- KPI-RAD -->
+      <section class="grid kpi-4">
+        <div class="kpi">
+          <div class="kpi-title">Omsättning (idag)</div>
+          <div class="kpi-value">125 000 kr</div>
+          <div class="kpi-delta up">+6 %</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Order (idag)</div>
+          <div class="kpi-value">34</div>
+          <div class="kpi-delta up">+2 %</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Kostnader (idag)</div>
+          <div class="kpi-value">41 000 kr</div>
+          <div class="kpi-delta down">−1,1 %</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Bruttomarginal</div>
+          <div class="kpi-value">41 %</div>
+          <div class="kpi-delta up">+0,3 pp</div>
+        </div>
+      </section>
+
+      <!-- HUVUDPANELER -->
+      <section class="section">
+        <div class="card chart-placeholder">
+          <h3>Ekonomi — kompositchart</h3>
+          <p>(Diagram genereras här)</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card">
+          <h3>AI-Analys</h3>
+          <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+        </div>
+      </section>
+
+      <!-- DELAD RAD -->
+      <section class="grid two">
+        <div class="card">
+          <h3>AI-Karta (mini)</h3>
+          <p>Identifierade butiker nära användaren (mock-data):</p>
+          <ul>
+            <li>Elon Kista — Potentiell order om 20 dagar</li>
+            <li>Mekonomen Solna — Befintlig kund</li>
+            <li>Power Barkarby — Bra läge för demo</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Teamchatt</h3>
+          <div class="chat">
+            <div class="msg"><b>👩 Anna:</b> God morgon teamet!</div>
+            <div class="msg"><b>🧑 Jonas:</b> Jag tar kundmötet 11:00.</div>
+          </div>
+          <input type="text" class="chat-input" placeholder="Skriv snabbt … (Enter skickar)" />
+        </div>
+      </section>
     </main>
-
-    <!-- HÖGER AI-NAV -->
-    <aside class="ai-nav">
-      <section class="ai-section">
-        <h3>AI-Förslag</h3>
-        <ul>
-          <li>Planera nästa kundbesök hos Elon Kista (20 dagar)</li>
-          <li>Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm</li>
-          <li>Prisjustering Lightning 27 W +5 %</li>
-          <li>Skapa AI-rapport för Fortnox export fredag</li>
-        </ul>
-      </section>
-
-      <section class="ai-section">
-        <h3>AI-Notiser</h3>
-        <ul>
-          <li>3 nya kvitton registrerade av anställda</li>
-          <li>Ny order skapad för Power Barkarby</li>
-          <li>AI-rutt uppdaterad för Solna-området</li>
-        </ul>
-      </section>
-
-      <section class="ai-section">
-        <h3>AI-Rutt & Leads</h3>
-        <ol>
-          <li>Start – Acetek HQ (08:00)</li>
-          <li>Elon Kista (09:15)</li>
-          <li>Mekonomen Solna (11:00)</li>
-          <li>Lunch – Mall of Scandinavia (12:30)</li>
-          <li>Power Barkarby (14:00)</li>
-          <li>Åter till HQ (15:30)</li>
-        </ol>
-      </section>
-    </aside>
   </div>
 
-  <div id="modalOverlay" class="modal-overlay hidden">
-    <div class="modal">
-      <button id="closeModal">×</button>
-      <h3 id="modalTitle">Expanderad modul</h3>
-      <p id="modalContent">Här visas mer detaljer och AI-analys.</p>
+  <!-- MODAL EXEMPEL (dold som standard) -->
+  <div class="modal-backdrop" style="display:none;"></div>
+  <div class="modal card" style="display:none;">
+    <div class="modal-content">
+      <h3>Expanderad modul</h3>
+      <p>Här visas mer detaljer och AI-analys.</p>
     </div>
   </div>
-
-  <script src="js/app.js"></script>
 </body>
 </html>

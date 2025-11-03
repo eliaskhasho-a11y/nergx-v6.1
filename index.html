@@ -3,546 +3,81 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MergX v8.36 • Desktop Core</title>
-
-  <!-- App icons / favicon (valfritt att byta senare) -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Ccircle cx='128' cy='128' r='120' fill='%231a73e8'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' fill='white' font-family='Verdana' font-size='120'%3EM%3C/text%3E%3C/svg%3E" />
-
-  <!-- Kärn-CSS (Del 2) -->
-  <link rel="stylesheet" href="css/core.css" />
-
-  <!-- Leaflet CSS (karta – vi initierar i js/ai.js) -->
-  <link rel="preconnect" href="https://unpkg.com" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity=""
-    crossorigin=""
-  />
-
-  <!-- Systemfont fallback -->
-  <style>
-    :root{--app-version:"v8.36";--brand:"MergX";}
-    body{font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial;}
-  </style>
+  <title>MergX • v8.37 Core</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet" />
 </head>
-
-<body data-theme="dark" data-lang="sv">
-  <!-- ====== APP WRAPPER (3-zons desktop) ====== -->
-  <div id="app" class="app">
-
-    <!-- ====== SIDEBAR (vänster) ====== -->
-    <aside class="sidebar" aria-label="Huvudmeny">
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Primär navigering">
       <div class="brand">
-        <div class="brand__title">MergX</div>
-        <div class="brand__meta"><span id="version">v8.36</span> • Core</div>
+        <span class="logo-dot"></span>
+        <div class="brand-txt">
+          <strong>MergX</strong>
+          <small>v8.37 • Core</small>
+        </div>
       </div>
 
       <nav class="nav">
-        <button class="nav__item is-active" data-route="dashboard" aria-current="page">
+        <button class="nav-link is-active" data-route="overview">
           <span>Översikt</span>
         </button>
-        <button class="nav__item" data-route="customers"><span>Kunder</span></button>
-        <button class="nav__item" data-route="inventory"><span>Inventarie</span></button>
-        <button class="nav__item" data-route="employees"><span>Anställda</span></button>
-        <button class="nav__item" data-route="orders"><span>Ordrar & fakturor</span></button>
-        <button class="nav__item" data-route="files"><span>Filer & kvitton</span></button>
-        <button class="nav__item" data-route="ai-map"><span>AI-Karta</span></button>
-        <button class="nav__item" data-route="teamchat"><span>Teamchatt</span></button>
-        <button class="nav__item" data-route="settings"><span>Inställningar</span></button>
+        <button class="nav-link" data-route="customers">Kunder</button>
+        <button class="nav-link" data-route="inventory">Inventarie</button>
+        <button class="nav-link" data-route="employees">Anställda</button>
+        <button class="nav-link" data-route="orders">Ordrar & fakturor</button>
+        <button class="nav-link" data-route="files">Filer & kvitton</button>
+        <button class="nav-link" data-route="ai-map">AI-Karta</button>
+        <button class="nav-link" data-route="teamchat">Teamchatt</button>
+        <button class="nav-link" data-route="settings">Inställningar</button>
       </nav>
 
-      <div class="sidebar__controls">
-        <div class="control-row">
-          <label class="label">Tema</label>
-          <button id="btn-theme" class="chip" data-action="toggle-theme">Mörk</button>
-        </div>
-        <div class="control-row">
-          <label class="label">Språk</label>
-          <button id="btn-lang" class="chip" data-action="toggle-lang">Svenska</button>
+      <div class="sidebar-footer">
+        <div class="mini-controls">
+          <button class="chip" id="themeToggle" aria-label="Byt tema">Tema</button>
+          <button class="chip" id="langToggle" aria-label="Byt språk">Språk</button>
         </div>
       </div>
     </aside>
 
-    <!-- ====== MAIN (mitten) ====== -->
-    <main class="main" tabindex="-1" aria-live="polite">
-      <!-- ===== TOPBAR ===== -->
-      <header class="topbar">
-        <div class="search">
-          <input id="global-search" type="search" placeholder="Sök i MergX … (kunder, order, produkter)" aria-label="Global sökning" />
+    <!-- MAIN -->
+    <main class="main">
+      <header class="topbar" aria-label="App-huvud">
+        <div class="search-wrap">
+          <input type="search" id="globalSearch" placeholder="Sök kunder, order, produkter…" />
         </div>
-        <div class="topbar__actions">
-          <button id="btn-ask-ai" class="btn btn--primary" data-open="panel-ai">Ask AI</button>
+        <div class="topbar-actions">
+          <button class="btn ghost" id="askAI">Ask AI</button>
+          <button class="btn" id="openAINav" aria-expanded="false" aria-controls="aiNav">AI-Nav</button>
         </div>
       </header>
 
-      <!-- ===== ROUTES CONTAINER ===== -->
-      <section id="route-dashboard" class="route is-visible" aria-label="Översikt">
-
-        <!-- KPI cards -->
-        <div class="grid grid--kpi">
-          <article class="card kpi" data-kpi="revenue" data-open="modal-kpi" aria-label="Omsättning idag">
-            <header class="card__header">
-              <h3>Omsättning (idag)</h3>
-            </header>
-            <div class="card__body">
-              <div class="kpi__value" id="kpi-revenue">—</div>
-              <div class="kpi__delta up" id="kpi-revenue-delta">—</div>
-              <div class="kpi__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                <span class="kpi__bar__fill" id="kpi-revenue-bar" style="width:0%"></span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card kpi" data-kpi="orders" data-open="modal-kpi" aria-label="Order idag">
-            <header class="card__header">
-              <h3>Order (idag)</h3>
-            </header>
-            <div class="card__body">
-              <div class="kpi__value" id="kpi-orders">—</div>
-              <div class="kpi__delta up" id="kpi-orders-delta">—</div>
-              <div class="kpi__bar">
-                <span class="kpi__bar__fill" id="kpi-orders-bar" style="width:0%"></span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card kpi" data-kpi="costs" data-open="modal-kpi" aria-label="Kostnader idag">
-            <header class="card__header">
-              <h3>Kostnader (idag)</h3>
-            </header>
-            <div class="card__body">
-              <div class="kpi__value" id="kpi-costs">—</div>
-              <div class="kpi__delta down" id="kpi-costs-delta">—</div>
-              <div class="kpi__bar">
-                <span class="kpi__bar__fill" id="kpi-costs-bar" style="width:0%"></span>
-              </div>
-            </div>
-          </article>
-
-          <article class="card kpi" data-kpi="margin" data-open="modal-kpi" aria-label="Bruttomarginal">
-            <header class="card__header">
-              <h3>Bruttomarginal</h3>
-            </header>
-            <div class="card__body">
-              <div class="kpi__value" id="kpi-margin">—</div>
-              <div class="kpi__delta up" id="kpi-margin-delta">—</div>
-              <div class="kpi__bar">
-                <span class="kpi__bar__fill" id="kpi-margin-bar" style="width:0%"></span>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Ekonomi – kombodiagram (placeholder-yta för graf) -->
-        <article class="card card--panel">
-          <header class="card__header">
-            <h3>Ekonomi — kombodiagram</h3>
-            <div class="card__tools">
-              <button class="btn btn--ghost" data-open="modal-economy">Expandera</button>
-              <button class="btn btn--ghost" data-ai="eco">Ask AI</button>
-            </div>
-          </header>
-          <div class="card__body">
-            <div id="chart-economy" class="chart-placeholder" aria-label="Ekonomigraf (placeholder"></div>
-          </div>
-        </article>
-
-        <!-- AI Totalanalys -->
-        <article class="card card--panel">
-          <header class="card__header">
-            <h3>AI-Analys</h3>
-          </header>
-          <div class="card__body">
-            <p id="ai-total-analysis" class="muted">AI-analys laddas …</p>
-          </div>
-        </article>
-
-        <!-- AI-Karta -->
-        <article class="card card--panel">
-          <header class="card__header">
-            <h3>AI-Karta (mini)</h3>
-            <div class="card__tools">
-              <button class="btn btn--ghost" data-open="modal-aimap">Expandera</button>
-            </div>
-          </header>
-          <div class="card__body">
-            <div id="map-mini" class="map-container" aria-label="AI-Karta mini"></div>
-            <div class="map-notes" id="map-notes">
-              <strong>Platser (mock):</strong>
-              <ul>
-                <li>Elon Kista — Potentiell order om 20 dagar</li>
-                <li>Mekonomen Solna — Befintlig kund</li>
-                <li>Power Barkarby — Bra läge för demo</li>
-              </ul>
-              <button class="btn btn--primary" data-ai="route">AI-förslag</button>
-            </div>
-          </div>
-        </article>
-
-        <!-- Teamchatt (komprimerad feed i översikt) -->
-        <article class="card card--panel">
-          <header class="card__header">
-            <h3>Teamchatt</h3>
-            <div class="card__tools">
-              <button class="btn btn--ghost" data-route="teamchat">Öppna chatt</button>
-            </div>
-          </header>
-          <div class="card__body">
-            <div id="teamchat-mini" class="teamchat-mini" aria-live="polite">
-              <div class="bubble bubble--sys">God morgon teamet!</div>
-              <div class="bubble bubble--me">Jag tar kundmötet 11:00.</div>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <!-- Andra rutter – tomma skelett som fylls av js/core.js -->
-      <section id="route-customers" class="route" aria-label="Kunder">
-        <header class="route__header">
-          <h2>Kunder</h2>
-          <div class="route__tools">
-            <button class="btn btn--primary" data-open="modal-new-customer">+ Ny kund</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="customers-table" class="table-placeholder" aria-label="Kundtabell"></div>
-        </div>
-      </section>
-
-      <section id="route-inventory" class="route" aria-label="Inventarie">
-        <header class="route__header">
-          <h2>Inventarie</h2>
-          <div class="route__tools">
-            <button class="btn btn--primary" data-open="modal-new-product">+ Ny produkt</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="inventory-table" class="table-placeholder"></div>
-        </div>
-      </section>
-
-      <section id="route-employees" class="route" aria-label="Anställda">
-        <header class="route__header">
-          <h2>Anställda</h2>
-          <div class="route__tools">
-            <button class="btn btn--primary" data-open="modal-new-employee">+ Ny anställd</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="employees-table" class="table-placeholder"></div>
-        </div>
-      </section>
-
-      <section id="route-orders" class="route" aria-label="Ordrar & fakturor">
-        <header class="route__header">
-          <h2>Ordrar & fakturor</h2>
-          <div class="route__tools">
-            <button class="btn btn--ghost" data-ai="orders">AI-förslag</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="orders-table" class="table-placeholder"></div>
-        </div>
-      </section>
-
-      <section id="route-files" class="route" aria-label="Filer & kvitton">
-        <header class="route__header">
-          <h2>Filer & kvitton</h2>
-          <div class="route__tools">
-            <button class="btn btn--primary" data-open="modal-upload">Ladda upp</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="files-tree" class="files-placeholder"></div>
-        </div>
-      </section>
-
-      <section id="route-ai-map" class="route" aria-label="AI-Karta (full)">
-        <header class="route__header">
-          <h2>AI-Karta</h2>
-          <div class="route__tools">
-            <button class="btn btn--ghost" data-ai="route">AI-rutt</button>
-          </div>
-        </header>
-        <div class="route__body">
-          <div id="map-full" class="map-container map-container--full"></div>
-        </div>
-      </section>
-
-      <section id="route-teamchat" class="route" aria-label="Teamchatt (full)">
-        <header class="route__header">
-          <h2>Teamchatt</h2>
-        </header>
-        <div class="route__body">
-          <div class="chat">
-            <div id="chat-feed" class="chat__feed" aria-live="polite">
-              <div class="bubble bubble--sys">God morgon teamet!</div>
-              <div class="bubble bubble--me">Jag tar kundmötet 11:00.</div>
-            </div>
-            <div class="chat__composer">
-              <button class="icon-btn" title="Bifoga fil" aria-label="Bifoga fil">📎</button>
-              <button class="icon-btn" title="Spela in" aria-label="Spela in röst">🎤</button>
-              <input id="chat-input" class="chat__input" placeholder="Skriv ett meddelande … (Enter för att skicka)" />
-              <button id="chat-send" class="btn btn--primary">Skicka</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="route-settings" class="route" aria-label="Inställningar">
-        <header class="route__header">
-          <h2>Inställningar</h2>
-        </header>
-        <div class="route__body settings">
-          <form id="form-settings" class="form">
-            <fieldset>
-              <legend>Företagsuppgifter</legend>
-              <div class="grid grid--2">
-                <label>Företagsnamn <input name="company" placeholder="Ditt AB" /></label>
-                <label>Org.nr <input name="orgno" placeholder="556xxx-xxxx" /></label>
-                <label>Adress <input name="address" placeholder="Gata 1, Stad" /></label>
-                <label>E-post ekonomi <input name="accmail" placeholder="economy@company.se" /></label>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>Integrationer (placeholders)</legend>
-              <div class="grid grid--2">
-                <label>Fraktjakt API-nyckel <input name="shipkey" placeholder="—" /></label>
-                <label>Finansbolag API-nyckel <input name="finkey" placeholder="—" /></label>
-                <label>AI-nyckel (valfri) <input name="aikey" placeholder="—" /></label>
-                <label>WhatsApp/SMS gateway <input name="sms" placeholder="—" /></label>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>App</legend>
-              <div class="grid grid--2">
-                <label>Tema
-                  <select name="theme">
-                    <option value="dark">Mörk</option>
-                    <option value="light">Ljus</option>
-                  </select>
-                </label>
-                <label>Språk
-                  <select name="lang">
-                    <option value="sv">Svenska</option>
-                    <option value="en">English</option>
-                  </select>
-                </label>
-              </div>
-            </fieldset>
-            <button type="submit" class="btn btn--primary">Spara</button>
-          </form>
-        </div>
+      <!-- Innehåll som byts ut av router -->
+      <section id="app" class="content" aria-live="polite" aria-busy="true">
+        <!-- Laddas in via js/app.js (pages/*.html) -->
       </section>
     </main>
-
-    <!-- ====== RIGHT PANE – AI NAV ====== -->
-    <aside id="panel-ai" class="rightpane" aria-label="AI-panel" hidden>
-      <header class="rightpane__header">
-        <h3>AI-Nav</h3>
-        <button class="icon-btn" data-close="panel-ai" aria-label="Stäng AI-panel">✕</button>
-      </header>
-      <div class="rightpane__body">
-        <section class="ai-block">
-          <h4>AI-Förslag</h4>
-          <ul id="ai-suggestions" class="list"></ul>
-        </section>
-        <section class="ai-block">
-          <h4>AI-Notiser</h4>
-          <ul id="ai-notifications" class="list"></ul>
-        </section>
-        <section class="ai-block">
-          <h4>AI-Rutt & Leads</h4>
-          <div id="ai-route" class="ai-route"></div>
-        </section>
-      </div>
-    </aside>
-
-    <!-- ====== DOCKED TEAM CHAT (liten) ====== -->
-    <div class="chat-dock" aria-label="Dockad teamchatt" data-route-jump="teamchat">
-      <div class="chat-dock__header">
-        <span>Teamchatt</span>
-        <button class="icon-btn" aria-label="Öppna teamchatt" data-route="teamchat">⤢</button>
-      </div>
-      <div class="chat-dock__feed" id="chat-dock-feed" aria-live="polite">
-        <div class="bubble bubble--sys">God morgon teamet!</div>
-      </div>
-      <div class="chat-dock__composer">
-        <input id="chat-dock-input" placeholder="Skriv snabbt … (Enter skickar)" />
-      </div>
-    </div>
   </div>
 
-  <!-- ====== MODALS ====== -->
+  <!-- OVERLAY + MODAL/AI-NAV ROOTS -->
+  <div id="overlay" class="overlay" hidden></div>
 
-  <!-- KPI-modal – frostat glas -->
-  <dialog id="modal-kpi" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3 id="modal-kpi-title">KPI – Detaljer</h3>
-        <button class="icon-btn" data-close="modal-kpi">✕</button>
-      </header>
-      <div class="modal__body">
-        <div id="modal-kpi-chart" class="chart-placeholder large"></div>
-        <table class="table">
-          <thead><tr><th>Period</th><th>Värde</th><th>Förändring</th></tr></thead>
-          <tbody id="modal-kpi-rows">
-            <tr><td>Idag</td><td>—</td><td>—</td></tr>
-            <tr><td>7 dagar</td><td>—</td><td>—</td></tr>
-            <tr><td>30 dagar</td><td>—</td><td>—</td></tr>
-          </tbody>
-        </table>
-        <div class="ai-note" id="modal-kpi-ai">AI-analys: …</div>
+  <aside id="aiNav" class="ai-nav" aria-label="AI-panel" aria-hidden="true">
+    <header class="ai-nav__hdr">
+      <strong>AI-Nav</strong>
+      <button class="icon-btn" id="closeAINav" aria-label="Stäng AI-Nav">✕</button>
+    </header>
+    <div class="ai-nav__scroll">
+      <!-- Steg 3 fyller detta med AI-Förslag, Notiser, Rutt & Leads -->
+      <div class="card muted">
+        <p>AI-Nav kommer här i steg 3 (separerad panel med glas, riktig layout och knappar).</p>
       </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-kpi">Stäng</button>
-        <button class="btn btn--primary" data-ai="kpi">Ask AI</button>
-      </footer>
     </div>
-  </dialog>
+  </aside>
 
-  <!-- Ekonomi – modal -->
-  <dialog id="modal-economy" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>Ekonomi – Detalj</h3>
-        <button class="icon-btn" data-close="modal-economy">✕</button>
-      </header>
-      <div class="modal__body">
-        <div id="modal-economy-chart" class="chart-placeholder large"></div>
-        <div class="ai-note">AI-analys: Positiv trend driven av USB-C 60W i Stockholm. Rek. kundbesök hos Elon Kista.</div>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-economy">Stäng</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- AI-Karta – modal -->
-  <dialog id="modal-aimap" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>AI-Karta (detalj)</h3>
-        <button class="icon-btn" data-close="modal-aimap">✕</button>
-      </header>
-      <div class="modal__body">
-        <div id="map-modal" class="map-container map-container--full"></div>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-aimap">Stäng</button>
-        <button class="btn btn--primary" data-ai="route">AI-rutt</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Ny kund -->
-  <dialog id="modal-new-customer" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>Ny kund</h3>
-        <button class="icon-btn" data-close="modal-new-customer">✕</button>
-      </header>
-      <div class="modal__body">
-        <form id="form-new-customer" class="form grid grid--2">
-          <label>Företag <input name="company" required /></label>
-          <label>Org.nr <input name="orgnr" /></label>
-          <label>Kontakt <input name="contact" /></label>
-          <label>E-post <input type="email" name="email" /></label>
-          <label class="grid--full">Adress <input name="address" /></label>
-          <label>Telefon <input name="phone" /></label>
-        </form>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-new-customer">Avbryt</button>
-        <button class="btn btn--primary" form="form-new-customer" type="submit">Spara</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Ny anställd -->
-  <dialog id="modal-new-employee" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>Ny anställd</h3>
-        <button class="icon-btn" data-close="modal-new-employee">✕</button>
-      </header>
-      <div class="modal__body">
-        <form id="form-new-employee" class="form grid grid--2">
-          <label>Namn <input name="name" required /></label>
-          <label>Roll <input name="role" /></label>
-          <label>E-post <input type="email" name="email" /></label>
-          <label>Telefon <input name="phone" /></label>
-          <label>Form
-            <select name="type">
-              <option>Heltid</option>
-              <option>Deltid</option>
-              <option>Provanställd</option>
-            </select>
-          </label>
-        </form>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-new-employee">Avbryt</button>
-        <button class="btn btn--primary" form="form-new-employee" type="submit">Spara</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Ny produkt -->
-  <dialog id="modal-new-product" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>Ny produkt</h3>
-        <button class="icon-btn" data-close="modal-new-product">✕</button>
-      </header>
-      <div class="modal__body">
-        <form id="form-new-product" class="form grid grid--2">
-          <label>SKU <input name="sku" required /></label>
-          <label>Namn <input name="name" required /></label>
-          <label>Pris (SEK) <input name="price" type="number" step="1" /></label>
-          <label>Saldo <input name="stock" type="number" step="1" /></label>
-        </form>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-new-product">Avbryt</button>
-        <button class="btn btn--primary" form="form-new-product" type="submit">Spara</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- Upload filer -->
-  <dialog id="modal-upload" class="modal">
-    <div class="modal__card">
-      <header class="modal__header">
-        <h3>Ladda upp</h3>
-        <button class="icon-btn" data-close="modal-upload">✕</button>
-      </header>
-      <div class="modal__body">
-        <form id="form-upload" class="form">
-          <input type="file" multiple />
-          <p class="muted">Kommande: mappar, taggar, OCR till utgifter/kvittodata.</p>
-        </form>
-      </div>
-      <footer class="modal__footer">
-        <button class="btn" data-close="modal-upload">Stäng</button>
-        <button class="btn btn--primary" form="form-upload" type="submit">Ladda upp</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <!-- ====== SCRIPTS ====== -->
-  <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity=""
-    crossorigin=""
-  ></script>
-
-  <!-- Kärn-logik (Del 3) -->
-  <script src="js/core.js"></script>
-
-  <!-- AI-logik (Del 4) -->
-  <script src="js/ai.js"></script>
+  <script src="js/app.js" type="module"></script>
 </body>
 </html>

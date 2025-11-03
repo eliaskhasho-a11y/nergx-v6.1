@@ -1,46 +1,27 @@
 <section class="dashboard">
-
-  <!-- KPI Cards -->
   <div class="kpi-row">
-    <div class="kpi-card">
-      <h4>Omsättning (idag)</h4>
-      <p class="value">125 000 kr</p>
-      <p class="change up">+ 6 %</p>
+    <div class="kpi-card expandable" data-title="Omsättning – detaljer" data-text="AI-analys: Positiv trend driven av USB-C 60 W i Stockholm.">
+      <h4>Omsättning (idag)</h4><p class="value">125 000 kr</p><p class="change up">+6 %</p>
     </div>
-    <div class="kpi-card">
-      <h4>Ordrar (idag)</h4>
-      <p class="value">34</p>
-      <p class="change up">+ 2 %</p>
-    </div>
-    <div class="kpi-card">
-      <h4>Kostnader (idag)</h4>
-      <p class="value">41 000 kr</p>
-      <p class="change down">– 1.1 %</p>
-    </div>
-    <div class="kpi-card">
-      <h4>Bruttomarginal</h4>
-      <p class="value">41 %</p>
-      <p class="change up">+ 0.3 pp</p>
-    </div>
+    <div class="kpi-card"><h4>Ordrar (idag)</h4><p class="value">34</p><p class="change up">+2 %</p></div>
+    <div class="kpi-card"><h4>Kostnader (idag)</h4><p class="value">41 000 kr</p><p class="change down">–1.1 %</p></div>
+    <div class="kpi-card"><h4>Bruttomarginal</h4><p class="value">41 %</p><p class="change up">+0.3 pp</p></div>
   </div>
 
-  <!-- Ekonomi-graf -->
   <div class="card large">
     <h3>Ekonomi — kompositchart</h3>
     <canvas id="chartEconomy"></canvas>
   </div>
 
-  <!-- AI-Analys -->
   <div class="card ai-card">
     <h3>AI-Analys</h3>
     <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
   </div>
 
-  <!-- AI-Karta + Teamchatt -->
   <div class="split">
     <div class="card half">
       <h3>AI-Karta (mini)</h3>
-      <div id="map" style="height: 250px;"></div>
+      <div id="map" style="height:250px;"></div>
       <ul>
         <li>Elon Kista — Potentiell order om 20 dagar</li>
         <li>Mekonomen Solna — Befintlig kund</li>
@@ -57,25 +38,21 @@
       <input type="text" placeholder="Skriv snabbt …" />
     </div>
   </div>
-
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const ctx = document.getElementById("chartEconomy");
-  if (ctx) {
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Mån","Tis","Ons","Tors","Fre"],
-        datasets: [
-          { label:"Omsättning", data:[180,200,220,210,230], backgroundColor:"rgba(80,150,255,0.5)" },
-          { label:"Kostnader", data:[100,110,105,115,120], backgroundColor:"rgba(255,100,120,0.4)" }
-        ]
-      },
-      options: { responsive:true, plugins:{ legend:{labels:{color:"#fff"}}}, scales:{x:{ticks:{color:"#aaa"}}, y:{ticks:{color:"#aaa"}}}}
-    });
-  }
+document.addEventListener("DOMContentLoaded",() => {
+  const ctx=document.getElementById("chartEconomy");
+  if(!ctx)return;
+  new Chart(ctx,{type:"bar",
+    data:{labels:["Mån","Tis","Ons","Tors","Fre"],
+      datasets:[
+        {label:"Omsättning",data:[180,200,220,210,230],backgroundColor:"rgba(80,150,255,0.5)"},
+        {label:"Kostnader",data:[100,110,105,115,120],backgroundColor:"rgba(255,100,120,0.4)"}
+      ]},
+    options:{responsive:true,plugins:{legend:{labels:{color:"#fff"}}},
+      scales:{x:{ticks:{color:"#aaa"}},y:{ticks:{color:"#aaa"}}}}
+  });
 });
 </script>

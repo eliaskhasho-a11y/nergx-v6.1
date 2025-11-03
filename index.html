@@ -1,106 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MergX v8.42 — Deep Aurora Glass</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
 
+  <!-- Fonts (valfritt men snyggt) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- VIKTIGT: sökvägen ska matcha mappstrukturen exakt -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
 <body>
-  <div class="layout">
-    <!-- SIDOMENY -->
-    <aside class="sidebar">
-      <h1>MergX</h1>
-      <small>v8.42 • Pro + AI-Nav</small>
+  <!-- Global bakgrund med diskret turkos/lila skimmer -->
+  <div class="bg-aurora"></div>
+
+  <!-- App-shell -->
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <div class="brand">
+        <span class="logo-dot"></span>
+        <span class="brand-name">MergX</span>
+      </div>
+
+      <div class="version">v8.42 • Pro + AI-Nav</div>
+
       <nav class="nav">
-        <a href="#" class="active">Översikt</a>
-        <a href="#">Kunder</a>
-        <a href="#">Inventarie</a>
-        <a href="#">Anställda</a>
-        <a href="#">Ordrar & fakturor</a>
-        <a href="#">Filer & kvitton</a>
-        <a href="#">AI-Karta</a>
-        <a href="#">Teamchatt</a>
-        <a href="#">Inställningar</a>
+        <a class="nav-link active" data-route="overview">Översikt</a>
+        <a class="nav-link" data-route="customers">Kunder</a>
+        <a class="nav-link" data-route="inventory">Inventarie</a>
+        <a class="nav-link" data-route="staff">Anställda</a>
+        <a class="nav-link" data-route="orders">Ordrar & fakturor</a>
+        <a class="nav-link" data-route="files">Filer & kvitton</a>
+        <a class="nav-link" data-route="ai-map">AI-Karta</a>
+        <a class="nav-link" data-route="teamchat">Teamchatt</a>
+        <a class="nav-link" data-route="settings">Inställningar</a>
       </nav>
+
       <div class="sidebar-footer">
-        <button class="btn">🌓 Tema</button>
+        <button class="btn tiny glass" id="btn-theme">Tema</button>
+        <button class="btn tiny glass" id="btn-ai-nav">AI-Nav</button>
       </div>
     </aside>
 
-    <!-- HUVUDINNEHÅLL -->
+    <!-- Main content -->
     <main class="main">
-      <!-- KPI-RAD -->
-      <section class="grid kpi-4">
-        <div class="kpi">
+      <!-- Topbar -->
+      <header class="topbar glass">
+        <input class="search" type="search" placeholder="Sök kunder, order, produkter…" />
+        <div class="top-actions">
+          <button class="btn pill glass">Ask AI</button>
+          <button class="btn pill glass" id="btn-open-ai-panel">AI-Nav</button>
+        </div>
+      </header>
+
+      <!-- KPI cards -->
+      <section class="kpis">
+        <article class="kpi glass">
           <div class="kpi-title">Omsättning (idag)</div>
           <div class="kpi-value">125 000 kr</div>
-          <div class="kpi-delta up">+6 %</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-title">Order (idag)</div>
+          <div class="kpi-trend up">+6 %</div>
+        </article>
+        <article class="kpi glass">
+          <div class="kpi-title">Ordrar (idag)</div>
           <div class="kpi-value">34</div>
-          <div class="kpi-delta up">+2 %</div>
-        </div>
-        <div class="kpi">
+          <div class="kpi-trend up">+2 %</div>
+        </article>
+        <article class="kpi glass">
           <div class="kpi-title">Kostnader (idag)</div>
           <div class="kpi-value">41 000 kr</div>
-          <div class="kpi-delta down">−1,1 %</div>
-        </div>
-        <div class="kpi">
+          <div class="kpi-trend down">−1,1 %</div>
+        </article>
+        <article class="kpi glass">
           <div class="kpi-title">Bruttomarginal</div>
           <div class="kpi-value">41 %</div>
-          <div class="kpi-delta up">+0,3 pp</div>
-        </div>
+          <div class="kpi-trend up">+0,3 pp</div>
+        </article>
       </section>
 
-      <!-- HUVUDPANELER -->
-      <section class="section">
-        <div class="card chart-placeholder">
+      <!-- Ekonomi (kompositchart placeholder) -->
+      <section class="panel glass">
+        <div class="panel-head">
           <h3>Ekonomi — kompositchart</h3>
+          <button class="btn ghost" data-open-modal="#modal-eco">Expandera</button>
+        </div>
+        <div class="panel-body muted">
           <p>(Diagram genereras här)</p>
         </div>
       </section>
 
-      <section class="section">
-        <div class="card">
+      <!-- AI-analys -->
+      <section class="panel glass">
+        <div class="panel-head">
           <h3>AI-Analys</h3>
-          <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+        </div>
+        <div class="panel-body">
+          Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.
         </div>
       </section>
 
-      <!-- DELAD RAD -->
-      <section class="grid two">
-        <div class="card">
-          <h3>AI-Karta (mini)</h3>
-          <p>Identifierade butiker nära användaren (mock-data):</p>
-          <ul>
+      <!-- Karta + Teamchatt i två kolumner -->
+      <section class="two-col">
+        <article class="panel glass">
+          <div class="panel-head">
+            <h3>AI-Karta (mini)</h3>
+            <button class="btn ghost" data-open-modal="#modal-map">Expandera</button>
+          </div>
+          <div class="panel-body map-placeholder">
+            <div class="map-sheen"></div>
+          </div>
+          <ul class="list muted">
             <li>Elon Kista — Potentiell order om 20 dagar</li>
             <li>Mekonomen Solna — Befintlig kund</li>
             <li>Power Barkarby — Bra läge för demo</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="card">
-          <h3>Teamchatt</h3>
-          <div class="chat">
-            <div class="msg"><b>👩 Anna:</b> God morgon teamet!</div>
-            <div class="msg"><b>🧑 Jonas:</b> Jag tar kundmötet 11:00.</div>
+        <article class="panel glass">
+          <div class="panel-head">
+            <h3>Teamchatt</h3>
           </div>
-          <input type="text" class="chat-input" placeholder="Skriv snabbt … (Enter skickar)" />
-        </div>
+          <div class="chat-area">
+            <div class="msg"><span class="dot online"></span><b> Anna:</b> God morgon teamet!</div>
+            <div class="msg"><span class="dot"></span><b> Jonas:</b> Jag tar kundmötet 11:00.</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" placeholder="Skriv snabbt … (Enter skickar)" />
+            <button class="btn pill glass">Skicka</button>
+          </div>
+        </article>
       </section>
     </main>
+
+    <!-- AI-panel till höger -->
+    <aside class="ai-rail glass" id="ai-rail">
+      <div class="rail-head">
+        <h4>AI-Nav</h4>
+        <button class="btn icon" id="btn-close-ai-rail" aria-label="Stäng">✕</button>
+      </div>
+
+      <section class="rail-section">
+        <h5>AI-Förslag</h5>
+        <ul class="list">
+          <li>Planera nästa kundbesök hos Elon Kista (20 dagar).</li>
+          <li>Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm.</li>
+          <li>Föreslår prisjustering på Lightning 27 W — upp 5 %.</li>
+          <li>Lägg till AI-rapport för Fortnox-export varje fredag.</li>
+        </ul>
+      </section>
+
+      <section class="rail-section">
+        <h5>AI-Notiser</h5>
+        <ul class="list">
+          <li>3 nya kvitton registrerade av anställda.</li>
+          <li>Ny order skapad för Power Barkarby.</li>
+          <li>AI-rutt uppdaterad för Solna-området.</li>
+        </ul>
+      </section>
+
+      <section class="rail-section">
+        <h5>AI-Rutt & Leads</h5>
+        <ol class="list numbered">
+          <li>Start — Acetek HQ (08:00)</li>
+          <li>Elon Kista (09:15)</li>
+          <li>Mekonomen Solna (11:00)</li>
+          <li>Lunch — Mall of Scandinavia (12:30)</li>
+          <li>Power Barkarby (14:00)</li>
+          <li>Åter till HQ (15:30)</li>
+        </ol>
+      </section>
+    </aside>
   </div>
 
-  <!-- MODAL EXEMPEL (dold som standard) -->
-  <div class="modal-backdrop" style="display:none;"></div>
-  <div class="modal card" style="display:none;">
-    <div class="modal-content">
-      <h3>Expanderad modul</h3>
-      <p>Här visas mer detaljer och AI-analys.</p>
+  <!-- Modaler (med 30% suddig bakgrund) -->
+  <div class="modal" id="modal-eco" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card glass">
+      <div class="modal-head">
+        <h3>Omsättning — Detaljer</h3>
+        <button class="btn icon" data-close-modal aria-label="Stäng">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="chart-placeholder muted">Detaljerad graf (mock)</div>
+        <table class="table">
+          <thead>
+            <tr><th>Period</th><th>Värde</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Idag</td><td>—</td></tr>
+            <tr><td>7 dagar</td><td>—</td></tr>
+            <tr><td>30 dagar</td><td>—</td></tr>
+          </tbody>
+        </table>
+        <div class="ai-hint glass subtle">
+          <b>AI-analys:</b> Positiv trend drivet av USB-C 60 W i Stockholm. Rekommenderar kundbesök hos Elon Kista.
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="modal" id="modal-map" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card glass">
+      <div class="modal-head">
+        <h3>AI-Karta — Expanderad</h3>
+        <button class="btn icon" data-close-modal aria-label="Stäng">✕</button>
+      </div>
+      <div class="modal-body map-placeholder tall">
+        <div class="map-sheen"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal interaktivitet (expansion + ai-rail) — inline för att slippa extra JS-fil -->
+  <script>
+    // AI-rail
+    const rail = document.getElementById('ai-rail');
+    document.getElementById('btn-open-ai-panel').addEventListener('click', () => rail.classList.add('open'));
+    document.getElementById('btn-close-ai-rail').addEventListener('click', () => rail.classList.remove('open'));
+
+    // Modal logik
+    document.querySelectorAll('[data-open-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-open-modal');
+        const modal = document.querySelector(sel);
+        if (modal) modal.classList.add('open');
+      });
+    });
+    document.querySelectorAll('[data-close-modal], .modal-backdrop').forEach(el => {
+      el.addEventListener('click', () => {
+        el.closest('.modal').classList.remove('open');
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+<section class="grid">
+  <div class="card">
+    <h3>Översikt</h3>
+    <p>Detta är en testvy för MergX v8.37. Routing och paneler fungerar nu.</p>
+  </div>
+
+  <div class="card muted">
+    <p>Allt fungerar — AI-nav, overlay och navigering.  
+    Nästa steg: vi fyller denna vy med riktiga komponenter (grafer, karta, AI-paneler).</p>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .grid .card:nth-child(1) { grid-column: span 8; min-height: 120px }
+  .grid .card:nth-child(2) { grid-column: span 4; min-height: 120px }
+  @media (max-width: 1100px) {
+    .grid .card { grid-column: 1 / -1 }
+  }
+</style>

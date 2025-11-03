@@ -1,0 +1,27 @@
+{
+  "kpi": { "revenueToday": 125000, "ordersToday": 34, "costToday": 41000, "margin": 0.41 },
+  "customers": [
+    { "id": "C-1001", "company": "Acme AB", "orgnr": "556677-8899", "contact": "Lisa Berg", "email": "lisa@acme.se", "phone": "+46 70 123 45 67" },
+    { "id": "C-1002", "company": "Elon Kista", "orgnr": "559900-1122", "contact": "Marcus Nilsson", "email": "kista@elon.se", "phone": "+46 8 555 88 00" },
+    { "id": "C-1003", "company": "Power Barkarby", "orgnr": "556300-4433", "contact": "Oskar J", "email": "barkarby@power.se", "phone": "+46 8 777 44 22" }
+  ],
+  "inventory": [
+    { "sku": "USB-C-60W-1M", "name": "A-Stick USB-C till USB-C 60W 1m", "type": "Kabel", "price": 129, "stock": 14, "status": "LOW" },
+    { "sku": "USB-C-LTG-27W-1M", "name": "A-Stick USB-C till Lightning 27W 1m", "type": "Kabel", "price": 149, "stock": 120, "status": "OK" },
+    { "sku": "CAR-CHG-60W", "name": "Acetek Bil-laddare 2×30W", "type": "Laddare", "price": 249, "stock": 42, "status": "OK" }
+  ],
+  "employees": [
+    { "id": "E-01", "name": "Anna Karlsson", "role": "Sälj", "email": "anna@mergx.app", "phone": "+46 70 000 00 01", "form": "Heltid" },
+    { "id": "E-02", "name": "Leo Nguyen", "role": "Lager", "email": "leo@mergx.app", "phone": "+46 70 000 00 02", "form": "Prov" }
+  ],
+  "orders": [
+    { "id": "O-501", "customerId": "C-1001", "sum": 18990, "status": "Skickad", "createdAt": "2025-11-03 09:32", "terms": "30 dagar", "pdfUrl": "#" },
+    { "id": "O-502", "customerId": "C-1002", "sum": 8990, "status": "Packas", "createdAt": "2025-11-03 10:15", "terms": "14 dagar", "pdfUrl": "#" }
+  ],
+  "files": [],
+  "map": [
+    { "name": "Elon Kista", "lat": 59.403, "lng": 17.943, "note": "Potentiell order om 20 dagar" },
+    { "name": "Mekonomen Solna", "lat": 59.365, "lng": 18.004, "note": "Befintlig kund - kampanj" },
+    { "name": "Power Barkarby", "lat": 59.423, "lng": 17.857, "note": "Bra läge för demo" }
+  ]
+}

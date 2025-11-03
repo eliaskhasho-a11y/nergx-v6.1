@@ -1,378 +1,655 @@
 <!doctype html>
 <html lang="sv">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MergX v8.20 — Admin</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MergX v8.21 — Admin</title>
 
-<!-- libs (via CDN) -->
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Libs -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-:root{
-  --bg:#f6f8fb; --glass:#ffffff; --text:#0f172a; --muted:#667085;
-  --primary:#2563eb; --accent:#22c55e; --danger:#ef4444;
-  --radius:16px; --shadow:0 10px 30px rgba(16,24,40,.08);
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; color:var(--text);
-  font:15px/1.48 ui-sans-serif,system-ui,Segoe UI,Inter,Roboto,Helvetica,Arial;
-  background:
-    radial-gradient(900px 600px at 20% 10%, #e9f0ff 0%, transparent 60%),
-    var(--bg);
-}
+  <style>
+    :root{
+      /* Dark + glass */
+      --bg:#0F1115;
+      --panel:rgba(22,25,32,.72);
+      --panel-strong:rgba(22,25,32,.90);
+      --glass:rgba(255,255,255,.06);
+      --glass-2:rgba(255,255,255,.10);
+      --text:#E7ECF3;
+      --muted:#94A3B8;
+      --primary:#5AC8FA;    /* pastell blå/turkos */
+      --accent:#A78BFA;     /* lila pastell till detaljer */
+      --good:#4ADE80;
+      --bad:#F87171;
+      --radius:14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --border:1px solid rgba(255,255,255,.08);
+    }
 
-/* layout */
-.app{display:grid; grid-template-columns:280px 1fr; min-height:100vh; gap:24px; padding:24px}
-.aside{
-  position:sticky; top:24px; height:calc(100vh - 48px);
-  background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.6));
-  backdrop-filter: blur(10px);
-  border:1px solid rgba(255,255,255,.6);
-  border-radius:var(--radius); box-shadow:var(--shadow); padding:18px;
-}
-.brand{display:flex; align-items:center; gap:12px; font-weight:700; margin-bottom:8px}
-.brand .dot{width:12px; height:12px; border-radius:50%; background:linear-gradient(135deg,#60a5fa,#22d3ee)}
-.small{color:var(--muted); font-size:12px}
-.nav{display:grid; gap:8px; margin-top:18px}
-.nav a{
-  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
-  color:var(--text); text-decoration:none; border:1px solid rgba(15,23,42,.06); background:rgba(255,255,255,.7)
-}
-.nav a.active{border-color:rgba(37,99,235,.25); background:#fff}
-.main{display:grid; gap:24px}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 20% -10%, #1a2240 0%, transparent 55%),
+        radial-gradient(1000px 700px at 110% 20%, #13211f 0%, transparent 55%),
+        var(--bg);
+      font:14px/1.45 ui-sans-serif,system-ui,Segoe UI,Inter,Roboto,Helvetica,Arial;
+    }
 
-/* top row kpis */
-.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
-.card{
-  background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.7));
-  border:1px solid rgba(255,255,255,.7); border-radius:var(--radius); box-shadow:var(--shadow);
-  padding:16px; position:relative; overflow:hidden; cursor:pointer;
-}
-.card h4{margin:0 0 8px; color:var(--muted); font-weight:600}
-.card .value{font-size:28px; font-weight:800; letter-spacing:.3px}
-.badge{display:inline-block; margin-top:10px; padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; background:#eaf8ef; color:#0a7a3c}
-.badge.neg{background:#eaf1ff; color:#1e429f}
-.card:hover{outline:2px solid rgba(37,99,235,.18)}
+    /* Layout */
+    .app{
+      min-height:100dvh;
+      display:grid;
+      grid-template-columns:260px 1fr;
+    }
+    @media (max-width:980px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:sticky; top:0; z-index:20}
+    }
 
-/* sections */
-.panel{background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.7));
-  border:1px solid rgba(255,255,255,.7); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px}
-.panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
-.panel h3{margin:0; font-size:18px}
-.actions{display:flex; gap:8px}
-.btn{
-  padding:8px 12px; border-radius:10px; border:1px solid rgba(15,23,42,.08);
-  background:#fff; cursor:pointer; font-weight:600
-}
-.btn.primary{background:var(--primary); color:#fff; border-color:transparent}
-.btn.ghost{background:transparent}
+    .sidebar{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border-right:var(--border);
+      backdrop-filter: blur(18px);
+    }
+    .brand{
+      display:flex;align-items:center;gap:10px;
+      padding:18px 16px;border-bottom:var(--border)
+    }
+    .logo{
+      width:28px;height:28px;border-radius:9px;
+      background:linear-gradient(135deg,#2EC5FF,#5B8DEF 55%,#A78BFA);
+      box-shadow:0 6px 18px rgba(90,200,250,.28);
+    }
+    .brand small{color:var(--muted)}
 
-/* chart, map, chat grid */
-.grid-2{display:grid; grid-template-columns:1.4fr .8fr; gap:16px}
-.grid-2 > .panel{min-height:380px}
-#econChart{width:100% !important; height:300px !important}
+    nav{padding:12px}
+    .navitem{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border-radius:10px;
+      color:var(--text); text-decoration:none;
+    }
+    .navitem:hover{background:var(--glass)}
+    .navitem.active{background:var(--glass-2); outline:1px solid rgba(255,255,255,.08)}
 
-/* map */
-#map{height:300px; border-radius:12px; overflow:hidden}
+    .content{
+      padding:18px;
+    }
 
-/* chat */
-.chat-wrap{display:grid; grid-template-rows:1fr auto; height:300px}
-.chat-log{overflow:auto; display:grid; gap:10px; padding-right:6px}
-.msg{max-width:70%; padding:10px 12px; border-radius:14px; background:#eef2ff}
-.msg.me{margin-left:auto; background:#e0ebff}
-.chat-input{display:flex; gap:8px; align-items:center; margin-top:10px}
-.chat-input input{
-  flex:1; padding:12px 14px; border-radius:12px; border:1px solid rgba(15,23,42,.1); background:#fff
-}
-.icon-btn{
-  width:40px; height:40px; display:grid; place-items:center; border-radius:10px;
-  border:1px solid rgba(15,23,42,.08); background:#fff; cursor:pointer
-}
+    .topbar{
+      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .search{
+      flex:1;
+      display:flex;align-items:center;gap:10px;
+      background:var(--panel);border:var(--border);
+      padding:10px 12px;border-radius:12px;box-shadow:var(--shadow)
+    }
+    .search input{
+      flex:1;background:transparent;border:0;color:var(--text);outline:none;
+    }
+    .chip{
+      padding:8px 12px;border-radius:999px;background:var(--glass);
+      border:var(--border);color:var(--muted)
+    }
 
-/* modal */
-.modal{
-  position:fixed; inset:0; background:rgba(15,23,42,.25);
-  display:none; align-items:center; justify-content:center; padding:24px; z-index:50
-}
-.modal.show{display:flex}
-.modal .box{max-width:740px; width:100%; background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:18px}
-.modal .box h3{margin:0 0 8px}
-.modal .box .ai{white-space:pre-wrap; color:#111827}
+    /* Cards / modules */
+    .grid{
+      display:grid;gap:14px;
+      grid-template-columns:repeat(12,1fr);
+    }
+    .kpis .card{grid-column:span 3}
+    @media (max-width:1100px){ .kpis .card{grid-column:span 6} }
+    @media (max-width:700px){  .kpis .card{grid-column:span 12} }
 
-/* responsive */
-@media (max-width:1100px){ .kpis{grid-template-columns:repeat(2,1fr)} .grid-2{grid-template-columns:1fr} }
-@media (max-width:680px){
-  .app{grid-template-columns:1fr; padding:12px}
-  .aside{position:static; height:auto}
-  .kpis{grid-template-columns:1fr}
-}
-</style>
+    .card{
+      background:var(--panel);
+      border:var(--border);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      position:relative;
+    }
+    .card h4{margin:0 0 8px 0; color:var(--muted); font-weight:600}
+    .big{font-size:26px; font-weight:700; letter-spacing:.3px}
+    .mini{
+      height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden
+    }
+    .mini > span{display:block;height:100%;background:rgba(74,222,128,.2)}
+    .trend{color:var(--good);font-weight:600}
+
+    /* Module header actions */
+    .actions{position:absolute; right:10px; top:10px; display:flex; gap:8px}
+    .btn{
+      background:var(--glass); border:var(--border); color:var(--text);
+      padding:8px 12px;border-radius:10px; cursor:pointer
+    }
+    .btn:hover{background:var(--glass-2)}
+
+    /* Chart wrap */
+    .chartwrap{height:360px}
+    .fill{height:100%;width:100%}
+
+    /* Split columns */
+    .col-span-8{grid-column:span 8}
+    .col-span-4{grid-column:span 4}
+    .col-span-6{grid-column:span 6}
+    .col-span-12{grid-column:span 12}
+
+    /* Chat */
+    .chat-area{
+      display:flex;flex-direction:column;gap:10px;min-height:220px;
+    }
+    .bubble{max-width:72%;padding:10px 12px;border-radius:16px; background:var(--glass)}
+    .bubble.me{ margin-left:auto; background:rgba(90,200,250,.18); outline:1px solid rgba(90,200,250,.28) }
+    .composer{display:flex; gap:10px; align-items:center}
+    .composer .iconbtn{
+      width:40px;height:40px;display:grid;place-items:center;border-radius:12px;
+      background:var(--glass); border:var(--border); cursor:pointer
+    }
+    .composer input{
+      flex:1; background:var(--panel-strong); border:var(--border);
+      border-radius:12px; padding:12px; color:var(--text);
+    }
+
+    /* Table */
+    table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    th,td{padding:10px 12px}
+    th{color:var(--muted); text-align:left}
+    tr{background:var(--panel-strong); border:var(--border)}
+    tr td:first-child{border-radius:10px 0 0 10px}
+    tr td:last-child{border-radius:0 10px 10px 0}
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0; z-index:50; display:none;
+      background:rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      align-items:center; justify-content:center; padding:20px;
+    }
+    .modal.show{display:flex}
+    .modal .box{
+      width:min(960px, 96vw); max-height:92dvh; overflow:auto;
+      background:var(--panel); border:var(--border); border-radius:16px; box-shadow:var(--shadow);
+    }
+    .modal .head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:var(--border)}
+    .modal .body{padding:16px}
+
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--glass);border:var(--border);color:var(--muted)}
+    .link{color:var(--primary); cursor:pointer}
+  </style>
 </head>
 <body>
-<div class="app">
-
-  <!-- SIDOPANEL -->
-  <aside class="aside">
-    <div class="brand"><span class="dot"></span> MergX Admin <span class="small">v8.20 • Light + Glass</span></div>
-    <nav class="nav" id="nav">
-      <a href="#dash" class="active">Översikt</a>
-      <a href="#orders">Ordrar & fakturor</a>
-      <a href="#crm">Kunder (CRM)</a>
-      <a href="#inv">Inventarie</a>
-      <a href="#staff">Anställda</a>
-      <a href="#files">Filer & kvitton</a>
-      <a href="#aimap">AI-karta</a>
-      <a href="#chat">Chatt</a>
-      <a href="#settings">Inställningar</a>
-    </nav>
-  </aside>
-
-  <!-- HUVUDINNEHÅLL -->
-  <main class="main" id="dash">
-    <!-- Sökfält -->
-    <div class="panel" style="padding:10px 16px">
-      <input id="globalSearch" placeholder="Sök i MergX… (kunder, order, produkter)" style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(15,23,42,.12); background:#fff">
-    </div>
-
-    <!-- KPI-kort -->
-    <section class="kpis" id="kpis">
-      <div class="card" data-kpi="revenue">
-        <h4>Omsättning (idag)</h4>
-        <div class="value" id="revVal">124 500 kr</div>
-        <div class="badge" id="revDelta">+6.2%</div>
-      </div>
-      <div class="card" data-kpi="orders">
-        <h4>Order idag</h4>
-        <div class="value" id="ordVal">37</div>
-        <div class="badge" id="ordDelta">+4</div>
-      </div>
-      <div class="card" data-kpi="costs">
-        <h4>Kostnader (idag)</h4>
-        <div class="value" id="costVal">48 900 kr</div>
-        <div class="badge neg" id="costDelta">–2.1%</div>
-      </div>
-      <div class="card" data-kpi="margin">
-        <h4>Bruttomarginal</h4>
-        <div class="value" id="gmVal">41.5%</div>
-        <div class="badge" id="gmDelta">+0.7 pp</div>
-      </div>
-    </section>
-
-    <!-- Graf + Karta -->
-    <section class="grid-2">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Ekonomi — kombostaplar</h3>
-          <div class="actions">
-            <button class="btn ghost" data-ask="econ">Ask AI</button>
-            <button class="btn" id="expandChart">Expandera</button>
-          </div>
-        </div>
-        <canvas id="econChart"></canvas>
-      </div>
-
-      <div class="panel" id="aimap">
-        <div class="panel-head">
-          <h3>AI-karta (mini)</h3>
-          <div class="actions">
-            <button class="btn ghost" data-ask="map">Ask AI</button>
-            <button class="btn" id="expandMap">Expandera</button>
-          </div>
-        </div>
-        <div id="map"></div>
-        <div class="small" id="routeNote" style="margin-top:8px">
-          AI-rekommendation (mock): “Besök <b>Elon Kista</b> → <b>Power Solna</b> → <b>Mekonomen Bromma</b>. Totalt ca 43 min.”
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <div style="font-weight:700">MergX Admin</div>
+          <small>v8.21 · Dark + Glass</small>
         </div>
       </div>
-    </section>
+      <nav id="nav">
+        <a class="navitem active" href="#/dashboard">Översikt</a>
+        <a class="navitem" href="#/orders">Ordrar & fakturor</a>
+        <a class="navitem" href="#/customers">Kunder (CRM)</a>
+        <a class="navitem" href="#/inventory">Inventarie</a>
+        <a class="navitem" href="#/employees">Anställda</a>
+        <a class="navitem" href="#/files">Filer & kvitton</a>
+        <a class="navitem" href="#/aimap">AI-karta</a>
+        <a class="navitem" href="#/settings">Inställningar</a>
+      </nav>
+    </aside>
 
-    <!-- Chatt + Orderlista (kompakt) -->
-    <section class="grid-2">
-      <div class="panel">
-        <div class="panel-head">
-          <h3>Teamchatt</h3>
-          <div class="actions">
-            <button class="btn ghost" data-ask="chat">Ask AI</button>
-            <button class="btn" id="expandChat">Expandera</button>
-          </div>
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="topbar">
+        <div class="search">
+          🔎 <input id="globalsearch" placeholder="Sök i MergX… (kunder, order, produkter)" />
         </div>
-        <div class="chat-wrap">
-          <div class="chat-log" id="chatLog">
-            <div class="msg">God morgon teamet!</div>
-            <div class="msg me">Jag tar kundmötet 11:00.</div>
-          </div>
-          <div class="chat-input">
-            <button class="icon-btn" id="attachBtn" title="Lägg till fil">📎</button>
-            <button class="icon-btn" id="micBtn" title="Spela in röst">🎤</button>
-            <input id="chatInput" placeholder="Skriv ett meddelande… (Enter för att skicka)" />
-            <button class="btn primary" id="sendBtn">Skicka</button>
-            <input type="file" id="fileHidden" hidden>
-          </div>
-        </div>
-        <div class="small" id="voiceNote" style="margin-top:6px;color:#475569">
-          Röstinspelning sparas lokalt (mock). AI-sammanfattning per kund i kommande version.
-        </div>
+        <span class="chip">🔔 3</span>
+        <span class="chip"><a class="link" href="#/dashboard">Gå till Översikt</a></span>
       </div>
 
-      <div class="panel">
-        <div class="panel-head"><h3>Ordrar & fakturor — senast</h3></div>
-        <div class="small">#10234 • Acme AB • 24 900 kr • Skapad idag &nbsp;&nbsp;|&nbsp;&nbsp; #10231 • Elon City • 12 200 kr • Skapad igår</div>
-        <div class="small" style="margin-top:10px">PDF-export (jsPDF) kopplas i nästa sprint.</div>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<!-- KPI-ANALYS MODAL -->
-<div class="modal" id="modal">
-  <div class="box">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-      <h3 id="modalTitle">Analys</h3>
-      <button class="btn" id="closeModal">Stäng</button>
-    </div>
-    <div class="ai" id="modalBody"></div>
+      <div id="view"><!-- routed content --></div>
+    </main>
   </div>
-</div>
+
+  <!-- KPI MODAL -->
+  <div id="kpiModal" class="modal">
+    <div class="box">
+      <div class="head">
+        <div id="kpiTitle" style="font-weight:700">KPI</div>
+        <div><button class="btn" onclick="closeKpi()">Stäng</button></div>
+      </div>
+      <div class="body" id="kpiBody"></div>
+    </div>
+  </div>
+
+  <!-- PDF PREVIEW MODAL -->
+  <div id="pdfModal" class="modal">
+    <div class="box">
+      <div class="head">
+        <div style="font-weight:700">Förhandsgranska faktura</div>
+        <div style="display:flex; gap:8px">
+          <button id="pdfNewTab" class="btn">Öppna i ny flik</button>
+          <button class="btn" onclick="closePdf()">Stäng</button>
+        </div>
+      </div>
+      <div class="body">
+        <iframe id="pdfFrame" style="width:100%; min-height:70dvh; border:0; background:#fff; border-radius:8px"></iframe>
+      </div>
+    </div>
+  </div>
 
 <script>
-/* --------- helper --------- */
-const $ = (q,ctx=document)=>ctx.querySelector(q);
-const $$ = (q,ctx=document)=>[...ctx.querySelectorAll(q)];
-
-/* --------- nav active --------- */
-$('#nav').addEventListener('click', e=>{
-  if(e.target.tagName!=='A') return;
-  $$('#nav a').forEach(a=>a.classList.remove('active'));
-  e.target.classList.add('active');
-});
-
-/* --------- KPI cards -> modal AI --------- */
-const modal = $('#modal'), mTitle = $('#modalTitle'), mBody = $('#modalBody');
-$('#closeModal').onclick = ()=> modal.classList.remove('show');
-
-const aiExplainers = {
-  revenue:`• Omsättning +6.2% vs igår.\n• Drivet av 3 större B2B-ordrar.\n• Prognos: +8–10% vecka.\n• Rek: tryck kampanj mot topp-3 artiklar.`,
-  orders:`• 37 ordrar idag, +4 mot rullande snitt.\n• B2B-andel 32%.\n• Rek: ring upp “varma” kundkort i CRM för högre snitt.`,
-  costs:`• Kostnader -2.1% (bra!).\n• Högst: frakt & returer.\n• Rek: batcha etiketter och förhandla zon-priser.`,
-  margin:`• GM 41.5% (+0.7pp).\n• Vinnare: USB-C 60W, Bil-laddare 60W.\n• Rek: höj 3% på topp-sälj utan tapp.`
-};
-
-$('#kpis').addEventListener('click', e=>{
-  const card = e.target.closest('.card'); if(!card) return;
-  const k = card.dataset.kpi;
-  mTitle.textContent = `AI-analys — ${({'revenue':'Omsättning','orders':'Order','costs':'Kostnader','margin':'Bruttomarginal'})[k]||''}`;
-  mBody.textContent = aiExplainers[k] || '—';
-  modal.classList.add('show');
-});
-
-/* --------- Ask AI knappar i paneler (mock) --------- */
-$$('[data-ask]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const what = btn.getAttribute('data-ask');
-    mTitle.textContent = `AI-analys — ${what==='econ'?'Ekonomi':what==='map'?'Karta':what==='chat'?'Chatt':'Modul'}`;
-    mBody.textContent =
-      what==='econ' ? '• Säsongs­effekt v4→v5.\n• Rek: kampanj inför helg, 12% rabatt på bundle.\n• Prognos nästa vecka +5%.' :
-      what==='map'  ? '• Föreslår rutt: Elon Kista → Power Solna → Mekonomen Bromma.\n• Undvik Essingeleden 08–09.\n• Lägg notis: “Elon Kista vill köpa om 20 dagar”.' :
-      '• Fler mentions kring “leverans”.\n• Rek: skicka sammanfattning till Ekonomi & Lager.';
-    modal.classList.add('show');
+/* -------------------------- Simple Router -------------------------- */
+const routes = {
+  '/dashboard': renderDashboard,
+  '/orders': renderOrders,
+  '/customers': renderCustomers,
+  '/inventory': renderInventory,
+  '/employees': renderEmployees,
+  '/files': renderFiles,
+  '/aimap': renderAiMapPage,
+  '/settings': renderSettings
+}
+function go(){
+  const hash = location.hash.replace('#','') || '/dashboard';
+  // highlight nav
+  document.querySelectorAll('#nav .navitem').forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href').replace('#','')===hash);
   });
-});
+  (routes[hash] || routes['/dashboard'])();
+}
+window.addEventListener('hashchange', go);
+window.addEventListener('load', go);
 
-/* --------- Chart --------- */
-let econChart;
-function initChart(){
-  const ctx = $('#econChart');
-  econChart = new Chart(ctx, {
+/* -------------------------- Utilities -------------------------- */
+function el(html){ const t = document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstElementChild }
+function pct(v){ return Math.max(0,Math.min(100, v||0)) }
+
+/* -------------------------- Dashboard -------------------------- */
+let ecoChart;
+
+function renderDashboard(){
+  const root = document.getElementById('view');
+  root.innerHTML = `
+  <section class="grid kpis">
+    ${kpiCard('Omsättning (idag)','124 500 kr',6.2,'/kpi/revenue')}
+    ${kpiCard('Order idag','37',4,'/kpi/orders')}
+    ${kpiCard('Kostnader (idag)','48 900 kr',-2.1,'/kpi/costs')}
+    ${kpiCard('Bruttomarginal','41.5%',+0.7,'/kpi/gm')}
+  </section>
+
+  <section class="grid" style="margin-top:14px">
+    <div class="card col-span-8">
+      <div class="actions">
+        <button class="btn" onclick="aiExplain('eco')">Ask AI</button>
+        <button class="btn" onclick="expandModule(this)">Expandera</button>
+      </div>
+      <h3 style="margin:0 0 8px 0">Ekonomi — kombostaplar</h3>
+      <div class="chartwrap"><canvas id="ecoChart"></canvas></div>
+    </div>
+
+    <div class="card col-span-4">
+      <div class="actions">
+        <button class="btn" onclick="aiExplain('map')">Ask AI</button>
+        <button class="btn" onclick="expandModule(this)">Expandera</button>
+      </div>
+      <h3 style="margin:0 0 8px 0">AI-karta (mini)</h3>
+      <div id="miniMap" style="height:230px;border-radius:10px; overflow:hidden"></div>
+      <div class="pill" style="margin-top:10px">AI-rekommendationer (mock)</div>
+      <div class="muted" style="margin-top:6px">Besök <b>Elon Kista</b> → <b>Power Solna</b> → <b>Mekonomen Bromma</b>. Total ca 43 min.</div>
+    </div>
+
+    <div class="card col-span-8">
+      <div class="actions">
+        <button class="btn" onclick="aiExplain('chat')">Ask AI</button>
+        <button class="btn" onclick="expandModule(this)">Expandera</button>
+      </div>
+      <h3 style="margin:0 0 8px 0">Teamchatt</h3>
+      <div id="chat" class="chat-area">
+        <div class="bubble">God morgon teamet!</div>
+        <div class="bubble me">Jag tar kundmötet 11:00.</div>
+      </div>
+      <div class="composer" style="margin-top:8px">
+        <div class="iconbtn" title="Bifoga fil">📎</div>
+        <div class="iconbtn" title="Spela in röst" onclick="recordVoice()">🎙️</div>
+        <input id="chatInput" placeholder="Skriv ett meddelande… (Enter för att skicka)" />
+        <button class="btn" onclick="sendMsg()">Skicka</button>
+      </div>
+    </div>
+
+    <div class="card col-span-4" id="ordersMini"></div>
+  </section>
+  `;
+  // KPI click -> modal
+  root.querySelectorAll('[data-kpi]').forEach(card=>{
+    card.addEventListener('click',()=> openKpi(card.dataset.kpi, card.dataset.value, card.dataset.trend));
+  });
+
+  // chart
+  const ctx = document.getElementById('ecoChart');
+  if (ecoChart) ecoChart.destroy();
+  ecoChart = new Chart(ctx, {
     type:'bar',
     data:{
       labels:['v1','v2','v3','v4','v5'],
       datasets:[
-        {label:'Omsättning', data:[100,120,90,140,160], backgroundColor:'#a5b4fc'},
-        {label:'Kostnader',  data:[50,60,45,60,70],    backgroundColor:'#c7d2fe'},
-        {label:'Brutto%',    data:[60,62,61,62,66],    type:'line', borderColor:'#3b82f6', backgroundColor:'transparent', tension:.3}
+        {label:'Omsättning', data:[100,120,80,140,160], backgroundColor:'rgba(90,200,250,.35)', borderRadius:6},
+        {label:'Kostnader', data:[60,60,45,55,70], backgroundColor:'rgba(167,139,250,.30)', borderRadius:6},
+        {label:'Brutto%', type:'line', data:[58,60,57,59,62], borderColor:'#5AC8FA', borderWidth:2, pointBackgroundColor:'#5AC8FA', tension:.35, yAxisID:'y1'}
       ]
     },
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:14}}}, scales:{y:{beginAtZero:true}}}
+    options:{
+      maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#C7D2FE'}}},
+      scales:{
+        x:{ticks:{color:'#A3B2C7'}, grid:{color:'rgba(255,255,255,.06)'}},
+        y:{ticks:{color:'#A3B2C7'}, grid:{color:'rgba(255,255,255,.06)'}},
+        y1:{position:'right', ticks:{color:'#A3B2C7'}, grid:{drawOnChartArea:false}}
+      }
+    }
   });
+
+  // mini map mock
+  const map = L.map('miniMap',{zoomControl:false, attributionControl:false}).setView([59.334,18.063], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.marker([59.403,17.95]).addTo(map);
+
+  // Orders mini table
+  const orders = [
+    {nr:'#10234', kund:'Acme AB', total:'24 900 kr', status:'Skapad idag'},
+    {nr:'#10231', kund:'Elon City', total:'12 200 kr', status:'Skapad igår'},
+  ];
+  document.getElementById('ordersMini').innerHTML = renderOrdersCard(orders);
 }
-initChart();
-$('#expandChart').onclick = ()=>{
-  mTitle.textContent='Ekonomi — detaljer';
-  mBody.innerHTML = '• v5 stark p.g.a. B2B-order.\n• Rek: följ upp topp-3 kunder.\n• Prognos: +7% nästa vecka.';
-  modal.classList.add('show');
-};
 
-/* --------- Map (Leaflet) --------- */
-let map;
-function initMap(){
-  map = L.map('map',{zoomControl:true}).setView([59.334591,18.06324], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:'&copy; OpenStreetMap'
-  }).addTo(map);
-  const pin = L.marker([59.403, 17.944]).addTo(map);
-  pin.bindPopup('Rek. första stopp: <b>Elon Kista</b>').openPopup();
+function kpiCard(title,value,trend,slug){
+  const good = trend>=0;
+  return `
+  <div class="card" data-kpi="${slug}" data-value="${value}" data-trend="${trend}">
+    <h4>${title}</h4>
+    <div class="big">${value}</div>
+    <div class="mini" style="margin-top:8px"><span style="width:${pct(Math.abs(trend))*3}%; background:${good?'rgba(74,222,128,.28)':'rgba(248,113,113,.28)'}"></span></div>
+    <div class="trend" style="margin-top:6px;color:${good?'var(--good)':'var(--bad)'}">${good?'+':''}${trend}${typeof trend==='number' ? (Math.abs(trend)<5?'':'') : ''}%</div>
+  </div>`;
+}
 
-  // Geolocation (om tillåtet)
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{
-      map.setView([pos.coords.latitude, pos.coords.longitude], 12);
-    });
+function openKpi(slug, value, trend){
+  // simple table + ai text for demo
+  const title = {
+    '/kpi/revenue':'Omsättning (idag)',
+    '/kpi/orders':'Order idag',
+    '/kpi/costs':'Kostnader (idag)',
+    '/kpi/gm':'Bruttomarginal'
+  }[slug] || 'KPI';
+
+  document.getElementById('kpiTitle').textContent = title;
+  const tbl = `
+    <table>
+      <thead><tr><th>Period</th><th>Värde</th><th>Förändring</th></tr></thead>
+      <tbody>
+        <tr><td>Idag</td><td>${value}</td><td>${trend>=0?'+':''}${trend}%</td></tr>
+        <tr><td>7 dagar</td><td>${fakeDelta(value,1.12)}</td><td>+8.1%</td></tr>
+        <tr><td>30 dagar</td><td>${fakeDelta(value,9.84)}</td><td>+12.7%</td></tr>
+      </tbody>
+    </table>
+    <div class="muted" style="margin-top:12px">
+      <b>AI-analys:</b> Tillväxten drivs av B2B-order och säsongseffekt. Rek: öka annonsering mot
+      segment “butikskedjor”, samt följ upp lagersaldon för USB-C 60W (låg nivå).
+    </div>
+  `;
+  document.getElementById('kpiBody').innerHTML = tbl;
+  document.getElementById('kpiModal').classList.add('show');
+}
+function closeKpi(){ document.getElementById('kpiModal').classList.remove('show') }
+
+function fakeDelta(v, mult){ return v.replace(/\d/g,'').trim()? v : v; } // placeholder
+
+function aiExplain(scope){
+  alert('AI-analys ('+scope+'): mock i denna bygg – kopplas till Ollama/DeepSeek i nästa version.');
+}
+
+function expandModule(btn){
+  const card = btn.closest('.card');
+  // Create overlay modal and clone node
+  const modal = el(`<div class="modal show"><div class="box"><div class="head"><div style="font-weight:700">Expanderad modul</div><div><button class="btn closeX">Stäng</button></div></div><div class="body"></div></div></div>`);
+  modal.querySelector('.closeX').onclick = ()=> modal.remove();
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+  modal.querySelector('.body').append(card.cloneNode(true));
+  document.body.append(modal);
+}
+
+/* -------------------------- Orders page -------------------------- */
+function renderOrders(){
+  const root = document.getElementById('view');
+  const rows = [
+    {nr:'O-230015', kund:'Nordic AB', total:'24 200,00 kr', villkor:'30 dagar'},
+    {nr:'O-230016', kund:'Stock Wireless', total:'12 890,00 kr', villkor:'14 dagar'},
+    {nr:'O-230018', kund:'Nordic AB', total:'14 089,00 kr', villkor:'14 dagar'},
+  ];
+  root.innerHTML = `
+    <section class="card">
+      <div class="actions"><button class="btn" onclick="alert('Skapa order (mock)')">Skapa order</button></div>
+      <h3 style="margin:0 0 12px 0">Order & faktura</h3>
+      <table>
+        <thead><tr><th>Ordernr</th><th>Kund</th><th>Total</th><th>Betalvillkor</th><th>Åtgärder</th></tr></thead>
+        <tbody>
+          ${rows.map(r=>`
+            <tr>
+              <td>${r.nr}</td>
+              <td>${r.kund}</td>
+              <td>${r.total}</td>
+              <td>${r.villkor}</td>
+              <td>
+                <button class="btn" onclick="previewPdf('${r.nr}')">👁 Förhandsgranska</button>
+                <button class="btn" onclick="downloadPdf('${r.nr}')">⬇︎ PDF</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px">PDF-export (jsPDF) kopplas i nästa sprint — nu visas mock-PDF i modal. “Öppna i ny flik” finns i dialogen.</div>
+    </section>
+  `;
+}
+function renderOrdersCard(list){
+  return `
+  <h3 style="margin:0 0 8px 0">Ordrar & fakturor</h3>
+  <table>
+    <thead><tr><th>Nr</th><th>Kund</th><th>Total</th><th>Status</th><th>PDF</th></tr></thead>
+    <tbody>
+      ${list.map(x=>`
+        <tr>
+          <td>${x.nr}</td>
+          <td>${x.kund}</td>
+          <td>${x.total}</td>
+          <td>${x.status}</td>
+          <td>
+            <button class="btn" onclick="previewPdf('${x.nr}')">👁</button>
+            <button class="btn" onclick="downloadPdf('${x.nr}')">⬇︎</button>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+
+function pdfDataUrl(orderNr){
+  // Enkel, giltig PDF som data-url (mock)
+  const pdf = `%PDF-1.4
+1 0 obj<<>>endobj
+2 0 obj<< /Type /Page /Parent 3 0 R /Resources<<>> /MediaBox[0 0 595 842] /Contents 4 0 R>>endobj
+3 0 obj<< /Type /Pages /Kids[2 0 R] /Count 1 >>endobj
+4 0 obj<< /Length 77 >>stream
+BT /F1 18 Tf 50 770 Td (MergX Faktura ${orderNr}) Tj 0 -30 Td (Detta \$begin:math:text$mock\\$end:math:text$ ar en PDF-preview.) Tj ET
+endstream endobj
+5 0 obj<< /Type /Catalog /Pages 3 0 R >>endobj
+xref 0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000053 00000 n 
+0000000164 00000 n 
+0000000242 00000 n 
+0000000391 00000 n 
+trailer<< /Root 5 0 R /Size 6>>
+startxref
+470
+%%EOF`;
+  return 'data:application/pdf;base64,'+btoa(pdf);
+}
+function previewPdf(orderNr){
+  const url = pdfDataUrl(orderNr);
+  const frame = document.getElementById('pdfFrame');
+  frame.src = url;
+  const openNew = document.getElementById('pdfNewTab');
+  openNew.onclick = ()=> window.open(url,'_blank');
+  document.getElementById('pdfModal').classList.add('show');
+}
+function closePdf(){ document.getElementById('pdfModal').classList.remove('show') }
+function downloadPdf(orderNr){
+  const a = document.createElement('a');
+  a.href = pdfDataUrl(orderNr);
+  a.download = `Faktura_${orderNr}.pdf`;
+  a.click();
+}
+
+/* -------------------------- Other pages -------------------------- */
+function renderCustomers(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <div class="actions"><button class="btn" onclick="alert('Lägg till kund (mock)')">Lägg till kund</button></div>
+      <h3 style="margin:0 0 10px 0">Kunder / CRM</h3>
+      <table>
+        <thead><tr><th>Företag</th><th>Org.nr</th><th>Kontakt</th><th>E-post</th><th>Åtgärd</th></tr></thead>
+        <tbody>
+          <tr><td>Acme AB</td><td>556677-8899</td><td>Lisa</td><td>lisa@acme.se</td><td><span class="link">Visa</span></td></tr>
+          <tr><td>Nordic Phone</td><td>559900-1122</td><td>Johan</td><td>johan@nordic.se</td><td><span class="link">Visa</span></td></tr>
+          <tr><td>Elon City</td><td>556100-4433</td><td>Karin</td><td>karin@eloncity.se</td><td><span class="link">Visa</span></td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px">Klicka “Visa” för kundkort (mock) — i kommande version kopplas även röstlogg och AI-sammanfattning per kund.</div>
+    </section>
+  `;
+}
+
+function renderInventory(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <div class="actions"><button class="btn" onclick="alert('Lägg till produkt (mock)')">Lägg till produkt</button></div>
+      <h3 style="margin:0 0 10px 0">Inventarie</h3>
+      <table>
+        <thead><tr><th>SKU</th><th>Namn</th><th>Pris</th><th>Saldo</th><th>Status</th><th>Åtgärd</th></tr></thead>
+        <tbody>
+          <tr><td>A-STICK-CC60</td><td>USB-C till USB-C 60W</td><td>149</td><td>73</td><td><span class="pill">OK</span></td><td><span class="link">Redigera</span></td></tr>
+          <tr><td>CAR-CHG-60W</td><td>Bil-laddare (2-port)</td><td>199</td><td>42</td><td><span class="pill" style="background:rgba(250,204,21,.2)">Låg nivå</span></td><td><span class="link">Redigera</span></td></tr>
+          <tr><td>LIGHT-27W</td><td>USB-C till Lightning 27W</td><td>179</td><td>128</td><td><span class="pill">OK</span></td><td><span class="link">Redigera</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderEmployees(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <div class="actions"><button class="btn" onclick="alert('Lägg till anställd (mock)')">Lägg till anställd</button></div>
+      <h3 style="margin:0 0 10px 0">Anställda</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Namn</th><th>Roll</th><th>E-post</th><th>Telefon</th><th>Form</th></tr></thead>
+        <tbody>
+          <tr><td>E-01</td><td>Jesper Karlsson</td><td>Sälj</td><td>jesper@mergx.se</td><td>+46 73 000 00 01</td><td>Heltid</td></tr>
+          <tr><td>E-02</td><td>Lea Nguyen</td><td>Lager</td><td>lea@mergx.se</td><td>+46 73 000 00 02</td><td>Provanställd</td></tr>
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderFiles(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <h3 style="margin:0 0 10px 0">Filer & kvitton</h3>
+      <div class="muted">Kommande: mappar, uppladdning, taggar, noteringar och arbetsflöde till Ekonomi/Admin.</div>
+      <div style="margin-top:10px"><button class="btn" onclick="alert('Ladda upp (mock)')">Ladda upp</button></div>
+    </section>
+  `;
+}
+
+function renderAiMapPage(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <div class="actions"><button class="btn" onclick="aiExplain('aimap')">Ask AI</button></div>
+      <h3 style="margin:0 0 10px 0">AI-karta</h3>
+      <div id="bigMap" style="height:60dvh;border-radius:12px;overflow:hidden"></div>
+      <div class="muted" style="margin-top:10px">GPS kopplas i kommande (navigator.geolocation) + Google Places/Directions. Just nu mock med Stockholm-yta.</div>
+    </section>
+  `;
+  const map = L.map('bigMap').setView([59.334,18.063], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.marker([59.403,17.95]).addTo(map).bindPopup('Elon Kista (mock)');
+}
+
+function renderSettings(){
+  document.getElementById('view').innerHTML = `
+    <section class="card">
+      <h3 style="margin:0 0 10px 0">Inställningar</h3>
+      <div class="muted">Företagsuppgifter (för faktura), fraktintegration (Fraktjakt), finansbolag/fakturering och AI-nycklar läggs här i nästa version.</div>
+      <div style="margin-top:12px; display:grid; gap:10px; max-width:560px">
+        <input placeholder="Företagsnamn" class="input"/>
+        <input placeholder="Org.nr" class="input"/>
+        <input placeholder="Adress" class="input"/>
+        <input placeholder="E-post för fakturor" class="input"/>
+        <button class="btn" onclick="alert('Sparat (mock)')">Spara</button>
+      </div>
+    </section>
+  `;
+}
+
+/* -------------------------- Chat mock -------------------------- */
+function sendMsg(){
+  const i = document.getElementById('chatInput');
+  const v = (i.value||'').trim();
+  if(!v) return;
+  const b = el(`<div class="bubble me"></div>`); b.textContent=v;
+  document.getElementById('chat').append(b);
+  i.value='';
+}
+async function recordVoice(){
+  if(!navigator.mediaDevices?.getUserMedia){
+    alert('Mikrofon stöds inte i denna webbläsare (mock).'); return;
   }
+  const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+  const rec = new MediaRecorder(stream);
+  const chunks=[];
+  rec.ondataavailable = e=> chunks.push(e.data);
+  rec.onstop = ()=>{
+    const blob = new Blob(chunks,{type:'audio/webm'});
+    const url = URL.createObjectURL(blob);
+    const b = el(`<div class="bubble me"></div>`);
+    b.innerHTML = `🎤 Röstmeddelande (mock) — <a class="link" href="${url}" target="_blank">spela upp</a>`;
+    document.getElementById('chat').append(b);
+  };
+  rec.start();
+  setTimeout(()=> rec.stop(), 2000); // 2s demo
 }
-initMap();
-$('#expandMap').onclick = ()=>{
-  mTitle.textContent='AI-karta — rekommendationer';
-  mBody.innerHTML='• Föreslår rutt: Elon Kista → Power Solna → Mekonomen Bromma.\n• Total restid ca 43 min.\n• Lägg plats-notiser per stopp.';
-  modal.classList.add('show');
-};
 
-/* --------- Chatt --------- */
-const chatLog = $('#chatLog'), chatInput=$('#chatInput'), sendBtn=$('#sendBtn');
-function pushMsg(txt,me=false){
-  const d=document.createElement('div'); d.className='msg'+(me?' me':''); d.textContent=txt;
-  chatLog.appendChild(d); chatLog.scrollTop=chatLog.scrollHeight;
-}
-sendBtn.onclick = ()=>{ if(!chatInput.value.trim())return; pushMsg(chatInput.value,true); chatInput.value=''; };
-chatInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendBtn.click(); }});
-
-$('#attachBtn').onclick = ()=>$('#fileHidden').click();
-$('#fileHidden').onchange = (e)=>{
-  const f = e.target.files[0]; if(!f) return; pushMsg(`📎 Bilaga: ${f.name}`);
-};
-
-/* Röst (mock via MediaRecorder om finns) */
-let mediaRecorder, chunks=[];
-$('#micBtn').onclick = async ()=>{
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = e=> chunks.push(e.data);
-    mediaRecorder.onstop = ()=>{
-      const blob = new Blob(chunks, {type:'audio/webm'}); chunks=[];
-      const url = URL.createObjectURL(blob);
-      pushMsg(`🎤 Röstanteckning sparad (lokalt).`); // kunde länkas: <audio controls src="url">
-    };
-    mediaRecorder.start();
-    pushMsg('🎙️ Inspelning startad… klicka igen för att stoppa.');
-    $('#micBtn').onclick = ()=>{ mediaRecorder.stop(); $('#micBtn').onclick = async ()=>{ /* re-arm */ }; };
-  }catch(err){
-    pushMsg('🎤 Mikrofon ej tillåten — sparar som mock.');
+/* -------------------------- Kickers -------------------------- */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.activeElement?.id==='chatInput'){
+    e.preventDefault(); sendMsg();
   }
-};
-
-$('#expandChat').onclick = ()=>{
-  mTitle.textContent='Teamchatt — analys';
-  mBody.textContent='• Fler mentions kring “leverans” i morse.\n• Rek: skicka auto-sammanfattning till Ekonomi & Lager.';
-  modal.classList.add('show');
-};
+});
 </script>
 </body>
 </html>

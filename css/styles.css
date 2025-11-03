@@ -1,4 +1,25 @@
-/* ---------- Global layout ---------- */
+:root {
+  /* Dark Theme Base Colors */
+  --color-bg: #0D1335;
+  --color-surface: rgba(255,255,255,0.05);
+  --color-border: rgba(255,255,255,0.15);
+  --color-text: #EAEAEA;
+
+  /* Accent Palette */
+  --color-accent-blue: #4D83FF;
+  --color-accent-green: #58D0A6;
+  --color-accent-pink: #E56F8C;
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-glow: rgba(255, 255, 255, 0.2);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}/* ---------- Global layout ---------- */
 body {
   margin: 0;
   font-family: "Inter", system-ui, sans-serif;

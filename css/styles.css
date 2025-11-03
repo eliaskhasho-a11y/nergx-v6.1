@@ -1,299 +1,110 @@
-/* ======================================================
-   MergX v8.41 — TRUE GLASS BLUR EDITION
-   Transparent dark theme with blur-on-focus modal
-   ====================================================== */
-
-/* -------- Root Variables -------- */
-:root {
-  --color-bg: #05091F;
-  --color-text: #EDEDED;
-  --color-surface: rgba(255,255,255,0.05);
-  --color-border: rgba(255,255,255,0.10);
-
-  --color-accent-blue: #4D83FF;
-  --color-accent-green: #58D0A6;
-  --color-accent-pink: #E56F8C;
-
-  --glass-bg: rgba(255,255,255,0.05);
-  --glass-border: rgba(255,255,255,0.12);
-  --glass-glow: rgba(77,131,255,0.12);
-
-  --font-main: 'Inter', system-ui, sans-serif;
-  --radius: 14px;
-}
-
-/* -------- Base -------- */
-html, body {
+/* === Base layout === */
+body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  background: radial-gradient(circle at 25% 10%, #0B1130 0%, #05091F 80%);
-  color: var(--color-text);
-  font-family: var(--font-main);
-  font-size: 15px;
-  overflow: hidden;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e8ecff;
+  background: radial-gradient(
+      at 20% 20%,
+      rgba(36, 228, 255, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(at 80% 80%, rgba(139, 77, 255, 0.08), transparent 70%),
+    linear-gradient(135deg, #070b1a, #0e1a2e);
+  background-attachment: fixed;
+  transition: background 0.5s ease;
 }
 
-/* -------- Layout -------- */
-#app {
-  display: grid;
-  grid-template-columns: 220px 1fr 340px;
-  height: 100vh;
-}
-
-/* -------- Sidebar -------- */
-.sidebar {
-  background: var(--glass-bg);
-  border-right: 1px solid var(--glass-border);
-  padding: 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.03);
-}
-
-.sidebar h1 {
-  font-size: 1.3rem;
-  margin: 0 0 0.3rem;
-  color: var(--color-accent-blue);
-}
-
-.sidebar .version {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  margin-bottom: 1rem;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar li {
-  padding: 0.6rem 0.9rem;
-  margin: 0.2rem 0;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background 0.25s ease, box-shadow 0.25s ease;
-}
-
-.sidebar li:hover {
-  background: rgba(255,255,255,0.08);
-}
-
-.sidebar li.active {
-  background: rgba(77,131,255,0.25);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(77,131,255,0.35);
-}
-
-/* -------- Main -------- */
-main#content {
-  background: transparent;
-  padding: 1.5rem 2rem;
-  overflow-y: auto;
-}
-
-.loader {
-  text-align: center;
-  margin-top: 2rem;
-  opacity: 0.6;
-}
-
-/* KPI Cards */
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.kpi-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  padding: 1rem;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.04);
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.kpi-card:hover {
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 0 20px rgba(255,255,255,0.15);
-  transform: translateY(-2px);
-}
-
-.kpi-card h4 {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.kpi-card .value {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin: 0.2rem 0;
-}
-
-.kpi-card .change {
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-.change.up { color: var(--color-accent-green); }
-.change.down { color: var(--color-accent-pink); }
-
-/* -------- Cards -------- */
-.card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  padding: 1rem 1.2rem;
-  margin-top: 1.2rem;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
-  transition: all 0.25s ease;
-}
-.card h3 {
-  margin: 0 0 0.6rem;
-  color: var(--color-accent-blue);
-  font-size: 1rem;
-}
-.card:hover {
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 0 25px rgba(77,131,255,0.18);
-}
-
-/* Split Layout (AI-karta + Chat) */
-.split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1.2rem;
-}
-.half {
-  height: 280px;
-}
-
-/* -------- AI-Nav -------- */
-.ai-nav {
-  background: var(--glass-bg);
-  border-left: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.04);
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.ai-section {
-  margin-bottom: 1.2rem;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  padding: 0.8rem 1rem;
-  box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
-}
-.ai-section h3 {
-  color: var(--color-accent-blue);
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-}
-.ai-section ul, .ai-section ol {
-  margin: 0;
-  padding-left: 1.2rem;
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-/* -------- Teamchat -------- */
-.chat-box {
-  height: 200px;
-  overflow-y: auto;
-  background: rgba(255,255,255,0.03);
-  border-radius: var(--radius);
-  padding: 0.6rem;
-  margin-bottom: 0.6rem;
-}
-.msg {
-  margin-bottom: 0.4rem;
-  font-size: 0.85rem;
-}
-input[type="text"] {
-  width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  color: #fff;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-}
-
-/* -------- Modal Overlay + Blur -------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(10px);      /* ≈30 % blur */
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+/* === Glass panels === */
+.card, .panel, .module, .modal {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0.5px rgba(255,255,255,0.3),
+    inset 0 1px 6px rgba(255,255,255,0.06),
+    0 8px 24px rgba(0,0,0,0.5);
   transition: all 0.3s ease;
 }
-.modal-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-  backdrop-filter: none;
-}
 
-/* -------- Modal Window -------- */
-.modal {
-  background: rgba(20,25,40,0.45);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 18px;
-  padding: 2rem;
-  width: 540px;
-  max-width: 90%;
-  color: #fff;
-  box-shadow:
-    0 0 40px rgba(77,131,255,0.2),
-    inset 0 0 20px rgba(255,255,255,0.04);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  position: relative;
-  animation: glassFadeIn 0.25s ease forwards;
-}
-@keyframes glassFadeIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
-}
-#closeModal {
+/* subtle color shimmer based on background hue */
+.card::before, .panel::before, .modal::before {
+  content: "";
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.4rem;
-  cursor: pointer;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(139, 77, 255, 0.08),
+    rgba(36, 228, 255, 0.08)
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
-/* -------- Scrollbar -------- */
-::-webkit-scrollbar { width: 8px; }
+/* === Sidebar === */
+.sidebar {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.05);
+}
+
+/* === Text and headers === */
+h1, h2, h3, h4 {
+  color: #eaf1ff;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+p, span {
+  color: rgba(232, 236, 255, 0.88);
+}
+
+/* === Buttons === */
+button, .btn {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #e8ecff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 40px;
+  padding: 10px 22px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+button:hover, .btn:hover {
+  background: rgba(255,255,255,0.18);
+  box-shadow: 0 0 12px rgba(139,77,255,0.4);
+}
+
+/* === Expanded modal background === */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(30px) brightness(0.6);
+  -webkit-backdrop-filter: blur(30px) brightness(0.6);
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 100;
+}
+
+/* === Scrollbars === */
+::-webkit-scrollbar {
+  width: 8px;
+}
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.1);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.2);
 }
 
-/* -------- Light Mode Toggle -------- */
-body.light {
-  --color-bg: #F4F6FB;
-  --color-text: #1E1E1E;
-  --glass-bg: rgba(255,255,255,0.6);
-  --glass-border: rgba(0,0,0,0.08);
-  --color-accent-blue: #5C7DFF;
-  --color-accent-green: #5CD1A8;
-  --color-accent-pink: #EB7290;
+/* === Small glow around active cards === */
+.card.active, .panel.active {
+  box-shadow:
+    0 0 20px rgba(139, 77, 255, 0.25),
+    0 0 40px rgba(36, 228, 255, 0.15);
 }

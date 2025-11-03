@@ -1,136 +1,122 @@
-<!doctype html>
-<html lang="sv" data-version="8.22">
+<!DOCTYPE html>
+<html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MergX v8.22 • Admin</title>
-  <meta name="color-scheme" content="dark light">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- TITLE -->
+  <title>MergX v8.22 — Admin</title>
+
+  <!-- FONTS (valfritt men rekommenderas för Inter / Apple-look) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- LEAFLET (om du har kartan i denna version) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2JbE1tB2w1If9iIYBgcQKkPj8XKpGkR2B0iTl0A="
+    crossorigin=""
+  />
+
+  <!-- DIN CSS -->
   <link rel="stylesheet" href="css/style.css" />
-  <!-- Ikoner -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@0.453.0/font/lucide.css">
+
+  <!-- META INFO -->
+  <meta name="description" content="MergX Admin Dashboard v8.22 — Light + Glass UI">
+  <meta name="theme-color" content="#0f1117">
 </head>
 
 <body>
-  <!-- App-ram -->
+
+  <!-- ================================
+       APP LAYOUT
+       ================================ -->
   <div class="app">
 
     <!-- SIDOPANEL -->
-    <aside class="sidebar" aria-label="Sidomeny">
+    <aside class="sidebar">
       <div class="brand">
-        <span class="logo">Merg<span>X</span></span>
-        <small class="ver">v8.22 • Light+Glass</small>
+        MergX Admin<br />
+        <span class="ver">v8.22 • Light + Glass</span>
       </div>
 
       <nav class="nav">
-        <button class="nav-link active" data-route="dashboard">
-          <i class="lucide lucide-layout-dashboard"></i> Översikt
-        </button>
-        <button class="nav-link" data-route="orders">
-          <i class="lucide lucide-file-text"></i> Ordrar & fakturor
-        </button>
-        <button class="nav-link" data-route="crm">
-          <i class="lucide lucide-users"></i> Kunder (CRM)
-        </button>
-        <button class="nav-link" data-route="inventory">
-          <i class="lucide lucide-box"></i> Inventarie
-        </button>
-        <button class="nav-link" data-route="employees">
-          <i class="lucide lucide-id-card"></i> Anställda
-        </button>
-        <button class="nav-link" data-route="files">
-          <i class="lucide lucide-folder-open"></i> Filer & kvitton
-        </button>
-        <button class="nav-link" data-route="map">
-          <i class="lucide lucide-map-pin"></i> AI-karta
-        </button>
-        <button class="nav-link" data-route="chat">
-          <i class="lucide lucide-message-square"></i> Chatt
-        </button>
-        <button class="nav-link" data-route="settings">
-          <i class="lucide lucide-settings"></i> Inställningar
-        </button>
+        <button class="nav-link active" data-target="Översikt">Översikt</button>
+        <button class="nav-link" data-target="Ordrar & fakturor">Ordrar & fakturor</button>
+        <button class="nav-link" data-target="Kunder (CRM)">Kunder (CRM)</button>
+        <button class="nav-link" data-target="Inventarie">Inventarie</button>
+        <button class="nav-link" data-target="Anställda">Anställda</button>
+        <button class="nav-link" data-target="Filer & kvitton">Filer & kvitton</button>
+        <button class="nav-link" data-target="AI-karta">AI-karta</button>
+        <button class="nav-link" data-target="Chatt">Chatt</button>
+        <button class="nav-link" data-target="Inställningar">Inställningar</button>
       </nav>
 
       <div class="sidebar-foot">
-        <button class="btn-ghost" id="themeToggle" title="Byt tema">
-          <i class="lucide lucide-sun" aria-hidden="true"></i><span> Tema</span>
-        </button>
-        <div class="lang">
-          <label for="langSel" class="sr-only">Språk</label>
-          <select id="langSel" aria-label="Språk">
-            <option value="sv" selected>Svenska</option>
-            <option value="en">English</option>
-          </select>
-        </div>
+        <select id="lang">
+          <option value="sv">🇸🇪 Svenska</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+        <button id="theme-toggle" class="btn-ghost">Tema</button>
       </div>
     </aside>
 
-    <!-- HUVUDKOLONN -->
+    <!-- HUVUDDEL -->
     <main class="main">
-      <!-- Topprad -->
       <header class="topbar">
         <div class="search">
-          <i class="lucide lucide-search" aria-hidden="true"></i>
-          <input id="globalSearch" type="search" placeholder="Global sök (⌘/Ctrl + K) …" autocomplete="off" />
+          <input type="text" placeholder="Sök i MergX …" />
         </div>
         <div class="top-actions">
-          <button class="btn-ghost" id="goDashboard">
-            <i class="lucide lucide-home"></i> Gå till Översikt
-          </button>
-          <button class="icon-btn" id="notifBtn" aria-label="Notiser">
-            <i class="lucide lucide-bell"></i>
-            <span class="badge" id="notifBadge" hidden>0</span>
-          </button>
-          <button class="avatar" title="Profil">
-            <span class="avatar-initials">EK</span>
-          </button>
+          <button id="menu-toggle" class="icon-btn">☰</button>
+          <button class="avatar"><span class="avatar-initials">EK</span></button>
         </div>
       </header>
 
-      <!-- INNEHÅLL – laddas dynamiskt av JS -->
-      <section id="view" class="view" aria-live="polite">
-        <!-- Första vy: Dashboard (placeholder – fylls av js/modules/dashboard.js) -->
-        <div class="placeholder">
-          <div class="skeleton kpis"></div>
-          <div class="skeleton chart"></div>
-          <div class="skeleton grid"></div>
-        </div>
+      <section class="view">
+        <!-- Dynamiskt innehåll laddas här av app.js -->
+        <h2>Översikt</h2>
+        <p>Välkommen till MergX Admin v8.22 – Glass UI testläge</p>
       </section>
 
-      <!-- FOOT -->
       <footer class="footer">
-        <span>© 2025 MergX</span>
-        <span class="foot-version">Bas • v8.22</span>
+        <span>© 2025 MergX Bas • v8.22</span>
+        <span id="status">Light + Glass UI</span>
       </footer>
     </main>
   </div>
 
-  <!-- MODAL/EXPANDER -->
-  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" data-close-modal tabindex="-1"></div>
-    <div class="modal-panel" role="document" aria-labelledby="modalTitle">
-      <header class="modal-head">
-        <h3 id="modalTitle">Expanderad modul</h3>
-        <div class="modal-actions">
-          <button class="btn ghost" id="modalAskAI"><i class="lucide lucide-sparkles"></i> Ask AI</button>
-          <button class="icon-btn" data-close-modal aria-label="Stäng">
-            <i class="lucide lucide-x"></i>
-          </button>
-        </div>
-      </header>
-      <div class="modal-body" id="modalBody"><!-- fylls av JS --></div>
-      <footer class="modal-foot">
-        <button class="btn ghost" data-close-modal>Stäng</button>
-      </footer>
+  <!-- MODAL (används av expandera/AI-analyser) -->
+  <div class="modal">
+    <div class="modal-backdrop" data-modal-close></div>
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Expanderad modul</h3>
+      </div>
+      <div class="modal-body">
+        <!-- Fylls av JS -->
+      </div>
+      <div class="modal-foot modal-actions">
+        <button class="btn-ghost" data-modal-close>Stäng</button>
+        <button class="btn-ghost">Ask AI</button>
+      </div>
     </div>
   </div>
 
-  <!-- TOASTS -->
-  <div id="toasts" class="toasts" aria-live="assertive" aria-atomic="true"></div>
+  <!-- ================================
+       SCRIPT IMPORTS
+       ================================ -->
+  <!-- Leaflet JS (endast om AI-karta används) -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1jv6K6H0r5cjdO7o1GvQYdVe5wEN9Zf2z5D8E97w="
+    crossorigin=""
+  ></script>
 
-  <!-- SCRIPTS -->
-  <script src="js/main.js" defer></script>
-  <!-- Moduler laddas av main.js vid behov -->
+  <!-- DIN JS -->
+  <script src="js/app.js"></script>
+
 </body>
 </html>

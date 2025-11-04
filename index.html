@@ -3,122 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MergX v8.51 — Dashboard Focus Expansion</title>
+  <title>MergX v8.52 — Dashboard + AI</title>
   <link rel="stylesheet" href="./css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="./js/app.js"></script>
 </head>
-
 <body>
   <aside class="sidebar">
-    <h1 class="logo">MergX</h1>
-    <p class="version">v8.51 • Dashboard + AI</p>
+    <h1>MergX</h1>
+    <p class="version">v8.52 • Dashboard + AI</p>
     <nav>
-      <ul>
-        <li class="active">Översikt</li>
-        <li>Kunder</li>
-        <li>Inventarie</li>
-        <li>Anställda</li>
-        <li>Ordrar & fakturor</li>
-        <li>AI-Karta</li>
-        <li>Teamchatt</li>
-      </ul>
+      <button class="nav-btn active">Översikt</button>
+      <button class="nav-btn">Kunder</button>
+      <button class="nav-btn">Inventarie</button>
+      <button class="nav-btn">Anställda</button>
+      <button class="nav-btn">Ordrar & fakturor</button>
+      <button class="nav-btn">AI-Karta</button>
+      <button class="nav-btn">Teamchatt</button>
     </nav>
   </aside>
 
-  <main>
-    <header class="topbar">
-      <div class="filters">
-        <button class="filter-btn active" data-period="day">Idag</button>
-        <button class="filter-btn" data-period="week">Vecka</button>
-        <button class="filter-btn" data-period="month">Månad</button>
+  <main class="dashboard">
+    <header class="dashboard-header">
+      <div class="time-filter">
+        <button class="active">Idag</button>
+        <button>Vecka</button>
+        <button>Månad</button>
       </div>
     </header>
 
-    <section class="dashboard">
-      <div class="cards">
-        <div class="card" data-type="omsattning">
-          <h3>Omsättning (idag)</h3>
-          <p class="value">125 000 kr</p>
-          <span class="change positive">+6%</span>
-        </div>
-        <div class="card" data-type="ordrar">
-          <h3>Ordrar (idag)</h3>
-          <p class="value">34</p>
-          <span class="change positive">+2%</span>
-        </div>
-        <div class="card" data-type="kostnader">
-          <h3>Kostnader (idag)</h3>
-          <p class="value">41 000 kr</p>
-          <span class="change negative">-1.1%</span>
-        </div>
-        <div class="card" data-type="marginal">
-          <h3>Bruttomarginal</h3>
-          <p class="value">41%</p>
-          <span class="change positive">+0.3pp</span>
-        </div>
+    <section class="kpi-row">
+      <div class="card" data-type="omsattning">
+        <h2>Omsättning (idag)</h2>
+        <p class="value">125 000 kr</p>
+        <p class="trend positive">+6 %</p>
+      </div>
+      <div class="card" data-type="ordrar">
+        <h2>Ordrar (idag)</h2>
+        <p class="value">34</p>
+        <p class="trend positive">+2 %</p>
+      </div>
+      <div class="card" data-type="kostnader">
+        <h2>Kostnader (idag)</h2>
+        <p class="value">41 000 kr</p>
+        <p class="trend negative">-1,1 %</p>
+      </div>
+      <div class="card" data-type="marginal">
+        <h2>Bruttomarginal</h2>
+        <p class="value">41 %</p>
+        <p class="trend positive">+0,3 pp</p>
+      </div>
+    </section>
+
+    <section class="modules">
+      <div class="module ekonomi">
+        <h3>Ekonomi — kompositchart</h3>
+        <canvas id="economyChart"></canvas>
       </div>
 
-      <div class="chart-row">
-        <div class="chart-container">
-          <h3>Ekonomi — kompositchart</h3>
-          <canvas id="chart"></canvas>
-        </div>
-        <div class="ai-panel">
-          <div class="ai-box">
-            <h4>AI-Förslag</h4>
-            <ul>
-              <li>📈 Planera nästa kundbesök hos Elon Kista</li>
-              <li>⚙️ Prisjustering Lightning 27W +5%</li>
-              <li>📊 Rapport till Fortnox fredag</li>
-            </ul>
-          </div>
-          <div class="ai-box">
-            <h4>AI-Notiser</h4>
-            <ul>
-              <li>3 nya kvitton registrerade</li>
-              <li>Ny order för Power Barkarby</li>
-              <li>Rutt uppdaterad för Solna</li>
-            </ul>
-          </div>
-        </div>
+      <div class="module ai-analys">
+        <h3>AI-Analys</h3>
+        <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
       </div>
 
-      <div class="ai-row">
-        <div class="ai-box">
-          <h3>AI-Analys</h3>
-          <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
-        </div>
-        <div class="ai-box">
-          <h3>AI-Karta (mini)</h3>
-          <ul>
-            <li>Elon Kista — Order 20 dagar</li>
-            <li>Mekonomen Solna — Befintlig kund</li>
-            <li>Power Barkarby — Bra läge för demo</li>
-          </ul>
-        </div>
-        <div class="ai-box">
-          <h3>Teamchatt</h3>
-          <div class="chat-window">
-            <p>🟢 <b>Anna:</b> God morgon teamet!</p>
-            <p>👤 <b>Jonas:</b> Jag tar kundmötet 11:00.</p>
-          </div>
-          <input type="text" placeholder="Skriv snabbt...">
+      <div class="module ai-karta">
+        <h3>AI-Karta (mini)</h3>
+        <ul>
+          <li>Elon Kista — Potentiell order om 20 dagar</li>
+          <li>Mekonomen Solna — Befintlig kund</li>
+          <li>Power Barkarby — Bra läge för demo</li>
+        </ul>
+      </div>
+
+      <div class="module teamchatt">
+        <h3>Teamchatt</h3>
+        <div class="chat">
+          <p><strong>🟢 Anna:</strong> God morgon teamet!</p>
+          <p><strong>👤 Jonas:</strong> Jag tar kundmötet 11:00.</p>
+          <input type="text" placeholder="Skriv snabbt …">
         </div>
       </div>
     </section>
   </main>
 
-  <div id="expander" class="expander hidden">
+  <!-- Expanderad KPI -->
+  <div id="expander" class="hidden">
     <div class="expander-content">
-      <button class="close-expander">×</button>
       <h2 id="expander-title"></h2>
       <canvas id="detailChart"></canvas>
-      <div class="ai-detail">
-        <h3>AI-Analys</h3>
-        <p id="ai-detail-text">Data laddas...</p>
-      </div>
+      <p id="ai-detail-text"></p>
+      <button class="close-expander">✕</button>
     </div>
   </div>
+
+  <script src="./js/app.js"></script>
 </body>
 </html>

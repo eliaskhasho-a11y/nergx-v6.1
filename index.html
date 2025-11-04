@@ -3,72 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MergX v8.47 – Dashboard</title>
+  <title>MergX v8.48 – Interaktiv Dashboard</title>
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 
 <body>
   <aside class="sidebar">
     <h1 class="logo">MergX</h1>
-    <p class="version">v8.47 • Pro + AI-Nav</p>
+    <p class="version">v8.48 • Dashboard + AI</p>
     <ul class="nav">
       <li class="active">Översikt</li>
       <li>Kunder</li>
       <li>Inventarie</li>
       <li>Anställda</li>
-      <li>Ordrar & fakturor</li>
-      <li>Filer & kvitton</li>
+      <li>Ordrar</li>
       <li>AI-Karta</li>
       <li>Teamchatt</li>
-      <li>Inställningar</li>
     </ul>
   </aside>
 
   <main class="dashboard">
     <section class="stats">
-      <div class="stat-card">
-        <h3>Omsättning (idag)</h3>
+      <div class="stat-card" data-type="revenue">
+        <h3>Omsättning</h3>
         <p class="value" id="revenue">–</p>
         <p class="change plus" id="revenueChange">–</p>
       </div>
-      <div class="stat-card">
-        <h3>Ordrar (idag)</h3>
+      <div class="stat-card" data-type="orders">
+        <h3>Ordrar</h3>
         <p class="value" id="orders">–</p>
         <p class="change plus" id="ordersChange">–</p>
       </div>
-      <div class="stat-card">
-        <h3>Kostnader (idag)</h3>
+      <div class="stat-card" data-type="costs">
+        <h3>Kostnader</h3>
         <p class="value" id="costs">–</p>
         <p class="change minus" id="costsChange">–</p>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" data-type="margin">
         <h3>Bruttomarginal</h3>
         <p class="value" id="margin">–</p>
         <p class="change plus" id="marginChange">–</p>
       </div>
     </section>
 
-    <section class="chart-card" id="chartSection">
-      <h2>Ekonomi — kompositchart</h2>
-      <p class="chart-placeholder">[Diagram genereras här]</p>
+    <section class="chart-card">
+      <h2>Ekonomi – kompositchart</h2>
+      <canvas id="chartCanvas"></canvas>
     </section>
 
     <section class="ai-section">
       <h2>AI-Analys</h2>
-      <p id="aiAnalysis">Försäljningsdata laddas...</p>
+      <p id="aiAnalysis">Analyserar data...</p>
     </section>
 
     <div class="map-chat-container">
       <section class="ai-map">
-        <h2>AI-Karta (mini)</h2>
+        <h2>AI-Karta</h2>
         <ul id="aiMapList"></ul>
       </section>
-
       <section class="teamchat">
         <h2>Teamchatt</h2>
         <div class="chat-messages" id="chatMessages"></div>
         <form id="chatForm">
-          <input type="text" id="chatInput" placeholder="Skriv snabbt … (Enter skickar)" autocomplete="off" />
+          <input type="text" id="chatInput" placeholder="Skriv ett meddelande..." autocomplete="off" />
         </form>
       </section>
     </div>
@@ -89,7 +86,20 @@
     </div>
   </aside>
 
-  <div id="overlay"></div>
+  <!-- Expanderad modul -->
+  <div id="expandModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-modal" id="closeModal">×</button>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDetails"></p>
+      <div class="ai-modal-analysis">
+        <h3>AI-Analys</h3>
+        <p id="aiModalAnalysis"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>

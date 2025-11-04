@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MergX v8.44 – Deep Aurora Glass</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MergX v8.47 – Dashboard</title>
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 
 <body>
   <aside class="sidebar">
     <h1 class="logo">MergX</h1>
-    <p class="version">v8.44 • Pro + AI-Nav</p>
+    <p class="version">v8.47 • Pro + AI-Nav</p>
     <ul class="nav">
-      <li>Översikt</li>
+      <li class="active">Översikt</li>
       <li>Kunder</li>
       <li>Inventarie</li>
       <li>Anställda</li>
@@ -28,90 +28,68 @@
     <section class="stats">
       <div class="stat-card">
         <h3>Omsättning (idag)</h3>
-        <p class="value">125 000 kr</p>
-        <p class="change plus">+ 6 %</p>
+        <p class="value" id="revenue">–</p>
+        <p class="change plus" id="revenueChange">–</p>
       </div>
       <div class="stat-card">
         <h3>Ordrar (idag)</h3>
-        <p class="value">34</p>
-        <p class="change plus">+ 2 %</p>
+        <p class="value" id="orders">–</p>
+        <p class="change plus" id="ordersChange">–</p>
       </div>
       <div class="stat-card">
         <h3>Kostnader (idag)</h3>
-        <p class="value">41 000 kr</p>
-        <p class="change minus">− 1.1 %</p>
+        <p class="value" id="costs">–</p>
+        <p class="change minus" id="costsChange">–</p>
       </div>
       <div class="stat-card">
         <h3>Bruttomarginal</h3>
-        <p class="value">41 %</p>
-        <p class="change plus">+ 0.3 pp</p>
+        <p class="value" id="margin">–</p>
+        <p class="change plus" id="marginChange">–</p>
       </div>
     </section>
 
-    <section class="chart-card">
+    <section class="chart-card" id="chartSection">
       <h2>Ekonomi — kompositchart</h2>
-      <div class="chart-placeholder">[Diagram genereras här]</div>
+      <p class="chart-placeholder">[Diagram genereras här]</p>
     </section>
 
     <section class="ai-section">
       <h2>AI-Analys</h2>
-      <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+      <p id="aiAnalysis">Försäljningsdata laddas...</p>
     </section>
 
-    <section class="map-chat-container">
-      <div class="ai-map">
+    <div class="map-chat-container">
+      <section class="ai-map">
         <h2>AI-Karta (mini)</h2>
-        <ul>
-          <li>Elon Kista — Potentiell order om 20 dagar</li>
-          <li>Mekonomen Solna — Befintlig kund</li>
-          <li>Power Barkarby — Bra läge för demo</li>
-        </ul>
-      </div>
+        <ul id="aiMapList"></ul>
+      </section>
 
-      <div class="teamchat">
+      <section class="teamchat">
         <h2>Teamchatt</h2>
-        <div class="chat-messages">
-          <p><strong>🟢 Anna:</strong> God morgon teamet!</p>
-          <p><strong>👤 Jonas:</strong> Jag tar kundmötet 11:00.</p>
-        </div>
-        <input type="text" placeholder="Skriv snabbt … (Enter skickar)" />
-      </div>
-    </section>
+        <div class="chat-messages" id="chatMessages"></div>
+        <form id="chatForm">
+          <input type="text" id="chatInput" placeholder="Skriv snabbt … (Enter skickar)" autocomplete="off" />
+        </form>
+      </section>
+    </div>
   </main>
 
   <aside class="ai-nav">
     <div class="ai-card">
       <h3>AI-Förslag</h3>
-      <ul>
-        <li>Planera nästa kundbesök hos Elon Kista (20 dagar)</li>
-        <li>Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm</li>
-        <li>Prisjustering Lightning 27 W + 5 %</li>
-        <li>Lägg till AI-rapport för Fortnox export fredag</li>
-      </ul>
+      <ul id="aiSuggestions"></ul>
     </div>
-
     <div class="ai-card">
       <h3>AI-Notiser</h3>
-      <ul>
-        <li>3 nya kvitton registrerade av anställda</li>
-        <li>Ny order skapad för Power Barkarby</li>
-        <li>AI-ruttuppdatering tillgänglig för Solna-området</li>
-      </ul>
+      <ul id="aiNotes"></ul>
     </div>
-
     <div class="ai-card">
       <h3>AI-Rutt & Leads</h3>
-      <ol>
-        <li>Start – Acetek HQ (08:00)</li>
-        <li>Elon Kista (09:15)</li>
-        <li>Mekonomen Solna (11:00)</li>
-        <li>Lunch – Mall of Scandinavia (12:30)</li>
-        <li>Power Barkarby (14:00)</li>
-        <li>Åter till HQ (15:30)</li>
-      </ol>
+      <ol id="aiLeads"></ol>
     </div>
   </aside>
 
   <div id="overlay"></div>
+  <script src="./js/app.js"></script>
 </body>
 </html>

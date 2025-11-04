@@ -1,119 +1,113 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MergX v8.49 – Dashboard + AI</title>
-  <link rel="stylesheet" href="./css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MergX v8.50 — Dashboard + AI</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script defer src="./js/app.js"></script>
 </head>
 
 <body>
-  <!-- SIDOPANEL -->
   <aside class="sidebar">
     <h1 class="logo">MergX</h1>
-    <p class="version">v8.49 • Dashboard + AI</p>
-    <ul class="nav">
-      <li class="active">Översikt</li>
-      <li>Kunder</li>
-      <li>Inventarie</li>
-      <li>Anställda</li>
-      <li>Ordrar & Fakturor</li>
-      <li>AI-Karta</li>
-      <li>Teamchatt</li>
-    </ul>
+    <p class="version">v8.50 • Dashboard + AI</p>
+    <nav>
+      <ul>
+        <li class="active">Översikt</li>
+        <li>Kunder</li>
+        <li>Inventarie</li>
+        <li>Anställda</li>
+        <li>Ordrar & fakturor</li>
+        <li>AI-Karta</li>
+        <li>Teamchatt</li>
+      </ul>
+    </nav>
   </aside>
 
-  <!-- HUVUDINNEHÅLL -->
-  <main class="dashboard">
-    <!-- KPI-KORT -->
-    <section class="stats">
-      <div class="stat-card" data-type="revenue">
-        <h3>Omsättning (idag)</h3>
-        <p class="value" id="revenue">–</p>
-        <p class="change plus" id="revenueChange">–</p>
+  <main>
+    <header class="topbar">
+      <div class="filters">
+        <button class="filter-btn active" data-period="day">Idag</button>
+        <button class="filter-btn" data-period="week">Vecka</button>
+        <button class="filter-btn" data-period="month">Månad</button>
       </div>
-      <div class="stat-card" data-type="orders">
-        <h3>Ordrar (idag)</h3>
-        <p class="value" id="orders">–</p>
-        <p class="change plus" id="ordersChange">–</p>
+    </header>
+
+    <section class="dashboard">
+      <div class="cards">
+        <div class="card" data-type="omsattning">
+          <h3>Omsättning (idag)</h3>
+          <p class="value" id="omsattning">125 000 kr</p>
+          <span class="change positive">+6%</span>
+        </div>
+
+        <div class="card" data-type="ordrar">
+          <h3>Ordrar (idag)</h3>
+          <p class="value" id="ordrar">34</p>
+          <span class="change positive">+2%</span>
+        </div>
+
+        <div class="card" data-type="kostnader">
+          <h3>Kostnader (idag)</h3>
+          <p class="value" id="kostnader">41 000 kr</p>
+          <span class="change negative">-1.1%</span>
+        </div>
+
+        <div class="card" data-type="bruttomarginal">
+          <h3>Bruttomarginal</h3>
+          <p class="value" id="marginal">41%</p>
+          <span class="change positive">+0.3pp</span>
+        </div>
       </div>
-      <div class="stat-card" data-type="costs">
-        <h3>Kostnader (idag)</h3>
-        <p class="value" id="costs">–</p>
-        <p class="change minus" id="costsChange">–</p>
+
+      <div class="chart-container">
+        <h3>Ekonomi — kompositchart</h3>
+        <canvas id="chart"></canvas>
       </div>
-      <div class="stat-card" data-type="margin">
-        <h3>Bruttomarginal</h3>
-        <p class="value" id="margin">–</p>
-        <p class="change plus" id="marginChange">–</p>
+
+      <div class="ai-row">
+        <div class="ai-box">
+          <h3>AI-Analys</h3>
+          <p id="ai-analys">Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+        </div>
+        <div class="ai-box">
+          <h3>AI-Karta (mini)</h3>
+          <ul>
+            <li>Elon Kista — Potentiell order om 20 dagar</li>
+            <li>Mekonomen Solna — Befintlig kund</li>
+            <li>Power Barkarby — Bra läge för demo</li>
+          </ul>
+        </div>
+        <div class="ai-box">
+          <h3>Teamchatt</h3>
+          <div class="chat-window">
+            <p>🟢 <b>Anna:</b> God morgon teamet!</p>
+            <p>👤 <b>Jonas:</b> Jag tar kundmötet 11:00.</p>
+          </div>
+          <input type="text" placeholder="Skriv snabbt..." />
+        </div>
       </div>
     </section>
-
-    <!-- GRAF -->
-    <section class="chart-card" id="chartSection">
-      <h2>Ekonomi – kompositchart</h2>
-      <canvas id="chartCanvas"></canvas>
-    </section>
-
-    <!-- AI-ANALYS -->
-    <section class="ai-section" id="aiSection">
-      <h2>AI-Analys</h2>
-      <p id="aiAnalysis">Analyserar data...</p>
-    </section>
-
-    <!-- AI-KARTA + TEAMCHATT -->
-    <div class="map-chat-container">
-      <section class="ai-map" id="mapSection">
-        <h2>AI-Karta</h2>
-        <ul id="aiMapList"></ul>
-      </section>
-
-      <section class="teamchat">
-        <h2>Teamchatt</h2>
-        <div class="chat-messages" id="chatMessages"></div>
-        <form id="chatForm">
-          <input type="text" id="chatInput" placeholder="Skriv ett meddelande..." autocomplete="off" />
-        </form>
-      </section>
-    </div>
   </main>
 
-  <!-- HÖGERPANEL: AI-NAV -->
-  <aside class="ai-nav">
-    <div class="ai-card">
-      <h3>AI-Förslag</h3>
-      <ul id="aiSuggestions"></ul>
-    </div>
-    <div class="ai-card">
-      <h3>AI-Notiser</h3>
-      <ul id="aiNotes"></ul>
-    </div>
-    <div class="ai-card">
-      <h3>AI-Rutt & Leads</h3>
-      <ol id="aiLeads"></ol>
-    </div>
-  </aside>
-
-  <!-- MODAL FÖR EXPANDERADE MODULER -->
-  <div id="expandModal" class="modal hidden">
-    <div class="modal-backdrop" id="modalBackdrop"></div>
-    <div class="modal-content glass-elevated">
-      <button class="close-modal" id="closeModal">×</button>
-      <h2 id="modalTitle">Detaljer</h2>
-      <div class="modal-grid">
-        <div class="modal-block">
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-modal">×</button>
+      <h2 id="modal-title">Detaljerad data</h2>
+      <div class="modal-columns">
+        <div>
           <h3>Detaljerad data</h3>
-          <p id="modalDetails">–</p>
+          <p>Data laddas...</p>
         </div>
-        <div class="modal-block">
+        <div>
           <h3>AI-Analys</h3>
-          <p id="aiModalAnalysis">–</p>
+          <p>AI genererar analys baserat på valt intervall...</p>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="./js/app.js"></script>
 </body>
 </html>

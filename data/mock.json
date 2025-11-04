@@ -1,30 +1,6 @@
 {
-  "revenue": { "value": "125 000 kr", "change": "+6 %" },
-  "orders": { "value": "34", "change": "+2 %" },
-  "costs": { "value": "41 000 kr", "change": "−1.1 %" },
-  "margin": { "value": "41 %", "change": "+0.3 pp" },
-  "analysis": "Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.",
-  "aiMap": [
-    { "location": "Elon Kista", "note": "Potentiell order om 20 dagar" },
-    { "location": "Mekonomen Solna", "note": "Befintlig kund" },
-    { "location": "Power Barkarby", "note": "Bra läge för demo" }
-  ],
-  "suggestions": [
-    "Planera nästa kundbesök hos Elon Kista (20 dagar)",
-    "Prisjustering Lightning 27 W +5 %",
-    "Skapa AI-rapport för Fortnox på fredag"
-  ],
-  "notes": [
-    "3 nya kvitton registrerade av anställda",
-    "Ny order skapad för Power Barkarby",
-    "AI-rutt uppdaterad för Solna-området"
-  ],
-  "leads": [
-    "Start – Acetek HQ (08:00)",
-    "Elon Kista (09:15)",
-    "Mekonomen Solna (11:00)",
-    "Lunch – Mall of Scandinavia (12:30)",
-    "Power Barkarby (14:00)",
-    "Åter till HQ (15:30)"
-  ]
-}
+  "revenue": { "value": "125 000 kr", "change": "+6 %", "details": "Försäljningen ökade mest i norra Stockholm (+12 %).", "ai": "AI: Störst tillväxt i USB-C 60 W, föreslår att fokusera på topp 3-regioner: Kista, Solna, Täby." },
+  "orders": { "value": "34", "change": "+2 %", "details": "Totalt 34 ordrar idag, varav 9 från återkommande kunder.", "ai": "AI: Orderflödet ökar 2 % dagligen. Planera push innan lunch." },
+  "costs": { "value": "41 000 kr", "change": "-1,1 %", "details": "Kostnader sjönk 1,1 % tack vare effektiv logistik.", "ai": "AI: Möjlighet att minska fraktkostnader ytterligare genom zon-optimering." },
+  "margin": { "value": "41 %", "change": "+0,3 pp", "details": "Bruttomarginalen stärktes genom lägre inköpspris på kablar.", "ai": "AI: Marginalen gynnas av nya leverantörsavtal, håll kursen i Q4." },
+  "analysis": "Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 

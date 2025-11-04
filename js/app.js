@@ -1,130 +1,117 @@
-// MergX v8.48 – Interaktiv Dashboard + AI
+// MergX v8.49 – Dashboard + AI interaktiv
 let data;
 
 async function loadData() {
   const res = await fetch("./data/mock.json");
   data = await res.json();
   updateDashboard();
+  renderChart();
 }
 
+// === Dashboard-bindningar ===
 function updateDashboard() {
-  document.getElementById("revenue").textContent = data.revenue.value;
-  document.getElementById("revenueChange").textContent = data.revenue.change;
-  document.getElementById("orders").textContent = data.orders.value;
-  document.getElementById("ordersChange").textContent = data.orders.change;
-  document.getElementById("costs").textContent = data.costs.value;
-  document.getElementById("costsChange").textContent = data.costs.change;
-  document.getElementById("margin").textContent = data.margin.value;
-  document.getElementById("marginChange").textContent = data.margin.change;
+  const ids = ["revenue","orders","costs","margin"];
+  ids.forEach(id => {
+    document.getElementById(id).textContent = data[id].value;
+    document.getElementById(id+"Change").textContent = data[id].change;
+  });
   document.getElementById("aiAnalysis").textContent = data.analysis;
-  renderLists();
+
+  // AI-lister
+  fillList("aiMapList", data.aiMap.map(i => `${i.location} — ${i.note}`));
+  fillList("aiSuggestions", data.suggestions);
+  fillList("aiNotes", data.notes);
+  fillList("aiLeads", data.leads);
 }
-
-function renderLists() {
-  const aiMapList = document.getElementById("aiMapList");
-  aiMapList.innerHTML = "";
-  data.aiMap.forEach((item) => {
-    const li = document.createElement("li");
-    li.textContent = `${item.location} — ${item.note}`;
-    aiMapList.appendChild(li);
-  });
-
-  ["aiSuggestions", "aiNotes", "aiLeads"].forEach((id, i) => {
-    const el = document.getElementById(id);
-    el.innerHTML = "";
-    const arr = data[["suggestions", "notes", "leads"][i]];
-    arr.forEach((x) => {
-      const li = document.createElement("li");
-      li.textContent = x;
-      el.appendChild(li);
-    });
+function fillList(id, arr){
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  arr.forEach(item=>{
+    const li=document.createElement("li");
+    li.textContent=item;
+    el.appendChild(li);
   });
 }
 
-// Chart.js ekonomi-graf
+// === Chart.js ===
 let chart;
-function renderChart() {
-  const ctx = document.getElementById("chartCanvas");
-  chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: ["Mån", "Tis", "Ons", "Tor", "Fre"],
-      datasets: [
-        {
-          label: "Omsättning",
-          data: [120, 150, 180, 200, 240],
-          borderColor: "#00ffffaa",
-          backgroundColor: "rgba(0,255,255,0.2)",
-          fill: true,
-        },
-        {
-          label: "Kostnader",
-          data: [80, 90, 100, 110, 115],
-          borderColor: "#ff0077aa",
-          backgroundColor: "rgba(255,0,119,0.15)",
-          fill: true,
-        },
-      ],
+function renderChart(){
+  const ctx=document.getElementById("chartCanvas");
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:["Mån","Tis","Ons","Tor","Fre"],
+      datasets:[
+        {label:"Omsättning",data:[120,150,180,205,240],borderColor:"#4de3c2",backgroundColor:"rgba(77,227,194,0.15)",fill:true,tension:0.35},
+        {label:"Kostnader",data:[80,90,100,110,115],borderColor:"#ff6faF",backgroundColor:"rgba(255,111,175,0.12)",fill:true,tension:0.35}
+      ]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: "#fff" } } },
-      scales: {
-        x: { ticks: { color: "#ccc" } },
-        y: { ticks: { color: "#ccc" } },
-      },
-    },
+    options:{
+      plugins:{legend:{labels:{color:"#dce5ff"}}},
+      scales:{
+        x:{ticks:{color:"#c7d2ff"},grid:{color:"rgba(255,255,255,0.07)"}},
+        y:{ticks:{color:"#c7d2ff"},grid:{color:"rgba(255,255,255,0.07)"}}
+      }
+    }
   });
 }
 
-// Interaktiva KPI-kort
-document.querySelectorAll(".stat-card").forEach((card) => {
-  card.addEventListener("click", () => {
-    const type = card.dataset.type;
-    openModal(type);
-  });
+// === Modal / Expanderbar info ===
+const modal=document.getElementById("expandModal");
+const backdrop=document.getElementById("modalBackdrop");
+const closeBtn=document.getElementById("closeModal");
+
+document.querySelectorAll(".stat-card").forEach(card=>{
+  card.addEventListener("click",()=>openModal(card.dataset.type));
 });
-
-// Expanderad modal
-function openModal(type) {
-  const modal = document.getElementById("expandModal");
-  const title = document.getElementById("modalTitle");
-  const details = document.getElementById("modalDetails");
-  const aiModal = document.getElementById("aiModalAnalysis");
-
-  title.textContent = type.toUpperCase();
-  details.textContent = `Detaljerad data för ${type} senaste veckan: ${data[type].details || "Inga detaljer ännu"}`;
-  aiModal.textContent = data[type].ai || "AI-analys kommer snart.";
+function openModal(type){
+  const titles={
+    revenue:"Omsättning",
+    orders:"Ordrar",
+    costs:"Kostnader",
+    margin:"Bruttomarginal"
+  };
+  document.getElementById("modalTitle").textContent=titles[type]||"Detaljer";
+  document.getElementById("modalDetails").textContent=data[type].details || "Data laddas...";
+  document.getElementById("aiModalAnalysis").textContent=data[type].ai || aiSuggest(type);
   modal.classList.remove("hidden");
 }
-
-document.getElementById("closeModal").addEventListener("click", () => {
-  document.getElementById("expandModal").classList.add("hidden");
-});
-
-// Teamchat
-const chatForm = document.getElementById("chatForm");
-const chatInput = document.getElementById("chatInput");
-const chatMessages = document.getElementById("chatMessages");
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const msg = chatInput.value.trim();
-  if (!msg) return;
-  const div = document.createElement("div");
-  div.className = "chat-message";
-  div.innerHTML = `<strong>Du:</strong> ${msg}`;
-  chatMessages.appendChild(div);
-  chatInput.value = "";
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-// Auto-update varje 60 sekunder
-setInterval(() => {
-  if (data) {
-    data.revenue.value = (parseInt(data.revenue.value.replace(/\D/g, "")) + Math.floor(Math.random() * 1000)) + " kr";
-    updateDashboard();
+function aiSuggest(type){
+  switch(type){
+    case "revenue":return "AI: Omsättningen ökar stabilt. Fortsätt fokus på USB-C 60 W och kampanjer i norr.";
+    case "orders":return "AI: Högsta orderaktivitet mellan 09-11 och 14-16. Planera utskick före toppar.";
+    case "costs":return "AI: Kostnader +1,1 %. Förhandla fraktzon 2 och kombinera leveranser.";
+    case "margin":return "AI: Marginal +0,3 pp. Testa 2 % prisjustering på Lightning-serien.";
+    default:return "AI: Ingen analys tillgänglig just nu.";
   }
-}, 60000);
+}
+function closeModal(){ modal.classList.add("hidden"); }
+closeBtn.addEventListener("click",closeModal);
+backdrop.addEventListener("click",closeModal);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape")closeModal(); });
+
+// === Teamchatt ===
+const chatForm=document.getElementById("chatForm");
+const chatInput=document.getElementById("chatInput");
+const chatMessages=document.getElementById("chatMessages");
+chatForm.addEventListener("submit",e=>{
+  e.preventDefault();
+  const msg=chatInput.value.trim();
+  if(!msg)return;
+  const div=document.createElement("div");
+  div.className="chat-message";
+  div.innerHTML=`<strong>Du:</strong> ${msg}`;
+  chatMessages.appendChild(div);
+  chatInput.value="";
+  chatMessages.scrollTop=chatMessages.scrollHeight;
+});
+
+// === Auto-uppdatering varje 60 s ===
+setInterval(()=>{
+  if(!data)return;
+  const base=parseInt(data.revenue.value.replace(/\D/g,""));
+  data.revenue.value=(base+Math.floor(Math.random()*600)).toLocaleString("sv-SE")+" kr";
+  updateDashboard();
+},60000);
 
 loadData();
-renderChart();

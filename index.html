@@ -1,107 +1,68 @@
 <!DOCTYPE html>
 <html lang="sv">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MergX v8.52 — Dashboard + AI</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<div id="dashboard-root"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MergX Dashboard v8.53</title>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      body {
+        background: #0c0c0d;
+        color: #e5e5e5;
+        font-family: system-ui, -apple-system, "SF Pro Display", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #4cc9f0;
+      }
+      main {
+        padding: 2rem;
+      }
+    </style>
+  </head>
 
-<!-- Din Dashboard -->
-<script src="./js/dashboard.js"></script>
   <body>
-  <aside class="sidebar">
-    <h1>MergX</h1>
-    <p class="version">v8.52 • Dashboard + AI</p>
-    <nav>
-      <button class="nav-btn active">Översikt</button>
-      <button class="nav-btn">Kunder</button>
-      <button class="nav-btn">Inventarie</button>
-      <button class="nav-btn">Anställda</button>
-      <button class="nav-btn">Ordrar & fakturor</button>
-      <button class="nav-btn">AI-Karta</button>
-      <button class="nav-btn">Teamchatt</button>
-    </nav>
-  </aside>
-
-  <main class="dashboard">
-    <header class="dashboard-header">
-      <div class="time-filter">
-        <button class="active">Idag</button>
-        <button>Vecka</button>
-        <button>Månad</button>
-      </div>
+    <header>
+      <div class="logo">MergX Dashboard v8.53</div>
+      <nav>
+        <button
+          id="refreshDashboard"
+          style="
+            background: #1a1a1b;
+            color: #fff;
+            border: 1px solid #2a2a2b;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+          "
+        >
+          Uppdatera
+        </button>
+      </nav>
     </header>
 
-    <section class="kpi-row">
-      <div class="card" data-type="omsattning">
-        <h2>Omsättning (idag)</h2>
-        <p class="value">125 000 kr</p>
-        <p class="trend positive">+6 %</p>
-      </div>
-      <div class="card" data-type="ordrar">
-        <h2>Ordrar (idag)</h2>
-        <p class="value">34</p>
-        <p class="trend positive">+2 %</p>
-      </div>
-      <div class="card" data-type="kostnader">
-        <h2>Kostnader (idag)</h2>
-        <p class="value">41 000 kr</p>
-        <p class="trend negative">-1,1 %</p>
-      </div>
-      <div class="card" data-type="marginal">
-        <h2>Bruttomarginal</h2>
-        <p class="value">41 %</p>
-        <p class="trend positive">+0,3 pp</p>
-      </div>
-    </section>
+    <main>
+      <div id="dashboard-root"></div>
+    </main>
 
-    <section class="modules">
-      <div class="module ekonomi">
-        <h3>Ekonomi — kompositchart</h3>
-        <canvas id="economyChart"></canvas>
-      </div>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-      <div class="module ai-analys">
-        <h3>AI-Analys</h3>
-        <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
-      </div>
+    <!-- Appinit -->
+    <script src="./js/app.js"></script>
 
-      <div class="module ai-karta">
-        <h3>AI-Karta (mini)</h3>
-        <ul>
-          <li>Elon Kista — Potentiell order om 20 dagar</li>
-          <li>Mekonomen Solna — Befintlig kund</li>
-          <li>Power Barkarby — Bra läge för demo</li>
-        </ul>
-      </div>
-
-      <div class="module teamchatt">
-        <h3>Teamchatt</h3>
-        <div class="chat">
-          <p><strong>🟢 Anna:</strong> God morgon teamet!</p>
-          <p><strong>👤 Jonas:</strong> Jag tar kundmötet 11:00.</p>
-          <input type="text" placeholder="Skriv snabbt …">
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Expanderad KPI -->
-  <div id="expander" class="hidden">
-    <div class="expander-content">
-      <h2 id="expander-title"></h2>
-      <canvas id="detailChart"></canvas>
-      <p id="ai-detail-text"></p>
-      <button class="close-expander">✕</button>
-    </div>
-  </div>
-
-  <script src="./js/app.js"></script>
-</body>
+    <!-- Dashboard -->
+    <script src="./js/dashboard.js"></script>
+  </body>
 </html>

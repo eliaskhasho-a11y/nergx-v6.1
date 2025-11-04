@@ -143,3 +143,112 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   });
 });
+// ... (din befintliga v8.53 Chart.js-kod) ...
+
+// === PUBLIC API för shell ===
+function renderDashboard(){
+  // vänster huvudvy
+  const view = `
+    <section class="mx-card">
+      <h2 style="margin:0 0 10px 0;">Översikt</h2>
+      <div class="mx-kpi-grid">
+        <div class="mx-kpi" data-k="oms">
+          <div>Omsättning (idag)</div>
+          <div class="value">125 000 kr</div>
+          <div class="delta up">+6 %</div>
+        </div>
+        <div class="mx-kpi" data-k="ord">
+          <div>Ordrar (idag)</div>
+          <div class="value">34</div>
+          <div class="delta up">+2 %</div>
+        </div>
+        <div class="mx-kpi" data-k="kos">
+          <div>Kostnader (idag)</div>
+          <div class="value">41 000 kr</div>
+          <div class="delta down">−1,1 %</div>
+        </div>
+        <div class="mx-kpi" data-k="bm">
+          <div>Bruttomarginal</div>
+          <div class="value">41 %</div>
+          <div class="delta up">+0,3 pp</div>
+        </div>
+      </div>
+
+      <div class="mx-card" style="margin-top:12px;">
+        <h3>Ekonomi — kompositchart</h3>
+        <canvas id="ecoChart" height="120"></canvas>
+      </div>
+
+      <div id="kpi-expand-slot"></div>
+    </section>
+  `;
+
+  // höger rail
+  const rail = `
+    <div class="mx-card">
+      <h3>AI-Analys</h3>
+      <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+    </div>
+    <div class="mx-card">
+      <h3>AI-Karta (mini)</h3>
+      <ul class="mx-list">
+        <li><b>Elon Kista</b> — potentiell order om 20 dagar</li>
+        <li><b>Mekonomen Solna</b> — befintlig kund</li>
+        <li><b>Power Barkarby</b> — bra läge för demo</li>
+      </ul>
+    </div>
+    <div class="mx-card">
+      <h3>Åtgärder</h3>
+      <ul class="mx-list">
+        <li>Optimera inköp Q1 (låsa inköpspris)</li>
+        <li>Kampanj B2B kablar (mål +12 % marginal)</li>
+      </ul>
+    </div>
+  `;
+
+  MX.setTitle("Dashboard");
+  MX.mount(view, rail);
+
+  // init chart igen nu när canvas finns
+  const ctx = document.getElementById("ecoChart")?.getContext("2d");
+  if (ctx) {
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Aug","Sep","Okt","Nov","Dec"],
+        datasets: [
+          { label:"Intäkter", data:[180,220,260,210,320,300,240,280,330,360,400,420], borderColor:"#22c55e", tension:.4, fill:false },
+          { label:"Kostnader", data:[90,120,140,130,160,170,150,155,170,190,210,220], borderColor:"#ef4444", tension:.4, fill:false },
+          { label:"Vinst", data:[90,100,120,80,160,130,90,125,160,170,190,200], borderColor:"#06b6d4", tension:.4, fill:false }
+        ]
+      },
+      options:{ plugins:{ legend:{ labels:{ color:"#ddd"} } }, scales:{ x:{ ticks:{color:"#bbb"}, grid:{color:"rgba(255,255,255,.06)"}}, y:{ ticks:{color:"#bbb"}, grid:{color:"rgba(255,255,255,.06)"}} } }
+    });
+  }
+
+  // KPI expand – lokal blur under panel (nedåt)
+  const slot = document.getElementById("kpi-expand-slot");
+  document.querySelectorAll(".mx-kpi").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      slot.innerHTML = `
+        <div class="mx-kpi-overlay">
+          <div class="glass"></div>
+          <div class="mx-kpi-panel">
+            <button class="mx-close" id="kpiClose">Stäng</button>
+            <h3 style="margin:0 0 8px 0;">${card.textContent.split('\n')[0].trim()} – detaljer</h3>
+            <p>AI: lägesanalys och konkreta råd för vald KPI.</p>
+          </div>
+        </div>`;
+      document.getElementById("kpiClose").onclick = ()=> slot.innerHTML = "";
+    });
+  });
+
+  // reagera på datumfilter
+  document.addEventListener("mx:range", (e)=> {
+    console.log("Dashboard uppdatera range:", e.detail);
+    // TODO: filtrera dataset beroende på MX.state.range
+  }, { once:false });
+}
+
+// registrera route
+MX.routes["dashboard"] = renderDashboard;

@@ -3,15 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MergX CSS Test</title>
-
-  <!-- OBS: ledande / är viktigt på Vercel -->
+  <title>MergX v8.44 – Deep Aurora Glass</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-  <div class="test-container">
-    <h1>✅ CSS laddad korrekt!</h1>
-    <p>Om du ser detta i grönt med mörk bakgrund — allting fungerar nu.</p>
-  </div>
+  <aside class="sidebar">
+    <h1 class="logo">MergX</h1>
+    <p class="version">v8.44 • Pro + AI-Nav</p>
+    <ul class="nav">
+      <li>Översikt</li>
+      <li>Kunder</li>
+      <li>Inventarie</li>
+      <li>Anställda</li>
+      <li>Ordrar & fakturor</li>
+      <li>Filer & kvitton</li>
+      <li>AI-Karta</li>
+      <li>Teamchatt</li>
+      <li>Inställningar</li>
+    </ul>
+  </aside>
+
+  <main class="dashboard">
+    <section class="stats">
+      <div class="stat-card">
+        <h3>Omsättning (idag)</h3>
+        <p class="value">125 000 kr</p>
+        <p class="change plus">+ 6 %</p>
+      </div>
+      <div class="stat-card">
+        <h3>Ordrar (idag)</h3>
+        <p class="value">34</p>
+        <p class="change plus">+ 2 %</p>
+      </div>
+      <div class="stat-card">
+        <h3>Kostnader (idag)</h3>
+        <p class="value">41 000 kr</p>
+        <p class="change minus">− 1.1 %</p>
+      </div>
+      <div class="stat-card">
+        <h3>Bruttomarginal</h3>
+        <p class="value">41 %</p>
+        <p class="change plus">+ 0.3 pp</p>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <h2>Ekonomi — kompositchart</h2>
+      <div class="chart-placeholder">[Diagram genereras här]</div>
+    </section>
+
+    <section class="ai-section">
+      <h2>AI-Analys</h2>
+      <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+    </section>
+
+    <section class="map-chat-container">
+      <div class="ai-map">
+        <h2>AI-Karta (mini)</h2>
+        <ul>
+          <li>Elon Kista — Potentiell order om 20 dagar</li>
+          <li>Mekonomen Solna — Befintlig kund</li>
+          <li>Power Barkarby — Bra läge för demo</li>
+        </ul>
+      </div>
+
+      <div class="teamchat">
+        <h2>Teamchatt</h2>
+        <div class="chat-messages">
+          <p><strong>🟢 Anna:</strong> God morgon teamet!</p>
+          <p><strong>👤 Jonas:</strong> Jag tar kundmötet 11:00.</p>
+        </div>
+        <input type="text" placeholder="Skriv snabbt … (Enter skickar)" />
+      </div>
+    </section>
+  </main>
+
+  <aside class="ai-nav">
+    <div class="ai-card">
+      <h3>AI-Förslag</h3>
+      <ul>
+        <li>Planera nästa kundbesök hos Elon Kista (20 dagar)</li>
+        <li>Inventarie: USB-C 60 W säljer 15 % bättre i Stockholm</li>
+        <li>Prisjustering Lightning 27 W + 5 %</li>
+        <li>Lägg till AI-rapport för Fortnox export fredag</li>
+      </ul>
+    </div>
+
+    <div class="ai-card">
+      <h3>AI-Notiser</h3>
+      <ul>
+        <li>3 nya kvitton registrerade av anställda</li>
+        <li>Ny order skapad för Power Barkarby</li>
+        <li>AI-ruttuppdatering tillgänglig för Solna-området</li>
+      </ul>
+    </div>
+
+    <div class="ai-card">
+      <h3>AI-Rutt & Leads</h3>
+      <ol>
+        <li>Start – Acetek HQ (08:00)</li>
+        <li>Elon Kista (09:15)</li>
+        <li>Mekonomen Solna (11:00)</li>
+        <li>Lunch – Mall of Scandinavia (12:30)</li>
+        <li>Power Barkarby (14:00)</li>
+        <li>Åter till HQ (15:30)</li>
+      </ol>
+    </div>
+  </aside>
+
+  <div id="overlay"></div>
 </body>
 </html>

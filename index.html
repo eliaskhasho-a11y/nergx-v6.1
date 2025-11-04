@@ -1,99 +1,17 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MergX v8.43 • Deep Aurora Glass</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MergX CSS Test</title>
 
-  <!-- Länka korrekt till CSS -->
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- OBS: ledande / är viktigt på Vercel -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <aside class="sidebar">
-    <h1>MergX</h1>
-    <p class="version">v8.43 • Pro + AI-Nav</p>
-    <nav>
-      <ul>
-        <li><a href="#">Översikt</a></li>
-        <li><a href="#">Kunder</a></li>
-        <li><a href="#">Inventarie</a></li>
-        <li><a href="#">Anställda</a></li>
-        <li><a href="#">Ordrar & fakturor</a></li>
-        <li><a href="#">Filer & kvitton</a></li>
-        <li><a href="#">AI-Karta</a></li>
-        <li><a href="#">Teamchatt</a></li>
-        <li><a href="#">Inställningar</a></li>
-      </ul>
-    </nav>
-    <button id="themeToggle">🌓 Tema</button>
-  </aside>
-
-  <main class="dashboard">
-    <header class="topbar">
-      <input type="text" placeholder="Sök kunder, ordrar, produkter …" />
-      <button class="ai-btn">Ask AI</button>
-      <button class="ai-btn secondary">AI-Nav</button>
-    </header>
-
-    <section class="cards">
-      <div class="card">
-        <h3>Omsättning (idag)</h3>
-        <p class="value">125 000 kr</p>
-        <p class="trend up">+ 6 %</p>
-      </div>
-      <div class="card">
-        <h3>Ordrar (idag)</h3>
-        <p class="value">34</p>
-        <p class="trend up">+ 2 %</p>
-      </div>
-      <div class="card">
-        <h3>Kostnader (idag)</h3>
-        <p class="value">41 000 kr</p>
-        <p class="trend down">− 1,1 %</p>
-      </div>
-      <div class="card">
-        <h3>Bruttomarginal</h3>
-        <p class="value">41 %</p>
-        <p class="trend up">+ 0,3 pp</p>
-      </div>
-    </section>
-
-    <section class="module large">
-      <h3>Ekonomi — kompositchart</h3>
-      <div class="mock-chart">📊 Diagram genereras här …</div>
-    </section>
-
-    <section class="module">
-      <h3>AI-Analys</h3>
-      <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
-    </section>
-
-    <section class="module half">
-      <h3>AI-Karta (mini)</h3>
-      <ul>
-        <li>Elon Kista — Potentiell order om 20 dagar</li>
-        <li>Mekonomen Solna — Befintlig kund</li>
-        <li>Power Barkarby — Bra läge för demo</li>
-      </ul>
-    </section>
-
-    <section class="module half">
-      <h3>Teamchatt</h3>
-      <div class="chat">
-        <p>👩‍💼 Anna: God morgon teamet!</p>
-        <p>👨‍💻 Jonas: Jag tar kundmötet 11:00.</p>
-        <input type="text" placeholder="Skriv snabbt …" />
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal / expanderad modul -->
-  <div class="modal" id="expandModal">
-    <div class="modal-content glass">
-      <button class="close" onclick="document.getElementById('expandModal').style.display='none'">×</button>
-      <h3>Expanderad modul</h3>
-      <p>Här visas mer detaljer och AI-analys.</p>
-    </div>
+  <div class="test-container">
+    <h1>✅ CSS laddad korrekt!</h1>
+    <p>Om du ser detta i grönt med mörk bakgrund — allting fungerar nu.</p>
   </div>
 </body>
 </html>

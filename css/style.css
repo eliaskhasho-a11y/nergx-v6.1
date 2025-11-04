@@ -45,7 +45,18 @@ main {
   gap: 10px;
   margin-bottom: 20px;
 }
+.local-blur {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.1);
+  backdrop-filter: blur(3px);
+  border-radius: inherit;
+  z-index: 0;
+}
 
+.expander.active {
+  pointer-events: all;
+}
 .filter-btn {
   border: none;
   padding: 6px 14px;

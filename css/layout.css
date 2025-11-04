@@ -1,0 +1,44 @@
+:root{
+  --bg:#0c0c0d; --panel:#121214; --panel-2:#161618; --stroke:#26262a;
+  --text:#e8e8ea; --muted:#a8a8ad; --accent:#2f85ff; --success:#22c55e; --danger:#ef4444;
+}
+*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+
+.mx-shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.mx-sidebar{background:#0b0b0c;border-right:1px solid var(--stroke);display:flex;flex-direction:column}
+.mx-brand{padding:16px 18px;font-weight:700;letter-spacing:.3px;color:#4cc9f0}
+.mx-nav{display:flex;flex-direction:column;padding:8px}
+.mx-nav a{padding:10px 12px;border-radius:10px;color:var(--text);text-decoration:none;margin:2px 6px;border:1px solid transparent}
+.mx-nav a:hover,.mx-nav a.is-active{background:var(--panel);border-color:var(--stroke)}
+.mx-footer{margin-top:auto;padding:10px 12px;color:var(--muted);font-size:12px;border-top:1px solid var(--stroke)}
+
+.mx-main{display:flex;flex-direction:column;min-width:0}
+.mx-topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--stroke);padding:10px 16px;background:#0d0d0f;position:sticky;top:0;z-index:50}
+.mx-top-left{display:flex;gap:16px;align-items:center}
+#mx-page-title{font-size:16px;margin:0}
+.mx-filter button{background:var(--panel);border:1px solid var(--stroke);color:var(--text);padding:6px 10px;border-radius:8px;margin-right:6px;cursor:pointer}
+.mx-filter button.is-active{outline:2px solid #2a2a2e}
+.mx-top-right button{background:var(--panel);border:1px solid var(--stroke);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer}
+
+.mx-content{display:grid;grid-template-columns:1fr 330px;gap:16px;padding:16px}
+.mx-view{min-height:60vh;background:transparent}
+.mx-rail{display:flex;flex-direction:column;gap:12px}
+.mx-card{background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:14px}
+
+/* Dashboard gemensamt */
+.mx-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:12px}
+.mx-kpi{background:var(--panel-2);border:1px solid var(--stroke);border-radius:14px;padding:14px;cursor:pointer}
+.mx-kpi:hover{background:#1b1b1f}
+.mx-kpi .value{font-size:20px;font-weight:700;margin:6px 0}
+.mx-kpi .delta.up{color:var(--success)} .mx-kpi .delta.down{color:var(--danger)}
+
+/* Lokal KPI-overlay (expanderar nedåt) */
+.mx-kpi-overlay{position:relative;margin-top:8px}
+.mx-kpi-overlay .glass{position:absolute;inset:-8px;border-radius:16px;backdrop-filter:blur(2px);pointer-events:none}
+.mx-kpi-panel{position:relative;background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:14px;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+.mx-close{position:absolute;right:10px;top:10px;background:transparent;border:1px solid var(--stroke);color:var(--text);border-radius:8px;padding:4px 8px;cursor:pointer}
+
+/* Rail-kort */
+.mx-rail .mx-card h3{margin:0 0 8px 0;font-size:14px}
+.mx-list{list-style:none;margin:0;padding:0}
+.mx-list li{padding:8px 10px;border:1px solid var(--stroke);border-radius:10px;background:var(--panel-2);margin-bottom:8px}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MergX v8.50 — Dashboard + AI</title>
+  <title>MergX v8.51 — Dashboard Focus Expansion</title>
   <link rel="stylesheet" href="./css/style.css">
   <script defer src="./js/app.js"></script>
 </head>
@@ -11,7 +11,7 @@
 <body>
   <aside class="sidebar">
     <h1 class="logo">MergX</h1>
-    <p class="version">v8.50 • Dashboard + AI</p>
+    <p class="version">v8.51 • Dashboard + AI</p>
     <nav>
       <ul>
         <li class="active">Översikt</li>
@@ -38,43 +38,60 @@
       <div class="cards">
         <div class="card" data-type="omsattning">
           <h3>Omsättning (idag)</h3>
-          <p class="value" id="omsattning">125 000 kr</p>
+          <p class="value">125 000 kr</p>
           <span class="change positive">+6%</span>
         </div>
-
         <div class="card" data-type="ordrar">
           <h3>Ordrar (idag)</h3>
-          <p class="value" id="ordrar">34</p>
+          <p class="value">34</p>
           <span class="change positive">+2%</span>
         </div>
-
         <div class="card" data-type="kostnader">
           <h3>Kostnader (idag)</h3>
-          <p class="value" id="kostnader">41 000 kr</p>
+          <p class="value">41 000 kr</p>
           <span class="change negative">-1.1%</span>
         </div>
-
-        <div class="card" data-type="bruttomarginal">
+        <div class="card" data-type="marginal">
           <h3>Bruttomarginal</h3>
-          <p class="value" id="marginal">41%</p>
+          <p class="value">41%</p>
           <span class="change positive">+0.3pp</span>
         </div>
       </div>
 
-      <div class="chart-container">
-        <h3>Ekonomi — kompositchart</h3>
-        <canvas id="chart"></canvas>
+      <div class="chart-row">
+        <div class="chart-container">
+          <h3>Ekonomi — kompositchart</h3>
+          <canvas id="chart"></canvas>
+        </div>
+        <div class="ai-panel">
+          <div class="ai-box">
+            <h4>AI-Förslag</h4>
+            <ul>
+              <li>📈 Planera nästa kundbesök hos Elon Kista</li>
+              <li>⚙️ Prisjustering Lightning 27W +5%</li>
+              <li>📊 Rapport till Fortnox fredag</li>
+            </ul>
+          </div>
+          <div class="ai-box">
+            <h4>AI-Notiser</h4>
+            <ul>
+              <li>3 nya kvitton registrerade</li>
+              <li>Ny order för Power Barkarby</li>
+              <li>Rutt uppdaterad för Solna</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div class="ai-row">
         <div class="ai-box">
           <h3>AI-Analys</h3>
-          <p id="ai-analys">Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
+          <p>Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W.</p>
         </div>
         <div class="ai-box">
           <h3>AI-Karta (mini)</h3>
           <ul>
-            <li>Elon Kista — Potentiell order om 20 dagar</li>
+            <li>Elon Kista — Order 20 dagar</li>
             <li>Mekonomen Solna — Befintlig kund</li>
             <li>Power Barkarby — Bra läge för demo</li>
           </ul>
@@ -85,29 +102,22 @@
             <p>🟢 <b>Anna:</b> God morgon teamet!</p>
             <p>👤 <b>Jonas:</b> Jag tar kundmötet 11:00.</p>
           </div>
-          <input type="text" placeholder="Skriv snabbt..." />
+          <input type="text" placeholder="Skriv snabbt...">
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <button class="close-modal">×</button>
-      <h2 id="modal-title">Detaljerad data</h2>
-      <div class="modal-columns">
-        <div>
-          <h3>Detaljerad data</h3>
-          <p>Data laddas...</p>
-        </div>
-        <div>
-          <h3>AI-Analys</h3>
-          <p>AI genererar analys baserat på valt intervall...</p>
-        </div>
+  <div id="expander" class="expander hidden">
+    <div class="expander-content">
+      <button class="close-expander">×</button>
+      <h2 id="expander-title"></h2>
+      <canvas id="detailChart"></canvas>
+      <div class="ai-detail">
+        <h3>AI-Analys</h3>
+        <p id="ai-detail-text">Data laddas...</p>
       </div>
     </div>
   </div>
-
 </body>
 </html>

@@ -1,39 +1,63 @@
-// MergX v8.39 – Navigation + AI-Nav + Modaler
-document.addEventListener("DOMContentLoaded", () => {
-  const sidebarItems = document.querySelectorAll(".sidebar li");
-  const content = document.getElementById("content");
-  const modalOverlay = document.getElementById("modalOverlay");
-  const closeModal = document.getElementById("closeModal");
+// MergX v8.47 – Dashboard + Teamchat
 
-  // Ladda sidor
-  async function loadPage(page) {
-    try {
-      const res = await fetch(`pages/${page}.html`);
-      if (!res.ok) throw new Error();
-      const html = await res.text();
-      content.innerHTML = html;
-      sidebarItems.forEach(li => li.classList.remove("active"));
-      document.querySelector(`[data-page='${page}']`).classList.add("active");
-    } catch {
-      content.innerHTML = `<div class="card"><h3>Fel vid laddning</h3><p>pages/${page}.html 404</p></div>`;
-    }
-  }
+async function loadData() {
+  const res = await fetch("./data/mock.json");
+  const data = await res.json();
 
-  sidebarItems.forEach(item => item.addEventListener("click", () => loadPage(item.dataset.page)));
+  document.getElementById("revenue").textContent = data.revenue.value;
+  document.getElementById("revenueChange").textContent = data.revenue.change;
+  document.getElementById("orders").textContent = data.orders.value;
+  document.getElementById("ordersChange").textContent = data.orders.change;
+  document.getElementById("costs").textContent = data.costs.value;
+  document.getElementById("costsChange").textContent = data.costs.change;
+  document.getElementById("margin").textContent = data.margin.value;
+  document.getElementById("marginChange").textContent = data.margin.change;
+  document.getElementById("aiAnalysis").textContent = data.analysis;
 
-  // Tema
-  document.getElementById("themeToggle").addEventListener("click", () => document.body.classList.toggle("light"));
-
-  // Modaler
-  document.addEventListener("click", e => {
-    if (e.target.classList.contains("expandable")) {
-      document.getElementById("modalTitle").textContent = e.target.dataset.title || "Expanderad modul";
-      document.getElementById("modalContent").textContent = e.target.dataset.text || "Mer detaljer kommer här …";
-      modalOverlay.classList.remove("hidden");
-    }
+  const aiMapList = document.getElementById("aiMapList");
+  data.aiMap.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = `${item.location} — ${item.note}`;
+    aiMapList.appendChild(li);
   });
-  closeModal.addEventListener("click", () => modalOverlay.classList.add("hidden"));
 
-  // Start
-  loadPage("overview");
+  const aiSuggestions = document.getElementById("aiSuggestions");
+  data.suggestions.forEach((s) => {
+    const li = document.createElement("li");
+    li.textContent = s;
+    aiSuggestions.appendChild(li);
+  });
+
+  const aiNotes = document.getElementById("aiNotes");
+  data.notes.forEach((n) => {
+    const li = document.createElement("li");
+    li.textContent = n;
+    aiNotes.appendChild(li);
+  });
+
+  const aiLeads = document.getElementById("aiLeads");
+  data.leads.forEach((l) => {
+    const li = document.createElement("li");
+    li.textContent = l;
+    aiLeads.appendChild(li);
+  });
+}
+
+// Teamchat funktion
+const chatForm = document.getElementById("chatForm");
+const chatInput = document.getElementById("chatInput");
+const chatMessages = document.getElementById("chatMessages");
+
+chatForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+  const div = document.createElement("div");
+  div.className = "chat-message";
+  div.innerHTML = `<strong>🧑‍💼 Du:</strong> ${msg}`;
+  chatMessages.appendChild(div);
+  chatInput.value = "";
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 });
+
+loadData();

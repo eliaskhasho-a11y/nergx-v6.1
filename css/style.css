@@ -1,30 +1,190 @@
-body {
-  background: radial-gradient(circle at center, #0d1224, #000);
-  height: 100vh;
+/* ===========================
+   MergX v8.44 – Deep Aurora Glass
+   =========================== */
+
+* {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  background: radial-gradient(circle at top left, #0d1220, #060914 70%);
+  background-attachment: fixed;
+  color: #e8ebf8;
+  font-family: "Inter", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* SIDOPANEL */
+.sidebar {
+  width: 220px;
+  background: rgba(10, 14, 26, 0.7);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem 1rem;
+}
+
+.logo {
+  font-size: 1.8rem;
+  color: #9ed0ff;
+  margin-bottom: 0.4rem;
+}
+
+.version {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-bottom: 2rem;
+}
+
+.nav li {
+  list-style: none;
+  margin: 0.7rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav li:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* DASHBOARD */
+.dashboard {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Statskort */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(30px);
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.02);
+}
+
+.value {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.change.plus {
+  color: #4dff4d;
+}
+
+.change.minus {
+  color: #ff5c5c;
+}
+
+/* Sektioner */
+.chart-card,
+.ai-section,
+.ai-map,
+.teamchat {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(30px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1rem 1.2rem;
+}
+
+.chart-placeholder {
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8cff8c;
-  font-family: "Inter", system-ui, sans-serif;
+  opacity: 0.4;
+  font-style: italic;
 }
 
-.test-container {
-  text-align: center;
-  padding: 40px 60px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(25px);
-  box-shadow: 0 0 25px rgba(0, 255, 0, 0.2);
+.map-chat-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.2rem;
 }
 
-h1 {
-  font-size: 2.2rem;
-  margin-bottom: 10px;
+/* Teamchatt */
+.teamchat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-p {
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.teamchat input {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
   color: #fff;
-  opacity: 0.8;
-  font-size: 1.1rem;
+}
+
+/* AI-Panel till höger */
+.ai-nav {
+  width: 300px;
+  background: rgba(20, 25, 40, 0.6);
+  backdrop-filter: blur(30px);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.ai-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ai-card h3 {
+  color: #9ed0ff;
+  margin-bottom: 0.6rem;
+}
+
+.ai-card ul,
+.ai-card ol {
+  margin-left: 1rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Glas-overlay vid expanderad modul */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(30px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+body.expanded #overlay {
+  opacity: 1;
+  pointer-events: all;
 }

@@ -1,6 +1,23 @@
 {
-  "revenue": { "value": "125 000 kr", "change": "+6 %", "details": "Försäljningen ökade mest i norra Stockholm (+12 %).", "ai": "AI: Störst tillväxt i USB-C 60 W, föreslår att fokusera på topp 3-regioner: Kista, Solna, Täby." },
-  "orders": { "value": "34", "change": "+2 %", "details": "Totalt 34 ordrar idag, varav 9 från återkommande kunder.", "ai": "AI: Orderflödet ökar 2 % dagligen. Planera push innan lunch." },
-  "costs": { "value": "41 000 kr", "change": "-1,1 %", "details": "Kostnader sjönk 1,1 % tack vare effektiv logistik.", "ai": "AI: Möjlighet att minska fraktkostnader ytterligare genom zon-optimering." },
-  "margin": { "value": "41 %", "change": "+0,3 pp", "details": "Bruttomarginalen stärktes genom lägre inköpspris på kablar.", "ai": "AI: Marginalen gynnas av nya leverantörsavtal, håll kursen i Q4." },
-  "analysis": "Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 
+  "day": {
+    "omsattning": "125 000 kr",
+    "ordrar": "34",
+    "kostnader": "41 000 kr",
+    "marginal": "41%",
+    "aiAnalys": "Försäljningen ökar 12 % i norra Stockholm. Högst efterfrågan på USB-C 60 W."
+  },
+  "week": {
+    "omsattning": "620 000 kr",
+    "ordrar": "198",
+    "kostnader": "190 000 kr",
+    "marginal": "44%",
+    "aiAnalys": "Stark vecka i Stockholm och Göteborg. AI rekommenderar att öka fokus på 27 W Lightning."
+  },
+  "month": {
+    "omsattning": "2 450 000 kr",
+    "ordrar": "900",
+    "kostnader": "720 000 kr",
+    "marginal": "46%",
+    "aiAnalys": "Månadsprognos visar stabil tillväxt på +8 %. Efterfrågan på premiumkablar ökar markant."
+  }
+}

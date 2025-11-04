@@ -1,50 +1,141 @@
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
 body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: radial-gradient(circle at top right, #0b1220, #05070e);
+  background: radial-gradient(circle at top, #0b0d12, #080a0f 80%);
   color: #fff;
   display: flex;
-  overflow-x: hidden;
-}
-
-.sidebar {
-  width: 220px;
   height: 100vh;
-  background: rgba(20,25,35,0.3);
-  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 200px;
   padding: 20px;
+  background: rgba(10,12,18,0.7);
   border-right: 1px solid rgba(255,255,255,0.05);
-}
-
-nav ul {
-  list-style: none;
-  padding: 0;
-}
-
-nav li {
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-nav li.active, nav li:hover {
-  background: rgba(255,255,255,0.12);
-}
-
-main {
-  flex: 1;
-  padding: 20px 30px;
-}
-
-.filters {
+  backdrop-filter: blur(10px);
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  flex-direction: column;
+}
+.sidebar h1 { color: #8ecbff; font-size: 22px; }
+.sidebar .version { font-size: 12px; opacity: 0.6; margin-bottom: 20px; }
+.nav-btn {
+  background: rgba(255,255,255,0.05);
+  color: #ccc;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.nav-btn.active, .nav-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+/* === Dashboard === */
+.dashboard {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.time-filter {
+  display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px;
+}
+.time-filter button {
+  background: rgba(255,255,255,0.07);
+  border: none;
+  color: #ccc;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.time-filter button.active {
+  background: #007aff; color: #fff;
+}
+
+/* === KPI Cards === */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin-bottom: 20px;
 }
+.card {
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+.card:hover {
+  background: rgba(255,255,255,0.09);
+  transform: translateY(-2px);
+}
+.card h2 { font-size: 15px; color: #eaeaea; }
+.value { font-size: 22px; margin-top: 4px; }
+.trend { font-size: 14px; }
+.trend.positive { color: #6cff88; }
+.trend.negative { color: #ff6f6f; }
+
+/* === Modules === */
+.modules {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-areas:
+    "ekonomi ai-forslag ai-notiser"
+    "ai-analys ai-karta teamchatt";
+  gap: 16px;
+}
+.module {
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+}
+.module h3 { font-size: 16px; margin-bottom: 10px; }
+.ai-karta ul { margin-left: 20px; line-height: 1.6; }
+.chat input {
+  width: 100%; margin-top: 8px; padding: 6px;
+  background: rgba(255,255,255,0.1);
+  border: none; border-radius: 6px;
+  color: #fff;
+}
+
+/* === Expander === */
+#expander.hidden { display: none; }
+#expander {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; justify-content: center; align-items: center;
+  z-index: 50;
+}
+.expander-content {
+  position: relative;
+  width: 600px; max-width: 90%;
+  background: rgba(25, 27, 34, 0.7);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  padding: 20px;
+  animation: fadeIn 0.25s ease;
+}
+.close-expander {
+  position: absolute; top: 10px; right: 12px;
+  background: none; color: #ccc; border: none; font-size: 18px;
+  cursor: pointer;
+}
+#detailChart {
+  width: 100%; height: 200px; margin: 15px 0;
+}
+
+/* Local blur for card */
 .local-blur {
   position: absolute;
   inset: 0;
@@ -54,133 +145,8 @@ main {
   z-index: 0;
 }
 
-.expander.active {
-  pointer-events: all;
-}
-.filter-btn {
-  border: none;
-  padding: 6px 14px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  cursor: pointer;
-}
-
-.filter-btn.active {
-  background: linear-gradient(90deg,#0af,#66f);
-}
-
-.cards {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.card {
-  flex: 1;
-  min-width: 220px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 14px;
-  cursor: pointer;
-  transition: transform .15s ease, background .15s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  background: rgba(255,255,255,0.12);
-}
-
-.chart-row {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.chart-container {
-  flex: 2;
-  background: rgba(255,255,255,0.04);
-  border-radius: 16px;
-  padding: 15px;
-  backdrop-filter: blur(10px);
-}
-
-.ai-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.ai-box {
-  background: rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 12px;
-  backdrop-filter: blur(8px);
-}
-
-.ai-row {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.chat-window {
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  height: 70px;
-  padding: 6px;
-  overflow-y: auto;
-}
-
-/* 🔹 Expander (overlay) */
-.expander {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 120px;
-  pointer-events: none;
-}
-
-.expander-content {
-  background: rgba(25,30,40,0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 18px;
-  width: 750px;
-  padding: 20px;
-  transform: scale(0.97);
-  opacity: 0;
-  transition: all 0.25s ease;
-}
-
-.expander.active .expander-content {
-  transform: scale(1);
-  opacity: 1;
-  pointer-events: all;
-}
-
-.close-expander {
-  float: right;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5em;
-  cursor: pointer;
-}
-
-.expander::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.1);
-  backdrop-filter: blur(3px);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.expander.active::before {
-  opacity: 1;
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
